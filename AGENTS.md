@@ -196,3 +196,7 @@ live in `scripts/AGENTS.md`; PR CI runs them in parallel jobs. A gate that canno
 run is reported as not run, never as a pass.
 
 ## Done checklist
+
+- Record `npm run verify`, OpenSpec strict validation and the proving command or RED/GREEN results. Identify failures and check whether they reproduce on the target branch.
+- For UI changes, exercise the real route at `http://localhost:8010/` at ~390 px and check the console. For engine changes, exercise the affected screen with a real game state.
+- Check the PR target, Conventional Commit title, issue, required OpenSpec package, risk and evidence. Report CI for the current HEAD and follow the owner's merge policy above.

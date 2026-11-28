@@ -79,5 +79,24 @@ test("R2 rejects a body without pinned sources, revision or RED/GREEN", () => {
     "R2",
     "- TB-MONK-01 [Monk r3124](https://wiki.bloodontheclocktower.com/index.php?title=Monk&oldid=3124) covered by src/core/roles/monk/role.test.ts\n- RED: the assert failed before the fix.\n- GREEN: the assert passes.",
   );
-  assert.equal(checkRisk(complete, ["src/core/roles/monk/role.ts"]).ok, true);
+  const paths = ["src/core/roles/monk/role.ts"];
+  assert.equal(checkRisk(complete, paths).ok, true);
+  assert.equal(
+    checkRisk(complete.replace("wiki.bloodontheclocktower.com", "example.org"), paths).ok,
+    false,
+  );
+  assert.equal(
+    checkRisk(complete.replace("the assert failed before the fix.", ""), paths).ok,
+    false,
+  );
+});
+
+test("public seat and secret screens require privacy review", () => {
+  for (const path of ["seat.tsx", "seat-projection.ts", "secrets.tsx", "secrets-options.ts"]) {
+    assert.equal(classify([`src/ui/screens/${path}`]), "R3");
+  }
+});
+
+test("elevating a documentation change to R2 requires gameplay evidence", () => {
+  assert.equal(checkRisk(body("R2"), ["docs/example.md"]).ok, false);
 });

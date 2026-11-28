@@ -176,7 +176,7 @@ function schemaRejects(entry: Record<string, unknown>): string[] {
   const stringField = (key: string) => {
     const spec = def.properties[key]!;
     const value = entry[key];
-    if (typeof value !== "string" || value.length < (spec.minLength ?? 0)) errors.push(key);
+    if (typeof value !== "string" || [...value].length < (spec.minLength ?? 0)) errors.push(key);
     else if (spec.pattern && !new RegExp(spec.pattern).test(value)) errors.push(key);
   };
   if ("id" in entry) stringField("id");
@@ -222,6 +222,8 @@ test("the runtime validator and the JSON Schema reject the same rule shapes", ()
   assert.deepEqual(schemaRejects(rule()), []);
   const negatives: Array<[string, Record<string, unknown>]> = [
     ["one-character revision", rule({ revision: "r" })],
+    ["one Unicode scalar revision", rule({ revision: "🌑" })],
+    ["padded revision", rule({ revision: " r123 " })],
     ["one-character edition", rule({ edition: "b" })],
     ["unknown edition", rule({ edition: "bogus" })],
     [

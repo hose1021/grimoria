@@ -1,16 +1,14 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 import {
   applyCorrections,
   baselineCoverageFailures,
   canonicalBytes,
-  chooseProvenance,
   correctionFailures,
   originFailures,
   parseBaseline,
   parseIndex,
-  unresolvedOriginFailures,
   baselineFailures,
   entriesFrom,
   historicalFailures,
@@ -163,29 +161,54 @@ test("archive hashes canonicalize text and keep binary bytes", () => {
   assert.equal(canonicalBytes(Buffer.from("a\r\nb\r\n")).toString(), "a\nb\n");
   const binary = Buffer.from([1, 0, 2]);
   assert.deepEqual(canonicalBytes(binary), binary);
+  assert.deepEqual(canonicalBytes(Buffer.from([0, 13, 10])), Buffer.from([0, 13, 10]));
+  assert.deepEqual(canonicalBytes(Buffer.from("\uFEFFa\r\n")), Buffer.from("\uFEFFa\n"));
 });
 
 test("provenance survives a squash with missing origin commits", () => {
   const existing = { commit: "a".repeat(40), date: "2026-11-01" };
   const fresh = { commit: "b".repeat(40), date: "2026-12-01" };
-  assert.deepEqual(chooseProvenance(existing, fresh, false), existing);
-  assert.deepEqual(chooseProvenance(existing, fresh, true), fresh);
+  const entry = { ...row("2026-11-01-a"), ...existing };
+  assert.deepEqual(
+    originFailures(
+      [entry],
+      () => fresh,
+      () => entry,
+    ),
+    [],
+  );
+  assert.ok(
+    originFailures(
+      [{ ...entry, date: fresh.date }],
+      () => fresh,
+      () => entry,
+    ).length,
+  );
 });
 
 test("a recorded origin must be the first add, not a later one", () => {
   const entry = { ...row("2026-11-01-a"), commit: "a".repeat(40) };
   assert.deepEqual(
-    originFailures([entry], () => entry.commit),
+    originFailures(
+      [entry],
+      () => entry,
+      () => undefined,
+    ),
     [],
   );
   assert.ok(
-    originFailures([entry], () => "b".repeat(40)).some((failure) =>
-      failure.includes("is not the first add"),
-    ),
+    originFailures(
+      [entry],
+      () => ({ ...entry, commit: "b".repeat(40) }),
+      () => undefined,
+    ).length,
   );
-  assert.deepEqual(
-    originFailures([entry], () => null),
-    [],
+  assert.ok(
+    originFailures(
+      [entry],
+      () => null,
+      () => undefined,
+    ).length,
   );
 });
 
@@ -205,6 +228,17 @@ test("binary bytes without a NUL stay unchanged and index metadata is validated"
   assert.deepEqual(canonicalBytes(binary), binary);
   const single = Buffer.from([0xff]);
   assert.deepEqual(canonicalBytes(single), single);
+  const duplicate = row("2026-11-01-a");
+  assert.equal(
+    parseIndex(
+      JSON.stringify({
+        schemaVersion: 2,
+        canonicalization: "text-lf-binary-raw-v1",
+        entries: [duplicate, duplicate],
+      }),
+    ),
+    null,
+  );
   assert.equal(parseIndex("not json"), null);
   assert.equal(parseIndex(JSON.stringify({ schemaVersion: 1, entries: [] })), null);
   assert.equal(
@@ -221,15 +255,20 @@ test("binary bytes without a NUL stay unchanged and index metadata is validated"
 
 test("a new archive cannot use a fabricated origin", () => {
   const fresh = { ...row("2026-12-01-new"), commit: "c".repeat(40) };
+  const fake = { ...fresh, commit: "d".repeat(40) };
   assert.ok(
-    unresolvedOriginFailures([fresh], new Set(["2026-11-01-old"]), () => false).some((failure) =>
-      failure.includes("unresolved origin for a new archive"),
-    ),
+    originFailures(
+      [fake],
+      () => fresh,
+      () => undefined,
+    ).length,
   );
-  assert.deepEqual(
-    unresolvedOriginFailures([fresh], new Set([fresh.name]), () => false),
-    [],
-    "accepted historical provenance may survive a squash",
+  assert.ok(
+    originFailures(
+      [fake],
+      () => null,
+      () => fresh,
+    ).length,
   );
 });
 
@@ -258,7 +297,13 @@ test("the committed archive index carries an origin and issue reference", () => 
   const index = JSON.parse(
     readFileSync(new URL("../docs/audits/openspec-archive-index.json", import.meta.url), "utf8"),
   ) as { entries: Array<{ name: string; commit: string; issue?: string | null }> };
-  assert.equal(index.entries.length, 173);
+  const names = readdirSync(new URL("../openspec/changes/archive/", import.meta.url), {
+    withFileTypes: true,
+  })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+  assert.deepEqual(index.entries.map((entry) => entry.name).sort(), names);
   for (const entry of index.entries) {
     assert.match(entry.commit, /^[0-9a-f]{40}$/, entry.name);
     assert.ok(

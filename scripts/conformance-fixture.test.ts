@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { applyCommand, replay } from "../src/core/engine/index.ts";
+import type { GameState } from "../src/core/model/types.ts";
 import { publicGameView } from "../src/core/model/state.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -96,33 +97,15 @@ const contract = JSON.parse(
         notes?: string;
         errorCode?: string;
         events?: string[];
-        normalize?: string[];
+        legacyAppliedIdentities?: Record<string, string>;
       };
       publicKeys?: string[];
     }
   >;
 };
 
-function withoutAt(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(withoutAt);
-  if (typeof value !== "object" || value === null) return value;
-  const copy: Record<string, unknown> = { ...(value as Record<string, unknown>) };
-  delete copy.at;
-  for (const [key, child] of Object.entries(copy)) copy[key] = withoutAt(child);
-  return copy;
-}
-
-function normalize(value: unknown, drop: string[] = []): unknown {
-  if (Array.isArray(value)) return value.map((child) => normalize(child, drop));
-  if (typeof value !== "object" || value === null) return value;
-  const copy: Record<string, unknown> = { ...(value as Record<string, unknown>) };
-  for (const key of ["updatedAt", "createdAt", "applied", "journal", ...drop]) delete copy[key];
-  for (const [key, child] of Object.entries(copy)) copy[key] = normalize(child, []);
-  return copy;
-}
-
 test("the portable engine contract runs from JSON alone", () => {
-  const load = () => JSON.parse(readFileSync(resolve(ROOT, contract.savedGame), "utf8"));
+  const load = (): GameState => JSON.parse(readFileSync(resolve(ROOT, contract.savedGame), "utf8"));
   const deterministic = load();
   const first = applyCommand(deterministic, contract.cases.deterministic!.command);
   const deterministicCase = contract.cases.deterministic!;
@@ -140,23 +123,17 @@ test("the portable engine contract runs from JSON alone", () => {
     (second as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
     deterministicCase.expected.events,
   );
-  assert.deepEqual(
-    normalize(deterministic),
-    normalize(secondRun),
-    "independent deterministic executions end in the same normalized state",
-  );
-  assert.deepEqual(
-    withoutAt(first),
-    withoutAt(second),
-    "independent executions return the same command result and event payloads",
-  );
-  const beforeReapply = normalize(secondRun);
-  const journalBefore = secondRun.journal.entries.length;
+  assert.deepEqual(deterministic, secondRun, "independent runs produce identical full states");
+  assert.deepEqual(first, second, "command results include identical event payloads");
+  const beforeReapply = structuredClone(secondRun);
   const reapply = applyCommand(secondRun, deterministicCase.command);
   assert.equal(reapply.status, "allowed");
   assert.equal((reapply as { idempotent?: boolean }).idempotent, true);
-  assert.deepEqual(normalize(secondRun), beforeReapply, "idempotent reapply keeps the state");
-  assert.equal(secondRun.journal.entries.length, journalBefore, "idempotent reapply adds no entry");
+  assert.deepEqual(
+    secondRun,
+    beforeReapply,
+    "idempotent reapply preserves the full state and journal",
+  );
 
   const rejected = load();
   const before = structuredClone(rejected);
@@ -175,21 +152,17 @@ test("the portable engine contract runs from JSON alone", () => {
   assert.equal(result.ok, true);
   if (result.ok) {
     assert.equal(result.state.notes, replayCase.expected.notes);
-    const normalize = (value: unknown): unknown => {
-      if (Array.isArray(value)) return value.map(normalize);
-      if (typeof value !== "object" || value === null) return value;
-      const copy: Record<string, unknown> = { ...(value as Record<string, unknown>) };
-      for (const key of ["applied", "journal", ...(replayCase.expected.normalize ?? [])])
-        delete copy[key];
-      for (const [key, child] of Object.entries(copy)) copy[key] = normalize(child);
-      return copy;
-    };
-    assert.deepEqual(normalize(result.state), normalize(replayed));
-    assert.deepEqual(
-      withoutAt((result.state.journal as { entries: unknown[] }).entries),
-      withoutAt((replayed.journal as { entries: unknown[] }).entries),
-      "journal replay preserves the journal contents",
-    );
+    // Replay upgrades legacy full fingerprints to compact command identities.
+    const expectedState = structuredClone(replayed);
+    for (const [id, identity] of Object.entries(
+      replayCase.expected.legacyAppliedIdentities ?? {},
+    )) {
+      const entry = expectedState.applied[id];
+      assert.ok(entry?.fingerprint, `expected a legacy fingerprint for ${id}`);
+      delete entry.fingerprint;
+      entry.identity = identity;
+    }
+    assert.deepEqual(result.state, expectedState);
   }
 
   const projection = contract.cases.projection!;

@@ -14,8 +14,10 @@ const R3 = [
   "src/core/commands/",
   "src/infrastructure/storage/",
   "src/infrastructure/offline/",
-  "src/ui/screens/player-projection.ts",
-  "src/ui/screens/player.tsx",
+  "src/ui/screens/player",
+  "src/ui/screens/secrets",
+  "src/ui/screens/seat",
+  "src/ui/screens/public",
   "scripts/verification/",
   "scripts/rule-registry.ts",
   "scripts/check-risk-tier.ts",
@@ -89,9 +91,8 @@ function evidenceFailures(tier: Tier, body: string): string[] {
     return [];
   }
   if (!substantive) return [`${tier} needs at least one concrete Evidence bullet`];
-  const haystack = chunk + "\n" + body;
   if (tier === "R1") {
-    if (!/\.test\.ts|npm (?:run )?\S+|node --test|browser-check/i.test(haystack))
+    if (!/\.test\.ts|npm (?:run )?\S+|node --test|browser-check/i.test(chunk))
       return ["R1 needs regression or characterization evidence naming a test or command"];
     return [];
   }
@@ -100,10 +101,11 @@ function evidenceFailures(tier: Tier, body: string): string[] {
     if (!/\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d\d\b/.test(body))
       failures.push("R2 needs a stable rule identifier");
     if (!/\.test\.ts/.test(body)) failures.push("R2 needs the asserting test file");
-    if (!/oldid=\d+|\br\d{3,}\b/.test(body)) failures.push("R2 needs the pinned source revision");
-    if (!/https?:\/\/\S+/.test(body)) failures.push("R2 needs the pinned source link");
-    if (!/^\s*[-*]\s*RED[::]/im.test(body)) failures.push("R2 needs RED evidence");
-    if (!/^\s*[-*]\s*GREEN[::]/im.test(body)) failures.push("R2 needs GREEN evidence");
+
+    if (!/https:\/\/wiki\.bloodontheclocktower\.com\/[^\s)\]]*[?&]oldid=\d+\b/i.test(body))
+      failures.push("R2 needs the official source link with its pinned revision");
+    if (!/^\s*[-*]\s*RED:[ \t]*\S/im.test(body)) failures.push("R2 needs RED evidence");
+    if (!/^\s*[-*]\s*GREEN:[ \t]*\S/im.test(body)) failures.push("R2 needs GREEN evidence");
     return failures;
   }
   return [];
@@ -123,6 +125,9 @@ export function checkRisk(
   if (!/^Evidence:/m.test(body) && !/^## Verification\b/m.test(body))
     errors.push("PR body has no Evidence line or Verification section");
   errors.push(...evidenceFailures(computed, body));
+  if (declared && ORDER.indexOf(declared) > ORDER.indexOf(computed))
+    for (const error of evidenceFailures(declared, body))
+      if (!errors.includes(error)) errors.push(error);
   return { ok: errors.length === 0, errors };
 }
 

@@ -90,6 +90,11 @@ function requirementBlocks(text: string): Map<string, string> {
     buffer = [];
   };
   for (const line of text.split("\n")) {
+    if (line.startsWith("## ")) {
+      flush();
+      current = null;
+      continue;
+    }
     const header = /^### Requirement: (.+)$/.exec(line);
     if (header) {
       flush();

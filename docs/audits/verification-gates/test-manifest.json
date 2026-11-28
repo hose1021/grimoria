@@ -257,6 +257,16 @@
       "name": "an R3 change must name a same-issue OpenSpec package"
     },
     {
+      "key": "scripts/check-risk-artifacts.test.ts::archive evidence must belong to the named transition",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "archive evidence must belong to the named transition"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::files alongside a delta cannot stand in for a changed spec",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "files alongside a delta cannot stand in for a changed spec"
+    },
+    {
       "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "a declared tier below the diff, a missing issue, risk or evidence fails"
@@ -265,6 +275,16 @@
       "key": "scripts/check-risk-tier.test.ts::each tier needs the evidence its risk implies",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "each tier needs the evidence its risk implies"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::elevating a documentation change to R2 requires gameplay evidence",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "elevating a documentation change to R2 requires gameplay evidence"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::public seat and secret screens require privacy review",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "public seat and secret screens require privacy review"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::R2 rejects a body without pinned sources, revision or RED/GREEN",
@@ -577,6 +597,11 @@
       "name": "the public projection exposes aggregates only"
     },
     {
+      "key": "scripts/documentation-consumers.test.ts::the consumer inventory includes readers that join the filename to a directory",
+      "file": "scripts/documentation-consumers.test.ts",
+      "name": "the consumer inventory includes readers that join the filename to a directory"
+    },
+    {
       "key": "scripts/documentation-consumers.test.ts::the consumer map ignores binary content instead of matching raw bytes",
       "file": "scripts/documentation-consumers.test.ts",
       "name": "the consumer map ignores binary content instead of matching raw bytes"
@@ -705,6 +730,11 @@
       "key": "scripts/openspec-reconcile.test.ts::a matching requirement heading with a different body is not a sync",
       "file": "scripts/openspec-reconcile.test.ts",
       "name": "a matching requirement heading with a different body is not a sync"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a modified requirement ends before the next operation heading",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a modified requirement ends before the next operation heading"
     },
     {
       "key": "scripts/openspec-reconcile.test.ts::a removed requirement counts as synced only when the baseline no longer holds it",

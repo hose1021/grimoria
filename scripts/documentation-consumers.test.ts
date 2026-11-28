@@ -21,3 +21,11 @@ test("the consumer map ignores binary content instead of matching raw bytes", ()
   ];
   assert.deepEqual(scan(files, ARTIFACT), ["scripts/serve.ts"]);
 });
+
+test("the consumer inventory includes readers that join the filename to a directory", () => {
+  const file = {
+    path: "scripts/verification/render-matrix.ts",
+    text: 'const TRACE = join(DIR, "traceability.json");',
+  };
+  assert.deepEqual(scan([file], "docs/audits/verification-gates/traceability.json"), [file.path]);
+});

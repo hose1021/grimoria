@@ -3,7 +3,7 @@
 // Phase 3 needs the consumer list before any derived view moves out of Git.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export interface Artifact {
@@ -27,10 +27,17 @@ export function scan(
   files: ReadonlyArray<{ path: string; text: string }>,
   artifact: string,
 ): string[] {
+  const filename = basename(artifact);
   return files
     .filter((file) => file.path !== artifact && !file.path.startsWith("docs/reference/"))
     .filter((file) => !file.text.includes("\0"))
-    .filter((file) => file.text.includes(artifact))
+    .filter((file) => file.path !== "scripts/documentation-consumers.ts")
+    .filter(
+      (file) =>
+        file.text.includes(artifact) ||
+        (/\.tsx?$/.test(file.path) &&
+          ['"', "'", "`"].some((quote) => file.text.includes(quote + filename + quote))),
+    )
     .map((file) => file.path)
     .sort();
 }

@@ -29,7 +29,7 @@ test("a supported role prints all five sections", () => {
   assert.equal(result.status, 0);
   for (const heading of [
     "## Official text",
-    "## Matrix rows",
+    "## Registry rows",
     "## Spec requirements",
     "## Tests carrying the identifiers",
     "## Jinxes",
@@ -37,7 +37,7 @@ test("a supported role prints all five sections", () => {
     assert.ok(result.stdout.includes(heading), `missing ${heading}`);
   }
   assert.match(result.stdout, /Each night\*, choose a player: they die/);
-  assert.match(result.stdout, /TB-IMP-01/);
+  assert.match(result.stdout, /## Registry rows\n\n- TB-IMP-01 verified r\d+: Each night/);
   assert.match(result.stdout, /Rules: \d+ from rules\/roles\/imp\.json/);
 });
 

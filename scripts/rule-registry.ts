@@ -90,7 +90,7 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
     if (
       typeof rule.revision !== "string" ||
       !REVISION.test(rule.revision) ||
-      rule.revision.length < 2
+      [...rule.revision].length < 2
     )
       errors.push(`${where}: invalid revision`);
     if (typeof rule.requirement !== "string" || rule.requirement.length === 0)

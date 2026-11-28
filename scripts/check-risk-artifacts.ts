@@ -6,7 +6,7 @@
 // An archive-only transition may name the archived change: the package moves
 // unchanged and the archive index and baseline keep its evidence.
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 function issueOf(text: string): string | null {
@@ -42,7 +42,7 @@ function archiveEvidenceFailures(root: string, dir: string): string[] {
   const index = JSON.parse(
     readFileSync(join(root, "docs/audits/openspec-archive-index.json"), "utf8"),
   ) as { entries: Array<{ name: string; path: string }> };
-  if (!index.entries.some((entry) => entry.path === path || entry.name === archivedName))
+  if (!index.entries.some((entry) => entry.path === path && entry.name === archivedName))
     failures.push(`${archivedName}: the archive index has no entry; archive evidence is lost`);
   const baseline = JSON.parse(
     readFileSync(join(root, "docs/audits/openspec-archive-baseline.json"), "utf8"),
@@ -80,15 +80,6 @@ export function riskArtifactFailures(
   if (!resolved)
     return [...failures, `${name}: no such OpenSpec change directory (active or archived)`];
   const { dir, archived } = resolved;
-  if (!archived) {
-    const activeName = basename(dir);
-    const changed = options.changedFiles ?? [];
-    const prefix = `openspec/changes/${activeName}/`;
-    const touched = changed.filter((candidate) => candidate.startsWith(prefix));
-    if (!touched.length) failures.push(`${name}: the pull request does not touch this change`);
-    else if (!touched.some((candidate) => candidate.startsWith(`${prefix}specs/`)))
-      failures.push(`${name}: a trivial edit does not satisfy R3; touch the delta spec`);
-  }
   for (const file of ["proposal.md", "design.md", "tasks.md"])
     if (!existsSync(join(dir, file))) failures.push(`${name}: missing ${file}`);
   if (existsSync(join(dir, "proposal.md")) && issue) {
@@ -108,18 +99,31 @@ export function riskArtifactFailures(
   };
   if (existsSync(join(dir, "specs"))) walk(join(dir, "specs"));
   const policyMigration = /^Policy migration:\s*true\s*$/m.test(body);
-  if (!specs.length && !policyMigration) failures.push(`${name}: no delta spec`);
-  if (
-    policyMigration &&
-    !specs.some((spec) => spec.split("\\").join("/").includes("/specs/workflow/"))
-  )
+  const changed = options.changedFiles ?? [];
+  const prefix = relative(root, dir).split("\\").join("/") + "/";
+  const specsInDiff = specs
+    .map((spec) => relative(root, spec).split("\\").join("/"))
+    .filter((path) => changed.includes(path));
+  if (!specs.length) failures.push(`${name}: no delta spec`);
+  if (!archived) {
+    if (!changed.some((path) => path.startsWith(prefix)))
+      failures.push(`${name}: the pull request does not touch this change`);
+    else if (!specsInDiff.length)
+      failures.push(`${name}: a trivial edit does not satisfy R3; touch the delta spec`);
+  }
+  if (policyMigration && !specsInDiff.some((path) => path.startsWith(prefix + "specs/workflow/")))
     failures.push(
-      `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
+      `${name}: a verification-policy migration needs a changed workflow delta spec under specs/workflow/`,
     );
   const runtimeCapabilities = new Map<string, string[]>([
     [
       "app/ui-and-privacy",
-      ["src/ui/screens/player", "src/ui/screens/secrets", "src/ui/screens/public"],
+      [
+        "src/ui/screens/seat",
+        "src/ui/screens/player",
+        "src/ui/screens/secrets",
+        "src/ui/screens/public",
+      ],
     ],
     ["app/offline", ["src/infrastructure/offline/"]],
     ["app/store-boundaries", ["src/entry/store.ts", "src/application/store/", "src/entry/"]],
@@ -128,7 +132,6 @@ export function riskArtifactFailures(
     ["game/command-engine", ["src/core/engine/", "src/core/model/", "src/core/commands/"]],
     ["game/setup", ["src/core/model/setup"]],
   ]);
-  const changed = options.changedFiles ?? [];
   const required = new Set<string>();
   const isRuntimeCode = (candidate: string): boolean =>
     (candidate.endsWith(".ts") || candidate.endsWith(".tsx")) && !candidate.endsWith(".test.ts");
@@ -137,21 +140,13 @@ export function riskArtifactFailures(
     for (const [capability, prefixes] of runtimeCapabilities)
       if (prefixes.some((prefix) => candidate.startsWith(prefix))) required.add(capability);
   }
-  const specPaths = specs.map((spec) => spec.split("\\").join("/"));
   for (const capability of required)
-    if (!specPaths.some((spec) => spec.includes(`/specs/${capability}/`)))
+    if (!specsInDiff.includes(`${prefix}specs/${capability}/spec.md`))
       failures.push(`${name}: the change needs the ${capability} delta spec`);
-  if (
-    policyMigration &&
-    required.size === 0 &&
-    !specPaths.some((candidate) => candidate.includes("/specs/workflow/"))
-  )
-    failures.push(
-      `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
-    );
   if (archived) {
     failures.push(...archiveEvidenceFailures(root, dir));
-    const changed = options.changedFiles ?? [];
+    if (!changed.some((path) => path.startsWith(prefix)))
+      failures.push(`${name}: the named archive is absent from the diff`);
     if (!changed.length) {
       failures.push(
         `${name}: an archived package needs the changed-files list to prove an archive-only transition`,
@@ -161,6 +156,7 @@ export function riskArtifactFailures(
         path.startsWith("openspec/changes/") ||
         path.startsWith("openspec/specs/") ||
         path.startsWith("docs/audits/openspec-archive-") ||
+        path === "fixtures/conformance/openspec-archive-baseline.json" ||
         path === "CHANGELOG.md";
       for (const path of changed.filter((candidate) => !allowed(candidate)))
         failures.push(
@@ -176,7 +172,7 @@ function main(): void {
   const changedIndex = args.indexOf("--changed-files");
   const changedPath = changedIndex >= 0 ? args[changedIndex + 1] : undefined;
   const positional = args.filter(
-    (arg, index) => arg !== "--changed-files" && index !== changedIndex + 1,
+    (arg, index) => arg !== "--changed-files" && (changedIndex < 0 || index !== changedIndex + 1),
   );
   const [bodyPath, rootArg] = positional;
   if (!bodyPath) {

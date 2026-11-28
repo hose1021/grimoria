@@ -54,7 +54,9 @@ test("an R3 change must name a same-issue OpenSpec package", () => {
       "a change for another issue must fail",
     );
     assert.deepEqual(
-      riskArtifactFailures(body("Policy migration: true\n"), policy, { changedFiles: touched }),
+      riskArtifactFailures(body("Policy migration: true\n"), policy, {
+        changedFiles: ["openspec/changes/sample-change/specs/workflow/spec.md"],
+      }),
       [],
       "a policy migration may skip gameplay specs",
     );
@@ -205,7 +207,42 @@ test("a storage change needs the state-and-storage delta spec", () => {
     const storageDir = join(root, "openspec/changes/sample-change/specs/game/state-and-storage");
     mkdirSync(storageDir, { recursive: true });
     writeFileSync(join(storageDir, "spec.md"), "### Requirement: Saved game\n");
-    assert.deepEqual(riskArtifactFailures(body, root, { changedFiles: touched }), []);
+    assert.ok(
+      riskArtifactFailures(body, root, { changedFiles: touched }).some((failure) =>
+        failure.includes("game/state-and-storage delta spec"),
+      ),
+    );
+    assert.deepEqual(
+      riskArtifactFailures(body, root, {
+        changedFiles: [
+          ...touched,
+          "openspec/changes/sample-change/specs/game/state-and-storage/spec.md",
+        ],
+      }),
+      [],
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("files alongside a delta cannot stand in for a changed spec", () => {
+  const root = fixture({ specs: "workflow" });
+  try {
+    assert.ok(
+      riskArtifactFailures(body(), root, {
+        changedFiles: ["openspec/changes/sample-change/specs/workflow/notes.md"],
+      }).length,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("archive evidence must belong to the named transition", () => {
+  const root = archiveFixture({ index: true, baseline: true });
+  try {
+    assert.ok(riskArtifactFailures(body(), root, { changedFiles: ["CHANGELOG.md"] }).length);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

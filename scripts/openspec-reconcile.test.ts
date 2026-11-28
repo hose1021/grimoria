@@ -178,3 +178,16 @@ test("a RENAMED operation is rejected explicitly", () => {
   assert.equal(rows[0].synced, false);
   assert.equal(rows[0].conflict, "renamed-unsupported");
 });
+
+test("a modified requirement ends before the next operation heading", () => {
+  const text = [
+    "## MODIFIED Requirements",
+    BASELINE.trim(),
+    "## ADDED Requirements",
+    "### Requirement: Another rule",
+  ].join("\n\n");
+  const rows = parseRequirements(PATH, text, () => BASELINE);
+  const modified = rows.find((row) => row.operation === "MODIFIED");
+  assert.equal(modified?.synced, true);
+  assert.equal(modified.conflict, undefined);
+});
