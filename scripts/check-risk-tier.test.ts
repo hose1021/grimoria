@@ -175,6 +175,14 @@ test("cited evidence must resolve to a real test file and a registry rule", () =
   );
 });
 
+test("a proven release metadata diff is R0 without an OpenSpec package", () => {
+  const paths = ["VERSION", "package.json", "CHANGELOG.md", "RELEASE_STATE.md"];
+  const release = body("R0", "- `node scripts/check-version.ts` passed.");
+  assert.equal(checkRisk(release, paths).ok, false, "the file names alone keep the package tier");
+  assert.equal(checkRisk(release, paths, { releaseMetadataOnly: true }).ok, true);
+  assert.equal(checkRisk(body("R3"), paths, { releaseMetadataOnly: true }).ok, true);
+});
+
 test("a changed-file list may be NUL or newline separated", () => {
   assert.deepEqual(parseChangedFiles("a.ts\nb.ts\n"), ["a.ts", "b.ts"]);
   assert.deepEqual(parseChangedFiles("a.ts\0b.ts\0"), ["a.ts", "b.ts"]);

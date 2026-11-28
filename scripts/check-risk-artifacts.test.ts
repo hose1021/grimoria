@@ -99,6 +99,13 @@ test("an R3 change must name a same-issue OpenSpec package", () => {
   }
 });
 
+test("release metadata needs no OpenSpec package", () => {
+  assert.deepEqual(
+    riskArtifactFailures("Issue: #223\nRisk: R0\nEvidence:\n- version check passed.\n", ""),
+    [],
+  );
+});
+
 function archiveFixture(options: { index: boolean; baseline: boolean }): string {
   const root = mkdtempSync(join(tmpdir(), "risk-archive-"));
   const name = "2026-01-01-sample-change";

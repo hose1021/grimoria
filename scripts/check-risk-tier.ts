@@ -5,6 +5,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseChangedFiles } from "./changed-files.ts";
+import { releaseMetadataOnly } from "./release-metadata.ts";
 
 export type Tier = "R0" | "R1" | "R2" | "R3";
 const ORDER: readonly Tier[] = ["R0", "R1", "R2", "R3"];
@@ -92,6 +93,7 @@ export interface RiskEvidenceContext {
   exists?: (path: string) => boolean;
   knownRule?: (id: string) => boolean;
   assertingFile?: (id: string, file: string) => boolean;
+  releaseMetadataOnly?: boolean;
 }
 
 function sectionText(body: string, heading: RegExp): string | null {
@@ -177,8 +179,12 @@ export function checkRisk(
   context: RiskEvidenceContext = {},
 ): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
-  const present = new Set<Tier>(paths.map((path) => tierOf(path)));
-  const computed = classify(paths);
+  // A commit range proven to change release metadata only carries no artifact
+  // obligation beyond the R0 evidence; the files alone never decide this.
+  const present = new Set<Tier>(
+    context.releaseMetadataOnly ? ["R0"] : paths.map((path) => tierOf(path)),
+  );
+  const computed = context.releaseMetadataOnly ? "R0" : classify(paths);
   const declared = /^Risk:\s*(R[0-3])\s*$/m.exec(body)?.[1] as Tier | undefined;
   if (!/^Issue:\s*(#\d+|https?:\/\/\S+)/m.test(body)) errors.push("PR body has no Issue line");
   if (!declared) errors.push("PR body has no Risk: R0-R3 line");
@@ -230,14 +236,28 @@ function registryIndex(dir: string): {
 }
 
 function main(): void {
-  const bodyPath = process.argv[2];
-  const filesPath = process.argv[3];
-  if (!bodyPath || !filesPath) {
-    console.error("usage: check-risk-tier.ts <pr-body> <changed-files>");
+  const args = process.argv.slice(2);
+  const baseIndex = args.indexOf("--base");
+  const baseRef = baseIndex >= 0 ? args[baseIndex + 1] : undefined;
+  const positional = args.filter(
+    (arg, index) => arg !== "--base" && (baseIndex < 0 || index !== baseIndex + 1),
+  );
+  const [bodyPath, filesPath] = positional;
+  if (!bodyPath || !filesPath || (baseIndex >= 0 && !baseRef)) {
+    console.error("usage: check-risk-tier.ts <pr-body> <changed-files> [--base <ref>]");
     process.exitCode = 2;
     return;
   }
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  let metadataOnly = false;
+  if (baseRef) {
+    const metadata = releaseMetadataOnly(root, baseRef);
+    metadataOnly = metadata.ok;
+    // Name the semantic reason when every changed path is release metadata but
+    // the content is not, instead of only reporting the tier as R3.
+    if (!metadata.ok && metadata.pathsOnly)
+      for (const failure of metadata.failures) console.error(failure);
+  }
   const registry = registryIndex(join(root, "rules"));
   const result = checkRisk(
     readFileSync(bodyPath, "utf8"),
@@ -246,6 +266,7 @@ function main(): void {
       exists: (path) => existsSync(join(root, path)),
       knownRule: (id) => registry.ids.has(id),
       assertingFile: (id, file) => registry.assertingFiles.get(id)?.has(file) ?? false,
+      releaseMetadataOnly: metadataOnly,
     },
   );
   if (!result.ok) {

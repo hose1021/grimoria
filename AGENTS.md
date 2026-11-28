@@ -162,7 +162,10 @@ heading must match it (`node scripts/check-version.ts`).
 Semantic Versioning: major for a saved-state or storage-key break, minor for a
 capability release, patch for a hotfix. A release PR moves `## [Unreleased]`
 entries under `## [X.Y.Z] - <date>`; feature and fix PRs into `dev` add their
-entry without a version change.
+entry without a version change. A release-metadata-only PR is R0 only when
+`scripts/release-metadata.ts` proves that the commit range changes nothing but
+`VERSION`, the version fields, `CHANGELOG.md` and `RELEASE_STATE.md`; the title
+and the file list alone never grant the exemption.
 
 ## Architecture
 
