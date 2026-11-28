@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-SAVANT-01",
+      "roleId": "savant",
+      "edition": "snv",
+      "level": "host-choice",
+      "revision": "r2910",
+      "requirement": "Each day, you may visit the Storyteller to learn 2 things in private: 1 is true & 1 is false.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Savant records two statements and one true statement, once per day (SNV-SAVANT-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Philosopher who borrowed the Savant can visit once that day (SNV-SAVANT-01)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-SAVANT-02",
+      "roleId": "savant",
+      "edition": "snv",
+      "level": "host-choice",
+      "revision": "r2910",
+      "requirement": "Each day, you may visit the Storyteller to learn 2 things in private: 1 is true & 1 is false.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Savant information stays one true and one false unless impaired (SNV-SAVANT-02)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-SAVANT-03",
+      "roleId": "savant",
+      "edition": "snv",
+      "level": "host-choice",
+      "revision": "r2910",
+      "requirement": "Each day, you may visit the Storyteller to learn 2 things in private: 1 is true & 1 is false.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a living Vortox makes both Savant statements false (SNV-SAVANT-03)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-SAVANT-04",
+      "roleId": "savant",
+      "edition": "snv",
+      "level": "host-choice",
+      "revision": "r2910",
+      "requirement": "Each day, you may visit the Storyteller to learn 2 things in private: 1 is true & 1 is false.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a real Savant and a borrowed Savant each visit once a day (SNV-SAVANT-04)"
+        }
+      ]
+    }
+  ]
+}

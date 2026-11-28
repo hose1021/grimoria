@@ -3,20 +3,19 @@
 ## Purpose
 
 Defines how a rule stays traceable from its official text to its asserting
-test: stable rule identifiers on every matrix row, in the role documentation and
-in the shared rule document, a check that connects a verified row to a test that
+test: stable rule identifiers on every matrix row, in the role registry and in the
+shared registry file, a check that connects a verified row to a test that
 carries the row's identifier, and a per-role lookup.
 
 ## Requirements
 
 ### Requirement: Rule documentation carries identifiers
 
-Each role SHALL have one rule document with a stable identifier for every
-engine-relevant rule, its matrix row, pinned revision and asserting tests. Shared
-rows SHALL be declared in the same shape in `docs/rules-shared.md`. Every
-supported matrix row SHALL carry exactly one identifier in its first column:
-`TB|BMR|SNV-<ROLE>-NN` for a role row and `SYS-<AREA>-NN` for a shared row. A
-document SHALL reference sources instead of copying ability text.
+Each role SHALL have one registry file `rules/roles/<role>.json` with a stable
+identifier for every engine-relevant rule, its matrix row, pinned revision and
+asserting tests. Shared rows SHALL be declared in the same shape in
+`rules/shared.json` and described in `docs/rules-shared.md`. Documents SHALL
+reference sources rather than copy ability text.
 
 **Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs", [Issue #221](https://github.com/hose1021/grimoria/issues/221) "one identifier per row"
 **Tests**: `scripts/check-acceptance.ts`, `scripts/rules-for.test.ts`
@@ -31,20 +30,29 @@ document SHALL reference sources instead of copying ability text.
 - **WHEN** two documents declare the same identifier
 - **THEN** the acceptance check fails and names the identifier
 
-#### Scenario: A matrix row without an identifier
-
-- **WHEN** a matrix row with a supported status carries no identifier or more than one
-- **THEN** the acceptance check fails and names the row
-
 #### Scenario: An orphan identifier
 
 - **WHEN** a role or shared document declares an identifier that no matrix row carries
 - **THEN** the acceptance check fails and names the identifier and its document
 
+### Requirement: Every matrix row carries one identifier
+
+Every supported matrix row SHALL carry exactly one identifier in its first
+column: `TB|BMR|SNV-<ROLE>-NN` for a role row and `SYS-<AREA>-NN` for a shared
+row.
+
+**Source**: [Issue #221](https://github.com/hose1021/grimoria/issues/221) "one identifier per row"
+**Tests**: `scripts/check-acceptance.ts`
+
+#### Scenario: A matrix row without an identifier
+
+- **WHEN** a matrix row with a supported status carries no identifier or more than one
+- **THEN** the acceptance check fails and names the row
+
 ### Requirement: Shared rule document
 
-`docs/rules-shared.md` SHALL declare every `SYS-` identifier used by a matrix
-row. Each declaration SHALL carry the row's level, the pinned revision that row
+`rules/shared.json` SHALL declare every `SYS-` identifier used by a matrix row
+and `docs/rules-shared.md` SHALL describe them. Each declaration SHALL carry the row's level, the pinned revision that row
 names or an explicit application-contract marker, and the asserting test names.
 The shared rows SHALL be grouped by area: nominations and votes, WINS, night,
 effects, replay and state, scripts, privacy and localization.
@@ -70,9 +78,11 @@ effects, replay and state, scripts, privacy and localization.
 ### Requirement: Rule identifiers in test names
 
 A test cited as the asserting test of a verified rule SHALL carry that rule's
-identifier in its name. A test name SHALL stay unique within its file.
+identifier in its name. A test name SHALL stay unique within its file. A verified
+matrix row SHALL cite at least one test whose name carries the row's own
+identifier.
 
-**Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs in test names"
+**Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs in test names", [Issue #221](https://github.com/hose1021/grimoria/issues/221) "strict per-row gate"
 **Tests**: `scripts/check-acceptance.ts`
 
 #### Scenario: A test asserts a rule
@@ -113,7 +123,7 @@ documented level differs from the row's level.
 ### Requirement: Per-role rule lookup
 
 `node scripts/rules-for.ts <roleId>` SHALL print, for any supported role, its
-official text from the committed snapshot, its matrix rows, the main-spec
+official text from the committed snapshot, its registry rows, the main-spec
 requirements that mention it, the tests carrying its rule identifiers and its
 jinx pairs. An unknown or missing identifier SHALL exit non-zero with one message
 and no other output.

@@ -23,13 +23,16 @@ function doc(
 function failures({
   rows,
   docs,
+  aliases,
 }: {
+  aliases?: ReadonlyMap<string, string>;
   docs: { edition: string | null; role: string; rules: RuleRow[] }[];
   rows: string[][];
 }) {
   return traceabilityFailures({
     matrixRows: rows,
     docs,
+    aliases,
     editionOf: (role) =>
       role === "washerwoman" || role === "empath" ? "tb" : role === "po" ? "bmr" : "snv",
   });
@@ -133,7 +136,7 @@ test("a rule whose matrix revision disappeared fails", () => {
     ],
   });
   assert.equal(out.length, 1);
-  assert.match(out[0], /references matrix row r2630, but washerwoman\/rule\.md names r9999/);
+  assert.match(out[0], /references matrix row r2630, but washerwoman\/registry names r9999/);
 });
 
 test("a verified row that documents its rule as a host choice fails", () => {
@@ -220,4 +223,26 @@ Edition: tb
       citations: [{ file: FILE, name: "pairs (TB-CHEF-01)" }],
     },
   ]);
+});
+
+test("a reviewed legacy identifier alias is accepted, an unreviewed one is not", () => {
+  const rows = [
+    row(
+      "washerwoman",
+      "r2630",
+      "verified",
+      ["one of two (TB-WASHERWOMAN-01)", "other (TB-CHEF-01)"],
+      "TB-WASHERWOMAN-01",
+    ),
+  ];
+  const docs = [
+    doc("washerwoman", "tb", [
+      { id: "TB-WASHERWOMAN-01", level: "verified", revision: "r2630", citations: [] },
+    ]),
+  ];
+  assert.ok(failures({ rows, docs }).join(String.fromCharCode(10)).includes("not declared"));
+  assert.deepEqual(
+    failures({ rows, docs, aliases: new Map([["TB-CHEF-01", "TB-WASHERWOMAN-01"]]) }),
+    [],
+  );
 });

@@ -825,8 +825,8 @@ for each list. The host SHALL be able to select a Lunatic mask explicitly or
 resume following the real Demon. The Lunatic information card SHALL use its
 own bluff list without automatically naming the real Demon.
 
-**Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112)
-**Tests**: `scripts/browser-check.ts`
+**Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112), [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168) "Demon info"; issue #487
+**Tests**: `scripts/browser-check.ts`, `src/ui/screens/bluff-selection.test.ts`
 
 #### Scenario: Separate private card
 
@@ -837,6 +837,11 @@ own bluff list without automatically naming the real Demon.
 
 - **WHEN** the host edits bluffs, the mask or bubble votes at 390 pixel width
 - **THEN** the controls remain usable without horizontal overflow
+
+#### Scenario: A full bluff list accepts a new pick
+
+- **WHEN** the Demon bluff list holds three bluffs and the host clicks an eligible unselected character in the picker
+- **THEN** the oldest bluff leaves, the clicked character joins the list, the list still holds three, and every entry stays outside the bag
 
 ### Requirement: The host answers the Mayor redirect
 
@@ -1259,3 +1264,71 @@ only. The host hints SHALL be collapsed by default and open on request.
 
 - **WHEN** the sheet opens for a new host
 - **THEN** the hints summary is collapsed and the actions fit in the card
+
+### Requirement: Local countdown updates
+
+Only a running countdown display SHALL request clock ticks. Its ticks SHALL leave the surrounding console and command previews idle.
+
+**Source**: [Issue #156](https://github.com/hose1021/grimoria/issues/156); `SPEC.md` "Screens" (`/table`)
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Idle or expired countdown
+
+- **WHEN** the timer is stopped or expires
+- **THEN** the display stops requesting ticks
+
+#### Scenario: Running countdown
+
+- **WHEN** the host starts the timer
+- **THEN** the remaining time updates without repeating the night-step preview
+
+### Requirement: Phase-grouped chronicle
+
+The game-over chronicle SHALL group the saved log under its phase heading in
+chronological order: night one, day one, night two, day two, then the result.
+The heading SHALL use the console language. The night, day and death filters
+SHALL apply inside the groups, and a group with no matching line SHALL NOT be
+rendered. The side-panel journal SHALL keep its recent preview.
+
+**Source**: [Issue #493](https://github.com/hose1021/grimoria/issues/493); `SPEC.md` "Screens" (`/table`)
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Chronological sections
+
+- **WHEN** the host opens the game-over review
+- **THEN** the chronicle shows the night, day and result sections in the order the game recorded them
+
+#### Scenario: Filtered group
+
+- **WHEN** the host filters to deaths and a phase has no death line
+- **THEN** that phase heading is not rendered
+
+#### Scenario: Side panel stays compact
+
+- **WHEN** the host reads the side panel during play
+- **THEN** it still shows the recent preview without phase sections
+
+### Requirement: Game-end chronicle
+
+The over card SHALL show the complete narrative log below the review table,
+grouped by its phase and keeping the night, day and death filters. The chronicle
+SHALL be rebuilt from the saved log after export and import. The side panel
+SHALL keep its eight-entry preview.
+
+**Source**: [Issue #489](https://github.com/hose1021/grimoria/issues/489); `SPEC.md` "Screens" (`/table`)
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Finished game shows the chronicle
+
+- **WHEN** the game ends and the host opens the review
+- **THEN** the over card shows every recorded log entry, not only the last eight
+
+#### Scenario: Filters stay
+
+- **WHEN** the host filters the chronicle to night or deaths
+- **THEN** the over card shows only the matching entries
+
+#### Scenario: Export and import keep the chronicle
+
+- **WHEN** a finished game is exported and imported
+- **THEN** the over card shows the same entries in the same order

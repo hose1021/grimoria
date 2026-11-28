@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-SWEETHEART-01",
+      "roleId": "sweetheart",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2704",
+      "requirement": "When you die, 1 player is drunk from now on.",
+      "assertingTests": [
+        {
+          "file": "src/core/roles/sweetheart/role.test.ts",
+          "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Sweetheart drunk starts at the death, not at the Sweetheart night slot (SNV-SWEETHEART-01)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-SWEETHEART-02",
+      "roleId": "sweetheart",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2704",
+      "requirement": "When you die, 1 player is drunk from now on.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Sweetheart poisoned at death makes nobody drunk even after recovering (SNV-SWEETHEART-02)"
+        }
+      ]
+    }
+  ]
+}

@@ -13,11 +13,11 @@ that evidence is read below, not assumed.
 | Layer | Data / test | Command |
 |---|---|---|
 | Official rules | Atomic rules from the official-rules audit | `build-trace.ts` |
-| Engine rules | Rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
+| Engine rules | Rows from `rules/roles/*.json`, `rules/shared.json`, labels checked against `docs/rules-matrix.md` | `build-trace.ts`, `sync-rules-matrix.ts` |
 | UI contracts | Contracts from the UI semantic audit | `build-trace.ts` |
 | Test identity | Indexed node tests and browser cases, with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
-| Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
+| Trace matrices | `reports/traceability-matrix.md`, `reports/ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
 | Findings gate | non-compliant UI contracts, weak engine rules, missing UI actions, stale citations, regression suite | `gates.ts --scope=findings` |
 | Mutation | Critical projections/gates, each with a green baseline | `mutation.ts` |
@@ -70,9 +70,11 @@ node scripts/verification/mutation.ts
 node --test scripts/verification/source-text.test.ts scripts/verification/gate-rules.test.ts
 ```
 
-The generated files (`traceability.json`, `test-manifest.json`, `uncovered.json`
-and the two matrices) are committed. The gate fails when any is stale, so a rule
-ID, contract ID or test cannot disappear silently.
+`traceability.json` and `test-manifest.json` are committed. `reports/` is
+ignored: `build-uncovered.ts` and `render-matrix.ts` regenerate it on demand, and
+their `--check` mode compares the result. The gate fails when a committed file is
+stale or a regenerated file differs, so a rule ID, contract ID or test cannot
+disappear silently.
 
 ## Test layers
 
@@ -102,13 +104,13 @@ review.
 
 - `audit.md` — independent audit of this system, defects and dispositions.
 - `traceability.json` — machine-readable Official Rule → engine rule → UI contract.
-- `traceability-matrix.md` — human-readable official-rule matrix.
-- `ui-contract-test-matrix.md` — UI-contract matrix.
+- `reports/traceability-matrix.md` — generated official-rule matrix, not tracked.
+- `reports/ui-contract-test-matrix.md` — generated UI-contract matrix, not tracked.
 - `test-manifest.json` — committed test identity baseline with skip state.
 - `atomic-map.json` — reviewed official-rule → engine-rule mappings.
 - `removed-verification.json` — allowed mapping downgrades with reasons.
 - `removed-tests.json` — allowed test-identity removals with reasons.
-- `uncovered.json` — every uncovered rule/contract with reason and task.
+- `reports/uncovered.json` — every uncovered rule/contract with reason and task, regenerated.
 - `command-scope.json` — UI/product/internal/missing command classification.
 - `known-findings.md` — red regression tests and linked issues.
 - `architecture.md`, `coverage-policy.md`, `ci.md`, `mutation.md`.

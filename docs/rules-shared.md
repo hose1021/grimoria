@@ -4,7 +4,7 @@ Cross-cutting rules for the rows of `docs/rules-matrix.md` that are not per-role
 rows. Every such row carries exactly one `SYS-<AREA>-NN` identifier in its first
 column, and this document declares each of those identifiers with the row's
 level, its pinned source and the asserting tests. It cites sources instead of
-copying wiki text, and it never overrides a role's `rule.md`.
+copying wiki text, and it never overrides a role's `rules/roles/<role>.json`.
 
 `SYS-SETUP` covers composition, the bag and the bluffs. `SYS-NIGHT` covers the
 night order and the wake rules. `SYS-EFFECTS` covers impairment, registration and

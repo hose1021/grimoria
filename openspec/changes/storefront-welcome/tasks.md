@@ -53,7 +53,7 @@
 - [x] 5.2 Retarget the checks: `browser-check.ts` privacy case to `/player`, the
       two-window update case to `/sheet`; rename the privacy scenario and read
       the projection instead of the page.
-- [x] 5.3 Update `SPEC.md`, `README.md`, `PRODUCT.md`, `docs/architecture.md`,
+- [x] 5.3 Update `SPEC.md`, `README.md`, `PRODUCT.md`, `docs/adr/0005-runtime-boundaries.md`,
       `docs/rules-matrix.md` and the `manifest.webmanifest` start URL.
 
 ## 6. Verification

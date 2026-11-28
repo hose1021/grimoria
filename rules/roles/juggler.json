@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-JUGGLER-01",
+      "roleId": "juggler",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2401",
+      "requirement": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Juggler may guess zero times and still learns zero (SNV-JUGGLER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Juggler command has limits (SNV-JUGGLER-01)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-JUGGLER-02",
+      "roleId": "juggler",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2401",
+      "requirement": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Juggler's answer counts the guesses from the guessing day (SNV-JUGGLER-02)"
+        }
+      ]
+    }
+  ]
+}

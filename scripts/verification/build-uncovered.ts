@@ -3,14 +3,14 @@
 // test is recorded here with a reason and, where one exists, the issue that
 // must close the gap. This is a register, not an allowlist: the findings gate
 // still fails while any UI contract is non-compliant or only static.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const DIR = join(ROOT, "docs", "audits", "verification-gates");
 const TRACE = join(DIR, "traceability.json");
-const OUT = join(DIR, "uncovered.json");
+const OUT = join(ROOT, "reports", "uncovered.json");
 
 interface UiContract {
   id: string;
@@ -173,19 +173,21 @@ function main(): void {
   const value = build();
   const text = JSON.stringify(value, null, 2) + "\n";
   if (process.argv.includes("--check")) {
-    if (!existsSync(OUT)) {
-      console.error("uncovered.json is missing; run node scripts/verification/build-uncovered.ts");
+    if (existsSync(OUT) && readFileSync(OUT, "utf8") !== text) {
+      console.error(
+        "reports/uncovered.json is stale; run node scripts/verification/build-uncovered.ts",
+      );
       process.exit(1);
     }
-    if (readFileSync(OUT, "utf8") !== text) {
-      console.error("uncovered.json is stale; run node scripts/verification/build-uncovered.ts");
-      process.exit(1);
-    }
+    const parsed = JSON.parse(text) as {
+      summary: { uiContractsNotGateCovered: number; weakEngineRules: number };
+    };
     console.log(
-      `Uncovered register is current: ${JSON.parse(text).summary.uiContractsNotGateCovered} UI contracts, ${JSON.parse(text).summary.weakEngineRules} engine rules.`,
+      `Uncovered register regenerates: ${parsed.summary.uiContractsNotGateCovered} UI contracts, ${parsed.summary.weakEngineRules} engine rules.`,
     );
     return;
   }
+  mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, text);
   console.log(`Wrote ${OUT}`);
   console.log(JSON.stringify(JSON.parse(text).summary, null, 2));

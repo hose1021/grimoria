@@ -73,10 +73,14 @@ export function inventory(tree: string) {
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const ref = process.argv[2] ?? "HEAD";
-  const commit = execFileSync("git", ["rev-parse", "--verify", "--end-of-options", `${ref}^{commit}`], {
-    cwd: root,
-    encoding: "utf8",
-  }).trim();
+  const commit = execFileSync(
+    "git",
+    ["rev-parse", "--verify", "--end-of-options", `${ref}^{commit}`],
+    {
+      cwd: root,
+      encoding: "utf8",
+    },
+  ).trim();
   const tree = execFileSync("git", ["ls-tree", "-rlz", "--full-tree", commit], {
     cwd: root,
     encoding: "utf8",

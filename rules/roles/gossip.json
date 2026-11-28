@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-GOSSIP-01",
+      "roleId": "gossip",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1773",
+      "requirement": "Each day, you may make a public statement. Tonight, if it was true, a player dies.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gossip statement schedules a night death only when it was true (BMR-GOSSIP-01)"
+        }
+      ]
+    }
+  ]
+}

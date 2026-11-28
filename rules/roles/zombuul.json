@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-ZOMBUUL-01",
+      "roleId": "zombuul",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3022",
+      "requirement": "Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Zombuul's first death is recorded and keeps it from waking that night (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a registered-dead Zombuul is not a Tea Lady neighbour but still counts as alive (BMR-TEALADY-01, BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "executing a corpse leaves the Zombuul free to attack (ROLE-ZOMBUUL-006)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-ZOMBUUL-02",
+      "roleId": "zombuul",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3022",
+      "requirement": "Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-MONK-01",
+      "roleId": "monk",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3124",
+      "requirement": "Each night*, choose a player (not yourself): they are safe from the Demon tonight.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Monk protection and Soldier safety stop the Imp (TB-MONK-01, TB-SOLDIER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Monk cannot choose themself (TB-MONK-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Monk's choice records one protection until dawn, its note and one secret log line (TB-MONK-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a new Monk choice ends the protection it gave before (TB-MONK-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Monk protects no one and the Imp's attack kills (TB-MONK-01)"
+        },
+        {
+          "file": "src/core/roles/monk/role.test.ts",
+          "name": "the Monk module declares a step for every night except the first (TB-MONK-01)"
+        },
+        {
+          "file": "src/core/roles/monk/role.test.ts",
+          "name": "a healthy Monk returns one protection that ends at dawn (TB-MONK-01)"
+        },
+        {
+          "file": "src/core/roles/monk/role.test.ts",
+          "name": "an impaired Monk reports a suppressed ability (TB-MONK-01)"
+        }
+      ]
+    }
+  ]
+}

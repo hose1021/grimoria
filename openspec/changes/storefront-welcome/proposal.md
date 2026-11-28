@@ -64,6 +64,6 @@ None.
   `privacy-player-seat.ts` and reads the projection instead of the removed
   screen; `scripts/check-types-policy.ts` skips tool-owned directories.
 - Records: `PRODUCT.md`, `DESIGN.md`, `README.md`, `SPEC.md`,
-  `docs/architecture.md`, `docs/rules-matrix.md`, `public/manifest.webmanifest`.
+  `docs/adr/0005-runtime-boundaries.md`, `docs/rules-matrix.md`, `public/manifest.webmanifest`.
 - Untouched: the engine, state model, commands, storage keys, role art and every
   other route. No new runtime dependency.

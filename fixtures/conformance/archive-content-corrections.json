@@ -1,0 +1,54 @@
+{
+  "records": [
+    {
+      "archive": "2026-11-27-bluff-picker-replacement",
+      "requirement": "Setup bluff and mask controls",
+      "reason": "The bluff and mask control text was rewritten after this change was synced; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-27-snv-gap-coverage",
+      "requirement": "Philosopher borrowed ability",
+      "reason": "The baseline gained the Drunk-shown-character rule after the sync; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-recover-saves-and-streamline-loading",
+      "requirement": "Local countdown updates",
+      "reason": "The requirement's scenario list changed after the sync; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-recover-saves-and-streamline-loading",
+      "requirement": "Route and language loading",
+      "reason": "The requirement's scenario list changed after the sync; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-recover-saves-and-streamline-loading",
+      "requirement": "Legacy recovery uses the current game key",
+      "reason": "The requirement's scenario list changed after the sync; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-role-choice-log",
+      "requirement": "Every night choice record",
+      "reason": "The baseline added the Sailor choice scenario and its citations after the sync; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-storyteller-workspace",
+      "requirement": "Session entry and reference lookup",
+      "reason": "The requirement's scenario list changed after the sync; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-windows-verification",
+      "requirement": "Automatic activation of the opening update",
+      "reason": "The baseline refined the activation wording after the sync; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-evidence-gate",
+      "requirement": "Rule documentation carries identifiers",
+      "reason": "The baseline refined this requirement after the sync and this PR changed its body again; the archived delta is the historical edition."
+    },
+    {
+      "archive": "2026-11-28-recover-saves-and-streamline-loading",
+      "requirement": "Automatic activation of the opening update",
+      "reason": "The baseline refined this requirement after the sync; the archived delta is the historical edition."
+    }
+  ]
+}

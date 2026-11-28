@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-GODFATHER-01",
+      "roleId": "godfather",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2394",
+      "requirement": "You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Godfather learns the Outsiders in play on the first night (BMR-GODFATHER-01)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-GODFATHER-02",
+      "roleId": "godfather",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2394",
+      "requirement": "You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Godfather kills only after an Outsider died today (BMR-GODFATHER-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a night Outsider death does not wake the Godfather (ROLE-GODFATHER-004)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "two Outsider deaths in one day still give the Godfather one night kill (ROLE-GODFATHER-005)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a saved Outsider execution does not wake the Godfather (ROLE-GODFATHER-006)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-GODFATHER-03",
+      "roleId": "godfather",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2394",
+      "requirement": "You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Godfather +/-1 Outsider setting is applied and impossible choices are reported (BMR-GODFATHER-03)"
+        }
+      ]
+    }
+  ]
+}

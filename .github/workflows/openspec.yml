@@ -3,6 +3,7 @@ name: OpenSpec
 on:
   pull_request:
     branches: [main, dev]
+    types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
 
 permissions:
@@ -18,7 +19,12 @@ jobs:
     name: Specifications
     # A release or back-merge pull request adds no OpenSpec change: `dev`
     # already validated its changes, and the release body carries no issue line.
-    if: github.head_ref != 'dev' && github.head_ref != 'main'
+    # The exemption needs the repository's own branch named dev or main; a fork
+    # cannot skip the checks by naming its head branch the same way.
+    if: >-
+      github.event_name != 'pull_request' ||
+      !(github.event.pull_request.head.repo.full_name == github.repository &&
+        (github.head_ref == 'dev' || github.head_ref == 'main'))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -43,5 +49,7 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           printf '%s' "$PR_BODY" > "$RUNNER_TEMP/pr-body.md"
-          git diff --name-only "$BASE_SHA"...HEAD > "$RUNNER_TEMP/changed-files.txt"
+          git -c core.quotePath=false diff -z --no-renames --name-only "$BASE_SHA"...HEAD > "$RUNNER_TEMP/changed-files.txt"
           node scripts/openspec-check.ts --pr-body "$RUNNER_TEMP/pr-body.md" --changed-files "$RUNNER_TEMP/changed-files.txt"
+          node scripts/check-risk-tier.ts "$RUNNER_TEMP/pr-body.md" "$RUNNER_TEMP/changed-files.txt"
+          node scripts/check-risk-artifacts.ts "$RUNNER_TEMP/pr-body.md" . --changed-files "$RUNNER_TEMP/changed-files.txt"

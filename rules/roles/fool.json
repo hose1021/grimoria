@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-FOOL-01",
+      "roleId": "fool",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2636",
+      "requirement": "The 1st time you die, you don't.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Fool is not spent when Tea Lady or Innkeeper protection prevents the death (BMR-FOOL-01)"
+        }
+      ]
+    }
+  ]
+}

@@ -24,7 +24,7 @@ generated verification artifacts.
 ## Authority and method
 
 The pinned wikitext in `docs/official/wiki/<Title>.r<oldid>.wikitext` is the only
-normative source. `docs/rules-matrix.md` and `src/core/roles/<id>/rule.md` are
+normative source. `docs/rules-matrix.md` and `rules/roles/<id>.json` are
 indexes; a green test or `verified` row is not proof without reading the
 assertion. Three independent read-only audits ran in separate worktrees:
 

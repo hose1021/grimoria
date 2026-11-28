@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-PHILOSOPHER-01",
+      "roleId": "philosopher",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2421",
+      "requirement": "Once per game, at night, choose a good character: gain that ability. If this character is in play, they are drunk.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Philosopher gains the chosen ability and drunks its owner (SNV-PHILOSOPHER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Philosopher who borrowed the Klutz still makes the public choice after dying (SNV-PHILOSOPHER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Philosopher who gains an information ability wakes for it in its slot, at once for a first-night ability on a later night, and from the next night when gained on the first (SNV-PHILOSOPHER-01)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-PHILOSOPHER-02",
+      "roleId": "philosopher",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2421",
+      "requirement": "Once per game, at night, choose a good character: gain that ability. If this character is in play, they are drunk.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Philosopher who borrowed the Juggler guesses on their first day with it (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Philosopher who borrowed the Klutz records the public choice (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        }
+      ]
+    }
+  ]
+}

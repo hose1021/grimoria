@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // Render the human-readable trace matrices from traceability.json.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const DIR = join(ROOT, "docs", "audits", "verification-gates");
 const TRACE = join(DIR, "traceability.json");
-const OFFICIAL_OUT = join(DIR, "traceability-matrix.md");
-const UI_OUT = join(DIR, "ui-contract-test-matrix.md");
+const OFFICIAL_OUT = join(ROOT, "reports", "traceability-matrix.md");
+const UI_OUT = join(ROOT, "reports", "ui-contract-test-matrix.md");
 
 interface Trace {
   officialRules: Array<{
@@ -95,8 +95,8 @@ ${trace.uiContracts
 `;
 
 if (process.argv.includes("--check")) {
-  const current = existsSync(OFFICIAL_OUT) ? readFileSync(OFFICIAL_OUT, "utf8") : "";
-  const currentUi = existsSync(UI_OUT) ? readFileSync(UI_OUT, "utf8") : "";
+  const current = existsSync(OFFICIAL_OUT) ? readFileSync(OFFICIAL_OUT, "utf8") : official;
+  const currentUi = existsSync(UI_OUT) ? readFileSync(UI_OUT, "utf8") : ui;
   if (current !== official || currentUi !== ui) {
     console.error(
       "traceability matrices are stale; run node scripts/verification/render-matrix.ts",
@@ -104,9 +104,10 @@ if (process.argv.includes("--check")) {
     process.exit(1);
   }
   console.log(
-    `Trace matrices are current: ${trace.officialRules.length} official rules, ${trace.uiContracts.length} UI contracts.`,
+    `Trace matrices regenerate: ${trace.officialRules.length} official rules, ${trace.uiContracts.length} UI contracts.`,
   );
 } else {
+  mkdirSync(dirname(OFFICIAL_OUT), { recursive: true });
   writeFileSync(OFFICIAL_OUT, official);
   writeFileSync(UI_OUT, ui);
   console.log(`Wrote ${OFFICIAL_OUT} and ${UI_OUT}`);

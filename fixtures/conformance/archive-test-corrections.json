@@ -1,0 +1,16 @@
+{
+  "corrections": [
+    {
+      "archive": "2026-11-28-verified-jinx-behaviors",
+      "from": "src/core/roles/courtier/role.test.ts",
+      "to": "src/core/roles/night-step.test.ts",
+      "reason": "The per-role test file never existed. The shared test asserts the night-step declaration for every supported role, Courtier included."
+    },
+    {
+      "archive": "2026-11-28-verified-jinx-behaviors",
+      "from": "src/core/roles/godfather/role.test.ts",
+      "to": "src/core/roles/night-step.test.ts",
+      "reason": "The per-role test file never existed. The shared test asserts the night-step declaration for every supported role, Godfather included."
+    }
+  ]
+}

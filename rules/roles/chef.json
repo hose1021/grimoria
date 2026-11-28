@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-CHEF-01",
+      "roleId": "chef",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r2510",
+      "requirement": "You start knowing how many pairs of evil players there are.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "first-night information is computed from real players and seats (TB-CHEF-01, TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Chef step is built with the number shape on the first night only (TB-CHEF-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Chef counts the pairs of neighbouring evil players around the ring (TB-CHEF-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Chef step keeps the computed count as its record and writes one step line (TB-CHEF-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Chef step stores what the host sends and journals no choice (TB-CHEF-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Chef step previews, applies and replays with the command clock and ids (TB-CHEF-01)"
+        },
+        {
+          "file": "src/core/roles/chef/role.test.ts",
+          "name": "the Chef module declares a step for the first night only, with the number shape (TB-CHEF-01)"
+        },
+        {
+          "file": "src/core/roles/chef/role.test.ts",
+          "name": "the Chef counts each pair of neighbouring players who register as evil (TB-CHEF-01)"
+        },
+        {
+          "file": "src/core/roles/chef/role.test.ts",
+          "name": "the Chef names every number up to the seat count as a possible answer (TB-CHEF-01, SYS-EFFECTS-01)"
+        },
+        {
+          "file": "src/core/roles/chef/role.test.ts",
+          "name": "the Chef counts the team a player registers as, not the character (TB-CHEF-01, TB-SPY-01, TB-RECLUSE-01)"
+        }
+      ]
+    },
+    {
+      "id": "TB-CHEF-02",
+      "roleId": "chef",
+      "edition": "tb",
+      "level": "host-choice",
+      "revision": "r2510",
+      "requirement": "You start knowing how many pairs of evil players there are.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Chef offers the count for a Recluse registered per pair (TB-CHEF-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Chef needs no registration answer without a Spy or Recluse (TB-CHEF-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Chef whose count depends on a Recluse waits for the host and changes nothing (TB-CHEF-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Chef's computed count follows the host's registration and the offered range does not (TB-CHEF-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Spy beside the Demon may register as good to the Chef (TB-CHEF-02, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Spy and a Recluse beside the Demon widen the Chef's range together (TB-CHEF-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Recluse leaves the Chef no choice and takes no registration (TB-CHEF-02, TB-RECLUSE-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an impaired Chef beside a Recluse is offered every number as false information (TB-CHEF-02, SYS-EFFECTS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Chef's registration range is a host choice on the command path and the answer completes it (TB-CHEF-02)"
+        },
+        {
+          "file": "src/core/roles/chef/role.test.ts",
+          "name": "a player who may register either way gives the Chef a range of legal counts (TB-CHEF-02)"
+        },
+        {
+          "file": "src/core/roles/chef/role.test.ts",
+          "name": "the Chef's count follows the host's registration and the legal range does not (TB-CHEF-02)"
+        },
+        {
+          "file": "src/ui/screens/table/helpers.test.ts",
+          "name": "the host's answer is labelled by why the host gives it (TB-CHEF-02, SYS-EFFECTS-01)"
+        }
+      ]
+    }
+  ]
+}

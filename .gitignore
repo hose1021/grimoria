@@ -6,4 +6,5 @@ dist/
 dist-root/
 docs/official/wiki/
 docs/reference/
+reports/
 .codegraph
