@@ -47,6 +47,14 @@ in the integrated tree, pinned by `treeHash`, the index and the baseline fixture
 - The index declares `canonicalization: "text-lf-binary-raw-v1"`: text hashes the
   LF form, binary bytes are hashed raw.
 - A recorded origin is validated as the first add of the change path; when a
-  squash removed that commit object, the accepted origin is kept as-is.
+  squash removed that commit object, the index committed with that add keeps the
+  accepted origin. A target branch keeps the origin it accepted.
+- `archive:index` appends a new archive to the current baseline. It never
+  rewrites an accepted record; a changed tree needs a correction entry.
+- An archived delta spec may name a test file that was renamed or never existed.
+  A reviewed record in `fixtures/conformance/archive-test-corrections.json` maps
+  it to the current asserting file; an unresolved reference fails the gate.
+- An archive outside the original anchor must be complete: no open checklist
+  item and a RED/GREEN evidence record. Anchor entries stay untouched.
 - No retention decision may weaken the pinned-rule, licensing or verification
   guarantees.

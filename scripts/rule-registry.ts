@@ -163,7 +163,7 @@ export function correctionUniquenessFailures(corrections: readonly CitationCorre
   const keys = new Set<string>();
   const failures: string[] = [];
   for (const correction of corrections) {
-    const key = correction.id + "\0" + correction.from.file + "\0" + correction.from.name;
+    const key = correctionKey(correction.id, correction.from);
     if (keys.has(key))
       failures.push(
         `${correction.id}: duplicate correction for ${correction.from.file} "${correction.from.name}"`,
@@ -173,40 +173,54 @@ export function correctionUniquenessFailures(corrections: readonly CitationCorre
   return failures;
 }
 
+function correctionKey(id: string, from: { file: string; name: string }): string {
+  return id + "\0" + from.file + "\0" + from.name;
+}
+
+/** Applies every recorded correction to a citation, matched by its full identity. */
+function correctedCitation(
+  id: string,
+  citation: { file: string; name: string },
+  corrections: ReadonlyMap<string, CitationCorrection>,
+): { file: string; name: string } {
+  return corrections.get(correctionKey(id, citation))?.to ?? citation;
+}
+
 export function citationParityFailures(
   baseline: Record<string, Array<{ file: string; name: string }>>,
   registry: ReadonlyMap<string, Array<{ file: string; name: string }>>,
   corrections: readonly CitationCorrection[],
 ): string[] {
   const failures: string[] = [];
-  const byId = new Map(corrections.map((correction) => [correction.id, correction]));
+  const byFrom = new Map(
+    corrections.map((correction) => [correctionKey(correction.id, correction.from), correction]),
+  );
   for (const [id, citations] of Object.entries(baseline)) {
     const own = registry.get(id) ?? [];
-    const correction = byId.get(id);
     for (const citation of citations) {
-      const corrected =
-        correction &&
-        correction.from.file === citation.file &&
-        correction.from.name === citation.name
-          ? correction.to
-          : citation;
+      const corrected = correctedCitation(id, citation, byFrom);
       if (!own.some((entry) => entry.file === corrected.file && entry.name === corrected.name))
         failures.push(`${id}: missing ${corrected.file} "${corrected.name}"`);
     }
-    if (correction) {
-      const hasSource = citations.some(
-        (entry) => entry.file === correction.from.file && entry.name === correction.from.name,
+  }
+  for (const correction of corrections) {
+    const citations = baseline[correction.id] ?? [];
+    const hasSource = citations.some(
+      (entry) => entry.file === correction.from.file && entry.name === correction.from.name,
+    );
+    const hasTarget = citations.some(
+      (entry) => entry.file === correction.to.file && entry.name === correction.to.name,
+    );
+    if (!hasSource && !hasTarget)
+      failures.push(
+        `${correction.id}: correction source is not in the baseline and it is not applied`,
       );
-      const hasTarget = citations.some(
+    if (
+      !(registry.get(correction.id) ?? []).some(
         (entry) => entry.file === correction.to.file && entry.name === correction.to.name,
-      );
-      if (!hasSource && !hasTarget)
-        failures.push(`${id}: correction source is not in the baseline and it is not applied`);
-      if (
-        !own.some((entry) => entry.file === correction.to.file && entry.name === correction.to.name)
       )
-        failures.push(`${id}: correction target is missing from the registry`);
-    }
+    )
+      failures.push(`${correction.id}: correction target is missing from the registry`);
   }
   return failures;
 }
@@ -257,17 +271,13 @@ export function citationBaselineFailures(
   corrections: readonly CitationCorrection[],
 ): string[] {
   const failures: string[] = [];
-  const byId = new Map(corrections.map((correction) => [correction.id, correction]));
+  const byFrom = new Map(
+    corrections.map((correction) => [correctionKey(correction.id, correction.from), correction]),
+  );
   for (const [id, citations] of Object.entries(accepted)) {
     const own = current[id] ?? [];
-    const correction = byId.get(id);
     for (const citation of citations) {
-      const expected =
-        correction &&
-        correction.from.file === citation.file &&
-        correction.from.name === citation.name
-          ? correction.to
-          : citation;
+      const expected = correctedCitation(id, citation, byFrom);
       if (!own.some((entry) => entry.file === expected.file && entry.name === expected.name))
         failures.push(`${id}: accepted citation lost: ${citation.file} "${citation.name}"`);
     }

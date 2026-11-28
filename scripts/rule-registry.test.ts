@@ -421,6 +421,31 @@ test("a duplicate citation inside one rule is rejected", () => {
   if (!result.ok) assert.ok(result.errors.some((error) => error.includes("duplicate citation")));
 });
 
+test("every correction for one rule applies by its full citation identity", () => {
+  const first = {
+    id: "SNV-ARTIST-01",
+    from: { file: "src/core/engine/snv.test.ts", name: "one" },
+    to: { file: "src/core/engine/snv.test.ts", name: "one renamed" },
+    reason: "renamed",
+  };
+  const second = {
+    ...first,
+    from: { file: "src/core/engine/snv.test.ts", name: "two" },
+    to: { file: "src/core/engine/snv.test.ts", name: "two renamed" },
+  };
+  const baseline = { "SNV-ARTIST-01": [first.from, second.from] };
+  const registry = new Map([["SNV-ARTIST-01", [first.to, second.to]]]);
+  assert.deepEqual(citationParityFailures(baseline, registry, [first, second]), []);
+  assert.ok(
+    citationParityFailures(baseline, registry, [second]).length > 0,
+    "dropping one correction must fail",
+  );
+  assert.deepEqual(
+    citationBaselineFailures(baseline, { "SNV-ARTIST-01": [first.to, second.to] }, [first, second]),
+    [],
+  );
+});
+
 test("citation corrections must be unique per source citation", () => {
   const base = {
     id: "SNV-ARTIST-01",

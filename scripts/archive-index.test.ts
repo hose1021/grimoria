@@ -1,23 +1,28 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
+  appendBaseline,
   applyCorrections,
   archiveOriginFailures,
+  archiveReadinessFailures,
   baselineCoverageFailures,
   canonicalBytes,
   correctionFailures,
   originFailures,
   parseBaseline,
   parseIndex,
+  parseTestCorrections,
   baselineFailures,
   entriesFrom,
   historicalFailures,
   provenanceFailures,
   refArchiveFailures,
+  testReferenceFailures,
   mergeEntries,
   type ArchiveEntry,
 } from "./archive-index.ts";
@@ -425,4 +430,225 @@ test("archive origins survive squash integration into a legacy target", () => {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("archive origins survive repeated feature, squash, release and back-merge cycles", () => {
+  const root = mkdtempSync(join(tmpdir(), "archive-cycle-"));
+  const git = (args: string[]): string =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  const write = (file: string, content: string): void => {
+    mkdirSync(join(root, file, ".."), { recursive: true });
+    writeFileSync(join(root, file), content);
+  };
+  const indexPath = "docs/audits/openspec-archive-index.json";
+  const writeIndex = (entries: unknown[]): void =>
+    write(
+      indexPath,
+      JSON.stringify(
+        { schemaVersion: 2, canonicalization: "text-lf-binary-raw-v1", entries },
+        null,
+        2,
+      ),
+    );
+  const readEntries = (): ArchiveEntry[] =>
+    parseIndex(readFileSync(join(root, indexPath), "utf8"))!;
+  const archive = (name: string, issue: number) => {
+    const path = `openspec/changes/archive/${name}`;
+    write(`${path}/proposal.md`, `Issue: #${issue}\n`);
+    write(
+      `${path}/specs/game/sample/spec.md`,
+      "### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
+    );
+    return path;
+  };
+  const commitOrigin = (name: string, path: string) => {
+    const commit = git(["rev-parse", "HEAD"]);
+    const date = git(["log", "-1", "--format=%cs"]);
+    return { name, commit, date, path, treeHash: "a".repeat(64), issue: "#1", tests: [] };
+  };
+  try {
+    git(["init", "-q", "-b", "dev"]);
+    git(["config", "user.email", "test@example.com"]);
+    git(["config", "user.name", "Test"]);
+    writeIndex([]);
+    write("README.md", "# dev\n");
+    git(["add", "."]);
+    git(["commit", "-qm", "dev base"]);
+    git(["branch", "main"]);
+
+    // Release 1: one archive integrated by squash, then released by squash.
+    git(["checkout", "-q", "-b", "feat/one"]);
+    const pathOne = archive("2026-01-01-one", 1);
+    git(["add", "."]);
+    git(["commit", "-qm", "feat one"]);
+    const one = commitOrigin("2026-01-01-one", pathOne);
+    writeIndex([one]);
+    git(["add", "."]);
+    git(["commit", "-qm", "record origin"]);
+    const featureOne = one.commit;
+    git(["checkout", "-q", "dev"]);
+    git(["merge", "-q", "--squash", "feat/one"]);
+    git(["commit", "-qm", "integrate one"]);
+    git(["branch", "-D", "feat/one"]);
+    git(["checkout", "-q", "main"]);
+    git(["merge", "-q", "--squash", "dev"]);
+    git(["commit", "-qm", "release 1"]);
+    git(["checkout", "-q", "dev"]);
+    git(["merge", "-q", "main", "-m", "back-merge one"]);
+
+    // The feature commit that named the origin is no longer an ancestor.
+    assert.throws(() => git(["merge-base", "--is-ancestor", featureOne, "dev"]));
+
+    // Release 2: a second archive is squashed into dev, then released.
+    git(["checkout", "-q", "-b", "feat/two"]);
+    const pathTwo = archive("2026-02-01-two", 2);
+    git(["add", "."]);
+    git(["commit", "-qm", "feat two"]);
+    const two = commitOrigin("2026-02-01-two", pathTwo);
+    writeIndex([one, two]);
+    const twoEntries = readEntries();
+    assert.deepEqual(archiveOriginFailures(root, twoEntries, "main"), []);
+    assert.deepEqual(archiveOriginFailures(root, twoEntries, "dev"), []);
+    git(["add", "."]);
+    git(["commit", "-qm", "record second origin"]);
+    git(["checkout", "-q", "dev"]);
+    git(["merge", "-q", "--squash", "feat/two"]);
+    git(["commit", "-qm", "integrate two"]);
+    git(["branch", "-D", "feat/two"]);
+
+    // The release pull request checks the squashed dev tree against main.
+    assert.deepEqual(archiveOriginFailures(root, readEntries(), "main"), []);
+
+    const previousMain = git(["rev-parse", "main"]);
+    git(["checkout", "-q", "main"]);
+    git(["merge", "-q", "--squash", "dev"]);
+    git(["commit", "-qm", "release 2"]);
+    const released = readEntries();
+    assert.deepEqual(archiveOriginFailures(root, released, previousMain), []);
+    assert.deepEqual(archiveOriginFailures(root, released, "main"), []);
+
+    // A later back-merge keeps the accepted records.
+    git(["checkout", "-q", "dev"]);
+    git(["merge", "-q", "main", "-m", "back-merge two"]);
+    assert.deepEqual(archiveOriginFailures(root, readEntries(), "main"), []);
+
+    // A rewritten origin for an archive main accepted still fails.
+    const rewritten = readEntries().map((entry) =>
+      entry.name === "2026-02-01-two" ? { ...entry, commit: "f".repeat(40) } : entry,
+    );
+    assert.ok(
+      archiveOriginFailures(root, rewritten, "main").some((failure) =>
+        failure.includes("2026-02-01-two"),
+      ),
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a dangling archived test reference needs a reviewed correction", () => {
+  const entry = {
+    ...row("2026-11-01-a"),
+    tests: ["src/kept.test.ts", "src/gone.test.ts"],
+  };
+  const exists = (path: string) => ["src/kept.test.ts", "src/rewritten.test.ts"].includes(path);
+  const correction = {
+    archive: "2026-11-01-a",
+    from: "src/gone.test.ts",
+    to: "src/rewritten.test.ts",
+    reason: "renamed",
+  };
+  const dangling = testReferenceFailures([entry], [], exists);
+  assert.ok(dangling.some((failure) => failure.includes("src/gone.test.ts")));
+  assert.deepEqual(testReferenceFailures([entry], [correction], exists), []);
+  assert.ok(
+    testReferenceFailures([entry], [{ ...correction, archive: "other" }], exists).some((failure) =>
+      failure.includes("names no archived change"),
+    ),
+  );
+  assert.ok(
+    testReferenceFailures(
+      [entry],
+      [{ ...correction, from: "src/not-indexed.test.ts" }],
+      exists,
+    ).some((failure) => failure.includes("not an indexed test reference")),
+  );
+  assert.ok(
+    testReferenceFailures([entry], [{ ...correction, reason: " " }], exists).some((failure) =>
+      failure.includes("no reason"),
+    ),
+  );
+  assert.ok(
+    testReferenceFailures([entry], [{ ...correction, to: "src/missing.test.ts" }], exists).some(
+      (failure) => failure.includes("missing"),
+    ),
+  );
+  assert.ok(
+    testReferenceFailures([entry], [correction, correction], exists).some((failure) =>
+      failure.includes("duplicate correction"),
+    ),
+  );
+  assert.ok(
+    testReferenceFailures([entry], [{ ...correction, from: "src/kept.test.ts" }], exists).some(
+      (failure) => failure.includes("stale"),
+    ),
+  );
+  assert.equal(parseTestCorrections("not json"), null);
+  assert.equal(parseTestCorrections(JSON.stringify({ corrections: [{ archive: 1 }] })), null);
+  assert.equal(parseTestCorrections(JSON.stringify({ corrections: [correction] }))?.length, 1);
+});
+
+test("an archive outside the accepted anchor must be finished and carry evidence", () => {
+  const anchored = { ...row("2026-11-01-a"), tests: [] };
+  const fresh = { ...row("2026-12-01-b"), tests: [] };
+  const anchor = [{ name: anchored.name, treeHash: anchored.treeHash }];
+  const files = new Map([
+    [`${anchored.path}/tasks.md`, "# Tasks\n\n- [ ] 1.1 Unfinished.\n"],
+    [`${fresh.path}/tasks.md`, "# Tasks\n\n- [ ] 1.1 Unfinished.\n"],
+  ]);
+  const read = (path: string) => files.get(path) ?? null;
+  const failures = archiveReadinessFailures([anchored, fresh], anchor, read);
+  assert.deepEqual(
+    [...new Set(failures.map((failure) => failure.split(":")[0]))],
+    [fresh.name],
+    "only the archive outside the anchor is checked",
+  );
+  const finished = new Map([
+    [
+      `${fresh.path}/tasks.md`,
+      "# Tasks\n\n- [x] 1.1 Done.\n\n## Evidence\n\n- RED: one\n- GREEN: two\n",
+    ],
+  ]);
+  assert.deepEqual(
+    archiveReadinessFailures([fresh], anchor, (path) => finished.get(path) ?? null),
+    [],
+  );
+  assert.deepEqual(
+    archiveReadinessFailures([fresh], anchor, () => null).some((failure) =>
+      failure.includes("no tasks.md"),
+    ),
+    true,
+  );
+});
+
+test("a new archive is appended to the baseline and an accepted hash is never rewritten", () => {
+  const baseline = [{ name: "2026-11-01-a", treeHash: "a".repeat(64) }];
+  const rewritten = { ...row("2026-11-01-a"), treeHash: "b".repeat(64) };
+  const added = { ...row("2026-12-01-b"), treeHash: "c".repeat(64) };
+  assert.deepEqual(appendBaseline(baseline, [rewritten]), baseline);
+  assert.deepEqual(appendBaseline(baseline, [rewritten, added]), [
+    ...baseline,
+    { name: "2026-12-01-b", treeHash: "c".repeat(64) },
+  ]);
+  assert.deepEqual(appendBaseline(baseline, []), baseline);
+});
+
+test("the archive check fails closed on an invalid target ref", () => {
+  const result = spawnSync(
+    process.execPath,
+    ["scripts/archive-index.ts", "--check", "--against", "ref-that-does-not-exist-519"],
+    { cwd: fileURLToPath(new URL("..", import.meta.url)), encoding: "utf8" },
+  );
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /cannot read the archive baseline at/);
 });

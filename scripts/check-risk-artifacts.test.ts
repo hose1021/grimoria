@@ -128,6 +128,7 @@ const archiveChanged = [
   "openspec/changes/sample-change/proposal.md",
   "openspec/specs/workflow/verification-gates/spec.md",
   "docs/audits/openspec-archive-index.json",
+  "fixtures/conformance/archive-test-corrections.json",
 ];
 test("an archive-only transition keeps the package and its evidence", () => {
   const roots = [

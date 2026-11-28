@@ -233,15 +233,15 @@ export function archiveOriginFailures(
   ref?: string,
 ): string[] {
   const accepted = ref ? indexAt(root, ref) : undefined;
-  const hasTargetIndex = accepted !== undefined && accepted.size > 0;
   const indexes = new Map<string, ReadonlyMap<string, ArchiveEntry>>();
+  // The target branch wins when it already accepted the change. Otherwise the
+  // index committed with the first add is the record: a squash merge rewrites
+  // the introducing commit, but the tree it committed still names the reviewed
+  // origin. A target without an index (a legacy main) is protected the same way.
   const acceptedOrigin = (entry: ArchiveEntry, first: Origin | null): Origin | undefined => {
-    if (hasTargetIndex) return accepted!.get(entry.name);
+    const target = accepted?.get(entry.name);
+    if (target) return target;
     if (!first) return undefined;
-    // A target branch without an index (a legacy main) receives archives that a
-    // source branch already integrated; the index at the first add is the
-    // trusted record there. A target that has an index stays strict: a new
-    // archive must match its own first add.
     if (!indexes.has(first.commit)) indexes.set(first.commit, indexAt(root, first.commit));
     return indexes.get(first.commit)?.get(entry.name);
   };
@@ -355,6 +355,104 @@ function refArchiveEntries(root: string, ref: string): ArchiveNameHash[] | null 
   return entries;
 }
 
+export interface ArchiveTestCorrection {
+  archive: string;
+  from: string;
+  to: string;
+  reason: string;
+}
+
+/**
+ * Resolves the test files an archived delta spec names. A historical citation
+ * may name a file that never existed or was renamed since; a reviewed record
+ * maps it to the current asserting file without editing the archived tree.
+ */
+export function testReferenceFailures(
+  entries: readonly ArchiveEntry[],
+  corrections: readonly ArchiveTestCorrection[],
+  exists: (path: string) => boolean,
+): string[] {
+  const failures: string[] = [];
+  const byArchive = new Map(entries.map((entry) => [entry.name, new Set(entry.tests ?? [])]));
+  const corrected = new Map<string, string>();
+  for (const correction of corrections) {
+    const key = correction.archive + "\0" + correction.from;
+    if (corrected.has(key))
+      failures.push(`${correction.archive}: duplicate correction for ${correction.from}`);
+    const own = byArchive.get(correction.archive);
+    if (!own) failures.push(`${correction.archive}: correction names no archived change`);
+    else if (!own.has(correction.from))
+      failures.push(`${correction.archive}: ${correction.from} is not an indexed test reference`);
+    if (!correction.reason.trim())
+      failures.push(`${correction.archive}: correction for ${correction.from} has no reason`);
+    if (exists(correction.from))
+      failures.push(`${correction.archive}: ${correction.from} exists; the correction is stale`);
+    if (!exists(correction.to))
+      failures.push(`${correction.archive}: correction target ${correction.to} is missing`);
+    corrected.set(key, correction.to);
+  }
+  for (const entry of entries)
+    for (const reference of entry.tests ?? [])
+      if (!exists(reference) && !corrected.has(entry.name + "\0" + reference))
+        failures.push(`${entry.name}: historical test reference ${reference} is dangling`);
+  return failures;
+}
+
+export function parseTestCorrections(text: string): ArchiveTestCorrection[] | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const record = parsed as { corrections?: unknown };
+  if (!Array.isArray(record.corrections)) return null;
+  const corrections: ArchiveTestCorrection[] = [];
+  for (const entry of record.corrections) {
+    if (typeof entry !== "object" || entry === null) return null;
+    const value = entry as ArchiveTestCorrection;
+    if (
+      typeof value.archive !== "string" ||
+      typeof value.from !== "string" ||
+      typeof value.to !== "string" ||
+      typeof value.reason !== "string"
+    )
+      return null;
+    corrections.push(value);
+  }
+  return corrections;
+}
+
+/**
+ * An archived change outside the accepted anchor must be finished and carry
+ * its RED/GREEN record. Entries the anchor accepted predate this gate and stay
+ * as they are: history is evidence, not something to rewrite.
+ */
+export function archiveReadinessFailures(
+  entries: readonly ArchiveEntry[],
+  anchor: readonly BaselineEntry[],
+  read: (path: string) => string | null,
+): string[] {
+  const accepted = new Set(anchor.map((entry) => entry.name));
+  const failures: string[] = [];
+  for (const entry of entries) {
+    if (accepted.has(entry.name)) continue;
+    const tasks = read(`${entry.path}/tasks.md`);
+    if (tasks === null) {
+      failures.push(`${entry.name}: archived change has no tasks.md`);
+      continue;
+    }
+    const boxes = [...tasks.matchAll(/^- \[([ xX])\]/gm)].map((match) => match[1]);
+    const open = boxes.filter((box) => box === " ").length;
+    if (boxes.length === 0) failures.push(`${entry.name}: archived change has no checklist`);
+    else if (open > 0) failures.push(`${entry.name}: archived change has ${open} open task(s)`);
+    if (!/^- RED:/m.test(tasks) || !/^- GREEN:/m.test(tasks))
+      failures.push(`${entry.name}: archived change has no RED/GREEN evidence`);
+  }
+  return failures;
+}
+
 export interface BaselineEntry {
   name: string;
   treeHash: string;
@@ -460,6 +558,17 @@ function readBaseline(path: string): BaselineEntry[] | null {
   return parseBaseline(readFileSync(path, "utf8"));
 }
 
+export function appendBaseline(
+  baseline: readonly BaselineEntry[],
+  entries: readonly ArchiveEntry[],
+): BaselineEntry[] {
+  const known = new Set(baseline.map((entry) => entry.name));
+  const added = entries
+    .filter((entry) => !known.has(entry.name))
+    .map((entry) => ({ name: entry.name, treeHash: entry.treeHash }));
+  return added.length ? [...baseline, ...added] : [...baseline];
+}
+
 function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
   for (const entry of entries) {
     if (
@@ -472,6 +581,9 @@ function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
       throw new Error(`archived tree changed or missing: ${entry.path}`);
     if (entry.issue !== proposalIssue(root, entry.path))
       throw new Error(`archive issue differs from proposal: ${entry.path}`);
+    const tests = testReferences(root, entry.path);
+    if (JSON.stringify(tests) !== JSON.stringify(entry.tests ?? []))
+      throw new Error(`archive test references differ from the delta specs: ${entry.path}`);
   }
 }
 
@@ -507,6 +619,15 @@ function main(): void {
     const refIndex = process.argv.indexOf("--against");
     const ref = refIndex >= 0 ? process.argv[refIndex + 1] : process.env.ARCHIVE_BASELINE_REF;
     if (refIndex >= 0 && !ref) throw new Error("--against needs a git ref");
+    if (ref) {
+      try {
+        execFileSync("git", ["rev-parse", "--verify", ref], { cwd: root, stdio: "ignore" });
+      } catch {
+        console.error(`cannot read the archive baseline at ${ref}; fetch the target branch`);
+        process.exitCode = 1;
+        return;
+      }
+    }
     const changed = [
       ...existing.flatMap((entry) => provenanceFailures(entry)),
       ...archiveOriginFailures(root, existing, ref),
@@ -579,6 +700,27 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
+    const testCorrectionsPath = join(root, "fixtures/conformance/archive-test-corrections.json");
+    const testCorrections = existsSync(testCorrectionsPath)
+      ? parseTestCorrections(readFileSync(testCorrectionsPath, "utf8"))
+      : [];
+    if (testCorrections === null) {
+      console.error("archive-test-corrections.json is malformed");
+      process.exitCode = 1;
+      return;
+    }
+    const references = testReferenceFailures(existing, testCorrections, (path) =>
+      existsSync(join(root, path)),
+    );
+    const readiness = archiveReadinessFailures(existing, anchor, (path) => {
+      const absolute = join(root, path);
+      return existsSync(absolute) ? readFileSync(absolute, "utf8") : null;
+    });
+    if (references.length || readiness.length) {
+      console.error([...references, ...readiness].join("; "));
+      process.exitCode = 1;
+      return;
+    }
     console.log(`Archive index is current: ${existing.length} change(s).`);
     return;
   }
@@ -590,6 +732,21 @@ function main(): void {
     return { ...entry, commit: prior.commit, date: prior.date };
   });
   verifyFiles(root, merged);
+  const baselinePath = join(root, "docs/audits/openspec-archive-baseline.json");
+  const baseline = readBaseline(baselinePath);
+  if (baseline === null) {
+    console.error("openspec-archive-baseline.json is missing or malformed; refusing to accept");
+    process.exitCode = 1;
+    return;
+  }
+  // Accept a new archive by appending its record. An existing record is never
+  // rewritten: a changed tree needs a reviewed correction entry.
+  const appended = appendBaseline(baseline, merged);
+  if (appended.length !== baseline.length)
+    writeFileSync(
+      baselinePath,
+      JSON.stringify({ schemaVersion: 1, entries: appended }, null, 2) + "\n",
+    );
   writeFileSync(
     out,
     JSON.stringify(

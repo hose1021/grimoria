@@ -3,6 +3,7 @@ name: OpenSpec
 on:
   pull_request:
     branches: [main, dev]
+    types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
 
 permissions:

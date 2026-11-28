@@ -156,7 +156,7 @@ export function riskArtifactFailures(
         path.startsWith("openspec/changes/") ||
         path.startsWith("openspec/specs/") ||
         path.startsWith("docs/audits/openspec-archive-") ||
-        path === "fixtures/conformance/openspec-archive-baseline.json" ||
+        path.startsWith("fixtures/conformance/archive-") ||
         path === "CHANGELOG.md";
       for (const path of changed.filter((candidate) => !allowed(candidate)))
         failures.push(
