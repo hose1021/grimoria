@@ -22,11 +22,7 @@ pub const CONTRACT_VERSION: &str = "1";
 
 /// Identity string a future WASM adapter reports at initialization.
 pub fn contract_identity() -> String {
-    format!(
-        "{}@{}",
-        grimoria_domain::domain_identity(),
-        CONTRACT_VERSION
-    )
+    format!("grimoria-wire@{CONTRACT_VERSION}")
 }
 
 #[cfg(test)]

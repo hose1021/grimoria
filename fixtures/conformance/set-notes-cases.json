@@ -1,0 +1,86 @@
+{
+  "fixtureVersion": 1,
+  "cases": [
+    {
+      "id": "unicode-notes",
+      "command": {
+        "id": "slice-unicode",
+        "type": "setNotes",
+        "payload": { "notes": "café 😀" },
+        "at": "2026-11-28T00:00:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:00:00.000Z", "seed": "seed-unicode", "id": "slice-unicode" }
+    },
+    {
+      "id": "lone-surrogate-notes",
+      "command": {
+        "id": "slice-surrogate",
+        "type": "setNotes",
+        "payload": { "notes": "a\ud800b" },
+        "at": "2026-11-28T00:01:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:01:00.000Z", "seed": "seed-surrogate", "id": "slice-surrogate" }
+    },
+    {
+      "id": "absent-notes",
+      "command": {
+        "id": "slice-absent",
+        "type": "setNotes",
+        "payload": {},
+        "at": "2026-11-28T00:02:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:02:00.000Z", "seed": "seed-absent", "id": "slice-absent" }
+    },
+    {
+      "id": "numeric-command-id",
+      "command": {
+        "id": "10",
+        "type": "setNotes",
+        "payload": { "notes": "numeric" },
+        "at": "2026-11-28T00:03:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:03:00.000Z", "seed": "seed-numeric", "id": "10" }
+    },
+    {
+      "id": "invalid-ruleset",
+      "command": {
+        "id": "slice-invalid-version",
+        "type": "setNotes",
+        "payload": { "notes": "x" },
+        "at": "2026-11-28T00:04:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-1999-01-01"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:04:00.000Z", "seed": "seed-invalid", "id": "slice-invalid-version" }
+    },
+    {
+      "id": "unsupported-command",
+      "command": {
+        "id": "slice-unsupported",
+        "type": "startNight",
+        "payload": {},
+        "at": "2026-11-28T00:05:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:05:00.000Z", "seed": "seed-unsupported", "id": "slice-unsupported" }
+    },
+    {
+      "id": "malformed-command",
+      "command": { "type": "setNotes", "payload": { "unknown": 1 } },
+      "inputs": { "timestamp": "2026-11-28T00:06:00.000Z", "seed": "seed-malformed", "id": "slice-malformed" }
+    },
+    {
+      "id": "null-notes",
+      "command": {
+        "id": "slice-null",
+        "type": "setNotes",
+        "payload": { "notes": null },
+        "at": "2026-11-28T00:07:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:07:00.000Z", "seed": "seed-null", "id": "slice-null" }
+    },
+    {
+      "id": "host-supplied-inputs",
+      "command": { "type": "setNotes", "payload": { "notes": "host" } },
+      "inputs": { "timestamp": "2026-11-28T00:08:00.000Z", "seed": "seed-host", "id": "slice-host" }
+    }
+  ]
+}

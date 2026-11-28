@@ -6,7 +6,7 @@
 
 use wasm_bindgen::prelude::*;
 
-use grimoria_wire::{Request, Value, WIRE_VERSION, WireError};
+use grimoria_wire::{Operation, Request, Value, WIRE_VERSION, WireError};
 
 /// Version of the wire contract.
 #[wasm_bindgen]
@@ -36,6 +36,49 @@ pub fn wire_legacy_canonical_bytes(input: &str) -> Result<String, String> {
     Value::parse(input)
         .map(|value| value.to_legacy_canonical())
         .map_err(failure)
+}
+
+/// Prepares, validates and returns a `setNotes` command result.
+#[wasm_bindgen]
+pub fn set_notes_validate(state_json: &str, command_json: &str, inputs_json: &str) -> String {
+    grimoria_domain::command::dispatch(
+        Operation::ValidateCommand,
+        state_json,
+        command_json,
+        inputs_json,
+    )
+}
+
+/// Previews a `setNotes` command without changing the state.
+#[wasm_bindgen]
+pub fn set_notes_preview(state_json: &str, command_json: &str, inputs_json: &str) -> String {
+    grimoria_domain::command::dispatch(
+        Operation::PreviewCommand,
+        state_json,
+        command_json,
+        inputs_json,
+    )
+}
+
+/// Applies a `setNotes` command and returns `{result,state}`.
+#[wasm_bindgen]
+pub fn set_notes_apply(state_json: &str, command_json: &str, inputs_json: &str) -> String {
+    grimoria_domain::command::dispatch(
+        Operation::ApplyCommand,
+        state_json,
+        command_json,
+        inputs_json,
+    )
+}
+
+/// Replays a journal made only of `setNotes` entries.
+#[wasm_bindgen]
+pub fn set_notes_replay(state_json: &str) -> String {
+    let mut state = match grimoria_domain::State::parse(state_json) {
+        Ok(state) => state,
+        Err(error) => return error.to_failure_json(),
+    };
+    grimoria_domain::command::replay(&mut state).to_wire()
 }
 
 fn failure(error: WireError) -> String {

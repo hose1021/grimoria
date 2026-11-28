@@ -90,6 +90,8 @@ jobs:
         run: wasm-bindgen --target nodejs --out-dir target/wire-node target/wasm32-unknown-unknown/debug/grimoria_wasm.wasm
       - name: Compare WASM, ECMAScript and TypeScript canonical bytes
         run: node scripts/wire-wasm-parity.ts --module target/wire-node/grimoria_wasm.js
+      - name: Compare TypeScript and WASM setNotes execution
+        run: node scripts/set-notes-differential.ts --module target/wire-node/grimoria_wasm.js --inject-divergence
 
   lint:
     name: Lint and format

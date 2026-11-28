@@ -1,6 +1,6 @@
 # ADR 0006: Rust/WASM engine migration with a TypeScript reference oracle
 
-- Status: Proposed (Phase 0 complete; Phase 1 wire contract implemented)
+- Status: Proposed (Phase 0 and 1 complete; Phase 2 `setNotes` slice implemented)
 - Date: 2026-11-28
 - Issue: [#535](https://github.com/hose1021/grimoria/issues/535)
 - Baseline: tag `v0.14.0`, `main` `de6a17a8997f1dfa22ebbc50a36b4bd57640ad7c`
@@ -137,6 +137,27 @@ with ECMAScript and the real TypeScript canonicalizer, and
 `scripts/wire-wasm-parity.ts` executes the generated Node bindings. The wasm32
 CI job installs `wasm-bindgen-cli` at the lockfile version and runs both.
 
+## Phase 2 setNotes vertical slice
+
+`grimoria-wire` is pure serialization; `grimoria-domain` now depends on it.
+`State` wraps the parsed JSON object and edits only `notes`, `applied` and
+`journal`, preserving every unknown field and UTF-16 code unit. Preparation
+accepts host-supplied timestamp, seed and id, validates the envelope and
+computes the legacy fingerprint and identity.
+
+`setNotes` validate, preview, apply and replay match the TypeScript result,
+state, events, applied identity, journal coalescing, idempotency and conflict
+behavior. Rejections do not mutate state. Unsupported commands fail explicitly.
+Replay is limited to `setNotes` entries and fails with `journal-dependency`
+otherwise.
+
+`fixtures/conformance/set-notes-cases.json` and
+`scripts/set-notes-differential.ts` run the real TypeScript engine and the
+generated Node WASM bindings over the committed legacy state. The comparison
+covers Unicode, lone surrogates, numeric ids, absent/null payloads, malformed
+and invalid commands, duplicate ids, preview isolation and replay. The
+`--inject-divergence` mode proves the comparator detects a changed field.
+
 ## Oracle versioning
 
 1. Immutable compatibility oracle: v0.14.0 `de6a17a`, frozen source/bundle and
@@ -163,15 +184,15 @@ names, roles, notes or secrets.
 grimoria-cli        -> grimoria-conformance
 grimoria-conformance-> grimoria-domain, grimoria-wire
 grimoria-wasm       -> grimoria-domain, grimoria-wire
-grimoria-wire       -> grimoria-domain
-grimoria-domain     -> (no workspace crate)
+grimoria-domain     -> grimoria-wire
+grimoria-wire       -> (no workspace crate)
 ```
 
-`scripts/check-cargo-graph.ts` reads Cargo metadata (`--no-deps --locked
---offline`) and rejects extra or missing workspace packages, external
-dependencies, an unauthorized edge and a dependency cycle. It checks the
-resolved edges, so target-specific, dev, build, optional, renamed and
-workspace-inherited declarations cannot hide a dependency. It runs in `npm run
+`scripts/check-cargo-graph.ts` reads the full resolved Cargo metadata (`--locked
+--offline`) and rejects extra or missing workspace packages, unapproved external
+packages, an unauthorized edge and a dependency cycle. It checks the resolved
+edges, so target-specific, dev, build, optional, renamed and workspace-inherited
+declarations cannot hide a dependency. It runs in `npm run
 verify` and CI. `rust-toolchain.toml` pins Rust 1.98.1 and
 `wasm32-unknown-unknown`; `Cargo.lock` is committed. No `rand`, `chrono`,
 `getrandom`, storage or network crates in the domain.

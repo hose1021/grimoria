@@ -25,7 +25,7 @@ interface Edge {
   syntax?: Syntax;
 }
 const BASE: Edge[] = [
-  { from: "grimoria-wire", to: "grimoria-domain" },
+  { from: "grimoria-domain", to: "grimoria-wire" },
   { from: "grimoria-conformance", to: "grimoria-domain" },
   { from: "grimoria-conformance", to: "grimoria-wire" },
   { from: "grimoria-wasm", to: "grimoria-domain" },
@@ -151,13 +151,13 @@ for (const syntax of ["plain", "renamed", "target", "optional", "dev", "build"] 
 
 test("an external dependency fails", () => {
   const root = workspace(
-    [...BASE, { from: "grimoria-wire", to: "external-crate", syntax: "plain" }],
+    [...BASE, { from: "grimoria-domain", to: "external-crate", syntax: "plain" }],
     { external: true },
   );
   // The external crate is inside the workspace root, so the edge must use ../../.
   writeFileSync(
-    join(root, "crates", "grimoria-wire", "Cargo.toml"),
-    '[package]\nname = "grimoria-wire"\nversion = "0.0.0"\nedition = "2024"\n\n[dependencies]\ngrimoria-domain = { path = "../grimoria-domain" }\nexternal-crate = { path = "../../external-crate" }\n',
+    join(root, "crates", "grimoria-domain", "Cargo.toml"),
+    '[package]\nname = "grimoria-domain"\nversion = "0.0.0"\nedition = "2024"\n\n[dependencies]\ngrimoria-wire = { path = "../grimoria-wire" }\nexternal-crate = { path = "../../external-crate" }\n',
   );
   execFileSync("cargo", ["generate-lockfile", "--offline"], { cwd: root, stdio: "ignore" });
   try {
@@ -166,7 +166,8 @@ test("an external dependency fails", () => {
         (failure) =>
           failure.includes("external dependency") ||
           failure.includes("not an approved workspace package") ||
-          failure.includes("resolved package is not approved"),
+          failure.includes("resolved package is not approved") ||
+          failure.includes("path substitution"),
       ),
     );
   } finally {
