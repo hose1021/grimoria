@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "canonicalization": "text-lf-binary-raw-v1",
   "entries": [
     {
       "name": "2026-11-11-adopt-issue-driven-workflow",

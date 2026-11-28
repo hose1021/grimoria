@@ -3,6 +3,7 @@
 // The supported JSON Schema subset is checked by hand below; a record passes
 // only when every field, identifier, role and test reference resolves.
 import { execFileSync } from "node:child_process";
+import { matrixRuleRows, parseRuleDoc } from "./rule-traceability.ts";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -189,6 +190,46 @@ export function citationParityFailures(
   return failures;
 }
 
+export function legacyCitations(
+  matrix: string,
+  ruleDocs: ReadonlyMap<string, string>,
+): Record<string, Array<{ file: string; name: string }>> {
+  const cellsOf = (line: string): string[] | null => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return null;
+    return trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((cell) => cell.trim());
+  };
+  const out: Record<string, Array<{ file: string; name: string }>> = {};
+  for (const row of matrixRuleRows(
+    matrix
+      .split("\n")
+      .map(cellsOf)
+      .filter((cells) => cells !== null),
+  )) {
+    if (row.id === null) continue;
+    out[row.id] ??= [];
+    out[row.id].push(...row.citations);
+  }
+  for (const source of ruleDocs.values())
+    for (const rule of parseRuleDoc(source).rules) {
+      out[rule.id] ??= [];
+      out[rule.id].push(...rule.citations);
+    }
+  for (const [id, citations] of Object.entries(out)) {
+    const seen = new Set<string>();
+    out[id] = citations.filter((citation) => {
+      const key = citation.file + "\0" + citation.name;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+  return out;
+}
+
 export function citationBaselineFailures(
   accepted: Record<string, Array<{ file: string; name: string }>>,
   current: Record<string, Array<{ file: string; name: string }>>,
@@ -328,39 +369,52 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
-    let acceptedText: string | null = null;
+    let matrixText: string;
     try {
       execFileSync("git", ["rev-parse", "--verify", ref], { cwd: root, stdio: "ignore" });
-      acceptedText = execFileSync(
+      matrixText = execFileSync("git", ["show", `${ref}:docs/rules-matrix.md`], {
+        cwd: root,
+        encoding: "utf8",
+      });
+    } catch (error) {
+      console.error(`cannot read the legacy rule sources at ${ref}: ${String(error)}`);
+      process.exitCode = 1;
+      return;
+    }
+    const ruleDocs = new Map<string, string>();
+    try {
+      const listing = execFileSync(
         "git",
-        ["show", `${ref}:fixtures/conformance/baseline-rule-citations.json`],
+        ["ls-tree", "-r", "--name-only", ref, "--", "src/core/roles"],
         { cwd: root, encoding: "utf8" },
       );
-    } catch {
-      acceptedText = null;
-    }
-    if (acceptedText !== null) {
-      const accepted = (
-        JSON.parse(acceptedText) as {
-          citations: Record<string, Array<{ file: string; name: string }>>;
-        }
-      ).citations;
-      const current = (
-        JSON.parse(
-          readFileSync(join(root, "fixtures/conformance/baseline-rule-citations.json"), "utf8"),
-        ) as { citations: Record<string, Array<{ file: string; name: string }>> }
-      ).citations;
-      const corrections = (
-        JSON.parse(
-          readFileSync(join(root, "fixtures/conformance/citation-corrections.json"), "utf8"),
-        ) as { corrections: CitationCorrection[] }
-      ).corrections;
-      for (const failure of citationBaselineFailures(accepted, current, corrections)) {
-        console.error(failure);
-        process.exitCode = 1;
+      for (const file of listing.split("\n").filter((entry) => entry.endsWith("/rule.md"))) {
+        ruleDocs.set(
+          file,
+          execFileSync("git", ["show", `${ref}:${file}`], { cwd: root, encoding: "utf8" }),
+        );
       }
-      if (process.exitCode) return;
+    } catch (error) {
+      console.error(`cannot read the legacy role documents at ${ref}: ${String(error)}`);
+      process.exitCode = 1;
+      return;
     }
+    const legacy = legacyCitations(matrixText, ruleDocs);
+    const registry = new Map<string, Array<{ file: string; name: string }>>();
+    for (const rule of [...validated.values()].flat()) registry.set(rule.id, rule.assertingTests);
+    const corrections = (
+      JSON.parse(
+        readFileSync(join(root, "fixtures/conformance/citation-corrections.json"), "utf8"),
+      ) as { corrections: CitationCorrection[] }
+    ).corrections;
+    const failures = citationParityFailures(legacy, registry, corrections);
+    if (failures.length) {
+      for (const failure of failures) console.error(failure);
+      console.error(`citation legacy parity failed for ${failures.length} citation(s)`);
+      process.exitCode = 1;
+      return;
+    }
+    console.log(`Citation legacy parity passed: ${Object.keys(legacy).length} rules at ${ref}.`);
   }
   const rules = [...validated.values()].reduce((sum, list) => sum + list.length, 0);
   console.log(`Rule registry check passed: ${rules} rule(s).`);

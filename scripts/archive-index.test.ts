@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  applyCorrections,
   baselineCoverageFailures,
+  canonicalBytes,
+  chooseProvenance,
+  originFailures,
   parseBaseline,
   baselineFailures,
   entriesFrom,
@@ -149,4 +153,45 @@ test("a target-branch archive tree cannot lose or rewrite an accepted change", (
       [row("2026-11-01-a")],
     ).some((failure) => failure.includes("changed since the target branch")),
   );
+});
+
+test("archive hashes canonicalize text and keep binary bytes", () => {
+  assert.equal(canonicalBytes(Buffer.from("a\r\nb\r\n")).toString(), "a\nb\n");
+  const binary = Buffer.from([1, 0, 2]);
+  assert.deepEqual(canonicalBytes(binary), binary);
+});
+
+test("provenance survives a squash with missing origin commits", () => {
+  const existing = { commit: "a".repeat(40), date: "2026-11-01" };
+  const fresh = { commit: "b".repeat(40), date: "2026-12-01" };
+  assert.deepEqual(chooseProvenance(existing, fresh, false), existing);
+  assert.deepEqual(chooseProvenance(existing, fresh, true), fresh);
+});
+
+test("a recorded origin must be the first add, not a later one", () => {
+  const entry = { ...row("2026-11-01-a"), commit: "a".repeat(40) };
+  assert.deepEqual(
+    originFailures([entry], () => entry.commit),
+    [],
+  );
+  assert.ok(
+    originFailures([entry], () => "b".repeat(40)).some((failure) =>
+      failure.includes("is not the first add"),
+    ),
+  );
+  assert.deepEqual(
+    originFailures([entry], () => null),
+    [],
+  );
+});
+
+test("an explicit correction replaces a baseline hash and needs a reason", () => {
+  const baseline = [{ name: "2026-11-01-a", treeHash: "a".repeat(64) }];
+  const corrections = [
+    { name: "2026-11-01-a", fromHash: "a".repeat(64), toHash: "b".repeat(64), reason: "reviewed" },
+  ];
+  assert.deepEqual(applyCorrections(baseline, corrections), [
+    { name: "2026-11-01-a", treeHash: "b".repeat(64) },
+  ]);
+  assert.deepEqual(applyCorrections(baseline, []), baseline);
 });

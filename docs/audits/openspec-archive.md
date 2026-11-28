@@ -39,6 +39,11 @@ in the integrated tree, pinned by `treeHash`, the index and the baseline fixture
   requires) and binary bytes raw, so an accepted tree keeps the same hash across
   checkouts with a different stored line ending.
 - A content change to an archived tree fails the gate until a reviewed commit
-  updates both the index and docs/audits/openspec-archive-baseline.json.
+  records it in `fixtures/conformance/archive-corrections.json` with the old
+  hash, the new hash and a reason, and updates the index, baseline and anchor.
+- The index declares `canonicalization: "text-lf-binary-raw-v1"`: text hashes the
+  LF form, binary bytes are hashed raw.
+- A recorded origin is validated as the first add of the change path; when a
+  squash removed that commit object, the accepted origin is kept as-is.
 - No retention decision may weaken the pinned-rule, licensing or verification
   guarantees.

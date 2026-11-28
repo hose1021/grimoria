@@ -24,6 +24,8 @@ test("the diff decides the tier from its highest-risk path", () => {
   assert.equal(classify(["new/unknown.bin"]), "R3");
   assert.equal(classify(["src/unknown/file.ts"]), "R3");
   assert.equal(classify(["docs/x.md", "new/unknown.bin"]), "R3");
+  assert.equal(classify(["src/ui/shell.tsx", "new/unknown.bin"]), "R3");
+  assert.equal(classify(["src/core/roles/sailor/role.ts", "new/unknown.bin"]), "R3");
   assert.equal(classify(["src/ui/shell.tsx"]), "R1");
   assert.equal(classify(["src/core/roles/sailor/role.ts"]), "R2");
   assert.equal(classify(["src/core/engine/commands.ts"]), "R3");
@@ -31,8 +33,10 @@ test("the diff decides the tier from its highest-risk path", () => {
   assert.equal(classify(["openspec/specs/game/setup/spec.md"]), "R3");
 });
 
+const body = (risk: string, extra = "- `npm run verify` pass.") =>
+  `Issue: #519\nRisk: ${risk}\nEvidence:\n${extra}`;
+
 test("a declared tier below the diff, a missing issue, risk or evidence fails", () => {
-  const body = (risk: string, extra = "") => `Issue: #519\nRisk: ${risk}\nEvidence:\n${extra}`;
   assert.equal(checkRisk(body("R3"), ["src/core/engine/commands.ts"]).ok, true);
   assert.equal(checkRisk(body("R0"), ["src/core/engine/commands.ts"]).ok, false);
   assert.equal(checkRisk(body("R1"), ["src/core/roles/sailor/role.ts"]).ok, false);
@@ -41,4 +45,26 @@ test("a declared tier below the diff, a missing issue, risk or evidence fails", 
   assert.equal(checkRisk("Risk: R0\nEvidence:\n", ["docs/x.md"]).ok, false);
   assert.equal(checkRisk("Issue: #519\nEvidence:\n", ["docs/x.md"]).ok, false);
   assert.equal(checkRisk("Issue: #519\nRisk: R0\n", ["docs/x.md"]).ok, false);
+  assert.equal(checkRisk("Issue: #519\nRisk: R0\nEvidence:\n", ["docs/x.md"]).ok, false);
+});
+
+test("each tier needs the evidence its risk implies", () => {
+  assert.equal(checkRisk(body("R1", "- changed a button"), ["src/ui/shell.tsx"]).ok, false);
+  assert.equal(checkRisk(body("R1", "- `npm test` passes"), ["src/ui/shell.tsx"]).ok, true);
+  assert.equal(
+    checkRisk(body("R2", "- fixed BMR-SAILOR-01"), ["src/core/roles/sailor/role.ts"]).ok,
+    false,
+    "R2 needs the asserting test file",
+  );
+  assert.equal(
+    checkRisk(body("R2", "- BMR-SAILOR-01 covered by src/core/roles/sailor/role.test.ts"), [
+      "src/core/roles/sailor/role.ts",
+    ]).ok,
+    true,
+  );
+  assert.equal(
+    checkRisk(body("R3", ""), ["src/core/engine/commands.ts"]).ok,
+    false,
+    "R3 needs a concrete evidence bullet",
+  );
 });

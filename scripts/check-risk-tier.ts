@@ -55,12 +55,51 @@ function matches(path: string, prefixes: readonly string[]): boolean {
   return prefixes.some((prefix) => path === prefix || path.startsWith(prefix));
 }
 
-export function classify(paths: readonly string[]): Tier {
-  if (paths.some((path) => matches(path, R3))) return "R3";
-  if (paths.some((path) => matches(path, R2))) return "R2";
-  if (paths.some((path) => matches(path, R1))) return "R1";
-  if (paths.length && paths.every((path) => matches(path, R0))) return "R0";
+function tierOf(path: string): Tier {
+  if (matches(path, R3)) return "R3";
+  if (matches(path, R2)) return "R2";
+  if (matches(path, R1)) return "R1";
+  if (matches(path, R0)) return "R0";
   return "R3";
+}
+
+export function classify(paths: readonly string[]): Tier {
+  let highest: Tier = "R0";
+  for (const path of paths) {
+    const tier = tierOf(path);
+    if (ORDER.indexOf(tier) > ORDER.indexOf(highest)) highest = tier;
+  }
+  return highest;
+}
+
+function evidenceFailures(tier: Tier, body: string): string[] {
+  const lines = body.split("\n");
+  const start = lines.findIndex((line) => /^Evidence:\s*$/.test(line));
+  let chunk = "";
+  if (start >= 0) {
+    for (let index = start + 1; index < lines.length; index += 1) {
+      if (lines[index]!.startsWith("## ")) break;
+      chunk += lines[index] + "\n";
+    }
+  }
+  const substantive = /^\s*[-*]\s+\S/m.test(chunk);
+  if (tier === "R0") {
+    if (!substantive && !/^## Verification\b/m.test(body))
+      return ["R0 needs at least one Evidence bullet or a Verification section"];
+    return [];
+  }
+  if (!substantive) return [`${tier} needs at least one concrete Evidence bullet`];
+  const haystack = chunk + "\n" + body;
+  if (tier === "R1" && !/test|check|npm |node --test|browser/i.test(haystack))
+    return ["R1 needs regression or characterization evidence"];
+  if (tier === "R2") {
+    const failures: string[] = [];
+    if (!/\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d\d\b/.test(body))
+      failures.push("R2 needs a stable rule identifier");
+    if (!/\.test\.ts/.test(body)) failures.push("R2 needs the asserting test file");
+    return failures;
+  }
+  return [];
 }
 
 export function checkRisk(
@@ -76,6 +115,7 @@ export function checkRisk(
     errors.push(`declared ${declared} is lower than the diff's ${computed}`);
   if (!/^Evidence:/m.test(body) && !/^## Verification\b/m.test(body))
     errors.push("PR body has no Evidence line or Verification section");
+  errors.push(...evidenceFailures(computed, body));
   return { ok: errors.length === 0, errors };
 }
 

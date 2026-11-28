@@ -162,7 +162,23 @@ for (const doc of docs) {
   }
 }
 
-for (const failure of traceabilityFailures({ matrixRows, docs, shared, editionOf: roleEdition })) {
+const aliasPath = join(ROOT, "fixtures/conformance/legacy-test-identifiers.json");
+const aliases = existsSync(aliasPath)
+  ? new Map(
+      (
+        JSON.parse(readFileSync(aliasPath, "utf8")) as {
+          aliases: Array<{ identifier: string; ruleId: string }>;
+        }
+      ).aliases.map((alias) => [alias.identifier, alias.ruleId]),
+    )
+  : new Map<string, string>();
+for (const failure of traceabilityFailures({
+  matrixRows,
+  docs,
+  shared,
+  editionOf: roleEdition,
+  aliases,
+})) {
   fail(failure);
 }
 

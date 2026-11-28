@@ -83,8 +83,11 @@ export function riskArtifactFailures(
   if (!archived) {
     const activeName = basename(dir);
     const changed = options.changedFiles ?? [];
-    if (!changed.some((candidate) => candidate.startsWith(`openspec/changes/${activeName}/`)))
-      failures.push(`${name}: the pull request does not touch this change`);
+    const prefix = `openspec/changes/${activeName}/`;
+    const touched = changed.filter((candidate) => candidate.startsWith(prefix));
+    if (!touched.length) failures.push(`${name}: the pull request does not touch this change`);
+    else if (!touched.some((candidate) => candidate.startsWith(`${prefix}specs/`)))
+      failures.push(`${name}: a trivial edit does not satisfy R3; touch the delta spec`);
   }
   for (const file of ["proposal.md", "design.md", "tasks.md"])
     if (!existsSync(join(dir, file))) failures.push(`${name}: missing ${file}`);
@@ -113,25 +116,37 @@ export function riskArtifactFailures(
     failures.push(
       `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
     );
-  const runtime = (candidate: string): boolean =>
-    candidate.startsWith("src/core/engine/") ||
-    candidate.startsWith("src/core/model/") ||
-    candidate.startsWith("src/core/commands/") ||
-    candidate.startsWith("src/entry/") ||
-    candidate.startsWith("src/application/store/") ||
-    candidate.startsWith("src/infrastructure/storage/") ||
-    candidate.startsWith("docs/official/");
+  const runtimeCapabilities = new Map<string, string[]>([
+    [
+      "app/ui-and-privacy",
+      ["src/ui/screens/player", "src/ui/screens/secrets", "src/ui/screens/public"],
+    ],
+    ["app/offline", ["src/infrastructure/offline/"]],
+    ["app/store-boundaries", ["src/entry/store.ts", "src/application/store/", "src/entry/"]],
+    ["game/role-modules", ["src/core/roles/"]],
+    ["game/command-engine", ["src/core/engine/", "src/core/model/", "src/core/commands/"]],
+    ["game/setup", ["src/core/model/setup"]],
+  ]);
+  const changed = options.changedFiles ?? [];
+  const required = new Set<string>();
+  const isRuntimeCode = (candidate: string): boolean =>
+    (candidate.endsWith(".ts") || candidate.endsWith(".tsx")) && !candidate.endsWith(".test.ts");
+  for (const candidate of changed) {
+    if (!isRuntimeCode(candidate)) continue;
+    for (const [capability, prefixes] of runtimeCapabilities)
+      if (prefixes.some((prefix) => candidate.startsWith(prefix))) required.add(capability);
+  }
+  const specPaths = specs.map((spec) => spec.split("\\").join("/"));
+  for (const capability of required)
+    if (!specPaths.some((spec) => spec.includes(`/specs/${capability}/`)))
+      failures.push(`${name}: the change needs the ${capability} delta spec`);
   if (
     policyMigration &&
-    (options.changedFiles ?? []).some(runtime) &&
-    !specs.some(
-      (spec) =>
-        spec.split("\\").join("/").includes("/specs/game/") ||
-        spec.split("\\").join("/").includes("/specs/app/"),
-    )
+    required.size === 0 &&
+    !specPaths.some((candidate) => candidate.includes("/specs/workflow/"))
   )
     failures.push(
-      `${name}: a workflow delta cannot cover runtime changes; add the behaviour change`,
+      `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
     );
   if (archived) {
     failures.push(...archiveEvidenceFailures(root, dir));

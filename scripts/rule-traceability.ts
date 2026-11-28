@@ -125,7 +125,9 @@ export function traceabilityFailures({
   docs,
   shared = [],
   editionOf,
+  aliases = new Map(),
 }: {
+  aliases?: ReadonlyMap<string, string>;
   docs: { edition: string | null; role: string; rules: RuleRow[] }[];
   editionOf: (role: string) => string | null;
   matrixRows: string[][];
@@ -228,7 +230,9 @@ export function traceabilityFailures({
     if (row.level !== "verified") continue;
     for (const citation of row.citations) {
       const found = identifiersIn(citation.name);
-      if (found.length && !found.some((foundId) => declarations.has(foundId))) {
+      const declared = (foundId: string): boolean =>
+        declarations.has(foundId) || declarations.has(aliases.get(foundId) ?? "");
+      if (found.length && !found.some(declared)) {
         failures.push(
           `${row.role ?? "the shared document"} cites "${citation.name}" with an identifier not declared in the rule documents (${found.join(", ")})`,
         );

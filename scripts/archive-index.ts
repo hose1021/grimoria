@@ -80,6 +80,12 @@ function readIndex(path: string): ArchiveEntry[] | null {
   return entries;
 }
 
+export function canonicalBytes(stored: Buffer): Buffer {
+  if (stored.includes(0)) return stored;
+  const decoded = stored.toString("utf8");
+  return Buffer.from(decoded.replace(/\r\n/g, "\n"));
+}
+
 function treeHash(root: string, path: string, ref = "HEAD"): string {
   const files = execFileSync("git", ["ls-tree", "-r", "--name-only", ref, "--", path], {
     cwd: root,
@@ -92,9 +98,7 @@ function treeHash(root: string, path: string, ref = "HEAD"): string {
   const hash = createHash("sha256");
   for (const file of files) {
     const stored = execFileSync("git", ["show", `${ref}:${file}`], { cwd: root });
-    const bytes = stored.includes(0)
-      ? stored
-      : Buffer.from(stored.toString("utf8").replace(/\r\n/g, "\n"));
+    const bytes = canonicalBytes(stored);
     hash
       .update(file + "\0")
       .update(createHash("sha256").update(bytes).digest("hex"))
@@ -106,6 +110,73 @@ function treeHash(root: string, path: string, ref = "HEAD"): string {
 export interface ArchiveNameHash {
   name: string;
   treeHash: string;
+}
+
+export function chooseProvenance(
+  existing: { commit: string; date: string },
+  fresh: { commit: string; date: string },
+  commitExists: boolean,
+): { commit: string; date: string } {
+  return commitExists ? fresh : existing;
+}
+
+function commitResolvable(root: string, commit: string): boolean {
+  try {
+    execFileSync("git", ["cat-file", "-e", commit], { cwd: root, stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function originFailures(
+  entries: readonly ArchiveEntry[],
+  firstAdd: (entry: ArchiveEntry) => string | null,
+): string[] {
+  const failures: string[] = [];
+  for (const entry of entries) {
+    const earliest = firstAdd(entry);
+    if (earliest !== null && earliest !== entry.commit)
+      failures.push(
+        `${entry.name}: recorded origin ${entry.commit.slice(0, 8)} is not the first add (${earliest.slice(0, 8)})`,
+      );
+  }
+  return failures;
+}
+
+function firstAdd(root: string, entry: ArchiveEntry): string | null {
+  try {
+    const lines = execFileSync(
+      "git",
+      ["log", "--format=%H", "--diff-filter=A", "--", `${entry.path}/proposal.md`],
+      { cwd: root, encoding: "utf8" },
+    )
+      .trim()
+      .split("\n")
+      .filter(Boolean);
+    return lines.at(-1) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export interface ArchiveCorrection {
+  name: string;
+  fromHash: string;
+  toHash: string;
+  reason: string;
+}
+
+export function applyCorrections(
+  entries: readonly BaselineEntry[],
+  corrections: readonly ArchiveCorrection[],
+): BaselineEntry[] {
+  return entries.map((entry) => {
+    const correction = corrections.find(
+      (candidate) => candidate.name === entry.name && candidate.fromHash === entry.treeHash,
+    );
+    return correction ? { name: entry.name, treeHash: correction.toHash } : entry;
+  });
 }
 
 export function provenanceFailures(entry: ArchiveEntry): string[] {
@@ -296,10 +367,31 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
+    const correctionsPath = join(root, "fixtures/conformance/archive-corrections.json");
+    const corrections = existsSync(correctionsPath)
+      ? (JSON.parse(readFileSync(correctionsPath, "utf8")) as { corrections: ArchiveCorrection[] })
+          .corrections
+      : [];
+    const correctionFailures: string[] = [];
+    for (const correction of corrections) {
+      if (!/^[0-9a-f]{64}$/.test(correction.fromHash) || !/^[0-9a-f]{64}$/.test(correction.toHash))
+        correctionFailures.push(`${correction.name}: correction hashes are not SHA-256`);
+      if (!correction.reason.trim())
+        correctionFailures.push(`${correction.name}: correction has no reason`);
+      const current = existing.find((entry) => entry.name === correction.name);
+      if (!current || current.treeHash !== correction.toHash)
+        correctionFailures.push(`${correction.name}: correction target is not the current tree`);
+    }
+    const correctedBaseline = applyCorrections(baseline, corrections);
     const changed = [
       ...existing.flatMap((entry) => provenanceFailures(entry)),
-      ...baselineFailures(baseline, existing),
-      ...baselineCoverageFailures(baseline, existing),
+      ...originFailures(
+        existing.filter((entry) => commitResolvable(root, entry.commit)),
+        (entry) => firstAdd(root, entry),
+      ),
+      ...baselineFailures(correctedBaseline, existing),
+      ...baselineCoverageFailures(correctedBaseline, existing),
+      ...correctionFailures,
     ];
     if (changed.length) {
       console.error(`archived trees changed or unpinned: ${changed.join("; ")}`);
@@ -335,9 +427,9 @@ function main(): void {
           process.exitCode = 1;
           return;
         }
-        removed = refArchiveFailures(tree, existing);
+        removed = refArchiveFailures(applyCorrections(tree, corrections), existing);
       } else {
-        removed = historicalFailures(accepted, existing);
+        removed = historicalFailures(applyCorrections(accepted, corrections), existing);
       }
       if (removed.length) {
         console.error(
@@ -347,7 +439,7 @@ function main(): void {
         return;
       }
     }
-    const historical = historicalFailures(anchor, existing);
+    const historical = historicalFailures(applyCorrections(anchor, corrections), existing);
     if (historical.length) {
       console.error(
         `archive evidence changed since the original baseline: ${historical.join("; ")}`,
@@ -372,9 +464,30 @@ function main(): void {
     return;
   }
   const fresh = build(root);
-  const merged = existing ? mergeEntries(existing, fresh) : fresh;
+  const mergedRaw = existing ? mergeEntries(existing, fresh) : fresh;
+  const merged = mergedRaw.map((entry) => {
+    const prior = existing?.find((candidate) => candidate.name === entry.name);
+    if (!prior) return entry;
+    const provenance = chooseProvenance(
+      { commit: prior.commit, date: prior.date },
+      { commit: entry.commit, date: entry.date },
+      commitResolvable(root, prior.commit),
+    );
+    return { ...entry, commit: provenance.commit, date: provenance.date };
+  });
   verifyFiles(root, merged);
-  writeFileSync(out, JSON.stringify({ schemaVersion: 1, entries: merged }, null, 2) + "\n");
+  writeFileSync(
+    out,
+    JSON.stringify(
+      {
+        schemaVersion: 2,
+        canonicalization: "text-lf-binary-raw-v1",
+        entries: merged,
+      },
+      null,
+      2,
+    ) + "\n",
+  );
   console.log(
     `Wrote ${merged.length} archive entr(ies) to docs/audits/openspec-archive-index.json.`,
   );

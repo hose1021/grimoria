@@ -30,13 +30,22 @@ test("an R3 change must name a same-issue OpenSpec package", () => {
   const policyGameplay = fixture({ specs: "game" });
   const empty = fixture({ specs: "none" });
   try {
-    const touched = ["openspec/changes/sample-change/proposal.md"];
+    const touched = [
+      "openspec/changes/sample-change/proposal.md",
+      "openspec/changes/sample-change/specs/game/spec.md",
+    ];
     assert.deepEqual(riskArtifactFailures(body(), complete, { changedFiles: touched }), []);
     assert.ok(
       riskArtifactFailures(body(), complete).some((failure) =>
         failure.includes("does not touch this change"),
       ),
       "an active package must be touched by the pull request",
+    );
+    assert.ok(
+      riskArtifactFailures(body(), complete, {
+        changedFiles: ["openspec/changes/sample-change/tasks.md"],
+      }).some((failure) => failure.includes("trivial edit does not satisfy R3")),
+      "a trivial edit to an unrelated change must not satisfy R3",
     );
     assert.ok(
       riskArtifactFailures(body(), unrelated, { changedFiles: touched }).some((failure) =>
@@ -69,7 +78,7 @@ test("an R3 change must name a same-issue OpenSpec package", () => {
     assert.ok(
       riskArtifactFailures(body("Policy migration: true\n"), policy, {
         changedFiles: [...touched, "src/core/engine/commands.ts"],
-      }).some((failure) => failure.includes("workflow delta cannot cover")),
+      }).some((failure) => failure.includes("game/command-engine delta spec")),
       "a workflow delta cannot substitute a runtime behaviour spec",
     );
     assert.ok(

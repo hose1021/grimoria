@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
@@ -6,12 +7,18 @@ import { fileURLToPath } from "node:url";
 import {
   citationBaselineFailures,
   citationParityFailures,
+  legacyCitations,
   crossReferences,
   loadContext,
   parity,
   validateRegistry,
 } from "./rule-registry.ts";
-import { matrixSyncFailures, registryRequirements, syncMatrix } from "./sync-rules-matrix.ts";
+import {
+  matrixSyncFailures,
+  registryCitations,
+  registryRequirements,
+  syncMatrix,
+} from "./sync-rules-matrix.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const context = loadContext(ROOT);
@@ -179,6 +186,29 @@ function schemaRejects(entry: Record<string, unknown>): string[] {
   if ("requirement" in entry) stringField("requirement");
   const level = def.properties.level!;
   if (!level.enum!.includes(entry.level as string)) errors.push("level");
+  const edition = def.properties.edition!;
+  if (edition.enum && !edition.enum.includes(entry.edition as string)) errors.push("edition");
+  const citationsAt = entry.assertingTests;
+  if (Array.isArray(citationsAt)) {
+    const testDef = (
+      schema.$defs as unknown as Record<
+        string,
+        { properties: Record<string, { minLength?: number }> }
+      >
+    ).test!;
+    for (const citation of citationsAt) {
+      if (typeof citation !== "object" || citation === null) {
+        errors.push("test");
+        continue;
+      }
+      const value = citation as Record<string, unknown>;
+      for (const key of ["file", "name"]) {
+        const spec = testDef.properties[key]!;
+        const child = value[key];
+        if (typeof child !== "string" || child.length < (spec.minLength ?? 0)) errors.push(key);
+      }
+    }
+  }
   const tests = entry.assertingTests;
   if (!Array.isArray(tests) || tests.length < (def.properties.assertingTests!.minItems ?? 0))
     errors.push("assertingTests");
@@ -193,6 +223,11 @@ test("the runtime validator and the JSON Schema reject the same rule shapes", ()
   const negatives: Array<[string, Record<string, unknown>]> = [
     ["one-character revision", rule({ revision: "r" })],
     ["one-character edition", rule({ edition: "b" })],
+    ["unknown edition", rule({ edition: "bogus" })],
+    [
+      "empty citation name",
+      rule({ assertingTests: [{ file: "src/core/roles/sailor/role.test.ts", name: "" }] }),
+    ],
     ["empty requirement", rule({ requirement: "" })],
     ["unknown level", rule({ level: "bogus" })],
     ["unknown field", { ...rule(), note: "x" }],
@@ -254,10 +289,19 @@ test("the matrix generator writes registry labels and is idempotent", () => {
   const requirements = registryRequirements(ROOT);
   const edited = new Map(requirements);
   edited.set("BMR-SAILOR-01", "Generated sailor requirement");
-  const sync = syncMatrix(matrix, edited);
+  const citations = registryCitations(ROOT);
+  const sync = syncMatrix(matrix, edited, citations);
   assert.ok(sync.changed >= 1);
-  assert.deepEqual(matrixSyncFailures(sync.text, edited), []);
-  assert.equal(syncMatrix(sync.text, edited).changed, 0);
+  assert.deepEqual(matrixSyncFailures(sync.text, edited, citations), []);
+  assert.equal(syncMatrix(sync.text, edited, citations).changed, 0);
+  const tampered = new Map(citations);
+  tampered.set("BMR-SAILOR-01", [{ file: "src/core/engine/bmr.test.ts", name: "no such test" }]);
+  assert.ok(
+    matrixSyncFailures(sync.text, edited, tampered).some((failure) =>
+      failure.includes("citations differ"),
+    ),
+    "a matrix row must match the registry citations exactly",
+  );
 });
 
 test("the registry rejects nested citation and ownership defects", () => {
@@ -309,4 +353,31 @@ test("an accepted citation baseline cannot lose entries", () => {
     ),
     [],
   );
+});
+
+test("legacy citations come from the matrix and the old role documents", () => {
+  const matrix = [
+    '| `BMR-SAILOR-01` Sailor drunk | Sailor | r1768 | `src/core/engine/bmr.test.ts` "a Sailor test (BMR-SAILOR-01)" | verified |',
+  ].join("\n");
+  const roleDoc =
+    'Edition: bmr\n\n| Rule ID | Level | Matrix revision | Asserting tests |\n| --- | --- | --- | --- |\n| BMR-SAILOR-02 | verified | r1768 | `src/core/roles/sailor/role.test.ts` "a role test (BMR-SAILOR-02)" |\n';
+  const legacy = legacyCitations(matrix, new Map([["src/core/roles/sailor/rule.md", roleDoc]]));
+  assert.deepEqual(
+    legacy["BMR-SAILOR-01"]?.map((citation) => citation.name),
+    ["a Sailor test (BMR-SAILOR-01)"],
+  );
+  assert.deepEqual(
+    legacy["BMR-SAILOR-02"]?.map((citation) => citation.name),
+    ["a role test (BMR-SAILOR-02)"],
+  );
+});
+
+test("the citation legacy check fails closed on an invalid ref", () => {
+  const result = spawnSync(
+    process.execPath,
+    ["scripts/rule-registry.ts", "--against", "ref-that-does-not-exist-519"],
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /cannot read the legacy rule sources/);
 });

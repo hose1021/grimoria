@@ -22,6 +22,11 @@
       "name": "a re-archive takes the provenance the history scan derived"
     },
     {
+      "key": "scripts/archive-index.test.ts::a recorded origin must be the first add, not a later one",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a recorded origin must be the first add, not a later one"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a target-branch archive tree cannot lose or rewrite an accepted change",
       "file": "scripts/archive-index.test.ts",
       "name": "a target-branch archive tree cannot lose or rewrite an accepted change"
@@ -32,9 +37,24 @@
       "name": "an archive accepted on the target branch cannot be removed"
     },
     {
+      "key": "scripts/archive-index.test.ts::an explicit correction replaces a baseline hash and needs a reason",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an explicit correction replaces a baseline hash and needs a reason"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive hashes canonicalize text and keep binary bytes",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive hashes canonicalize text and keep binary bytes"
+    },
+    {
       "key": "scripts/archive-index.test.ts::archive provenance validates path, date and commit shape",
       "file": "scripts/archive-index.test.ts",
       "name": "archive provenance validates path, date and commit shape"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::provenance survives a squash with missing origin commits",
+      "file": "scripts/archive-index.test.ts",
+      "name": "provenance survives a squash with missing origin commits"
     },
     {
       "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
@@ -100,6 +120,11 @@
       "key": "scripts/build-official-roles.test.ts::wake state comes from the official reminders",
       "file": "scripts/build-official-roles.test.ts",
       "name": "wake state comes from the official reminders"
+    },
+    {
+      "key": "scripts/check-acceptance.test.ts::a reviewed legacy identifier alias is accepted, an unreviewed one is not",
+      "file": "scripts/check-acceptance.test.ts",
+      "name": "a reviewed legacy identifier alias is accepted, an unreviewed one is not"
     },
     {
       "key": "scripts/check-acceptance.test.ts::a role document with a different row count than the matrix fails",
@@ -210,6 +235,11 @@
       "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "a declared tier below the diff, a missing issue, risk or evidence fails"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::each tier needs the evidence its risk implies",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "each tier needs the evidence its risk implies"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::the diff decides the tier from its highest-risk path",
@@ -807,9 +837,19 @@
       "name": "every role module has a canonical registry file"
     },
     {
+      "key": "scripts/rule-registry.test.ts::legacy citations come from the matrix and the old role documents",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "legacy citations come from the matrix and the old role documents"
+    },
+    {
       "key": "scripts/rule-registry.test.ts::parity reports exactly the rules whose normalized rows differ",
       "file": "scripts/rule-registry.test.ts",
       "name": "parity reports exactly the rules whose normalized rows differ"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the citation legacy check fails closed on an invalid ref",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the citation legacy check fails closed on an invalid ref"
     },
     {
       "key": "scripts/rule-registry.test.ts::the matrix generator writes registry labels and is idempotent",

@@ -103,6 +103,15 @@ const contract = JSON.parse(
   >;
 };
 
+function normalize(value: unknown, drop: string[] = []): unknown {
+  if (Array.isArray(value)) return value.map((child) => normalize(child, drop));
+  if (typeof value !== "object" || value === null) return value;
+  const copy: Record<string, unknown> = { ...(value as Record<string, unknown>) };
+  for (const key of ["applied", "journal", "updatedAt", "createdAt", ...drop]) delete copy[key];
+  for (const [key, child] of Object.entries(copy)) copy[key] = normalize(child, drop);
+  return copy;
+}
+
 test("the portable engine contract runs from JSON alone", () => {
   const load = () => JSON.parse(readFileSync(resolve(ROOT, contract.savedGame), "utf8"));
   const deterministic = load();
@@ -122,6 +131,31 @@ test("the portable engine contract runs from JSON alone", () => {
     (second as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
     deterministicCase.expected.events,
   );
+  assert.deepEqual(
+    normalize(deterministic),
+    normalize(secondRun),
+    "independent deterministic executions end in the same normalized state",
+  );
+  assert.deepEqual(
+    {
+      status: first.status,
+      result: (first as { result?: unknown }).result,
+      events: (first as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
+    },
+    {
+      status: second.status,
+      result: (second as { result?: unknown }).result,
+      events: (second as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
+    },
+    "independent executions return the same command result",
+  );
+  const beforeReapply = normalize(secondRun);
+  const journalBefore = secondRun.journal.entries.length;
+  const reapply = applyCommand(secondRun, deterministicCase.command);
+  assert.equal(reapply.status, "allowed");
+  assert.equal((reapply as { idempotent?: boolean }).idempotent, true);
+  assert.deepEqual(normalize(secondRun), beforeReapply, "idempotent reapply keeps the state");
+  assert.equal(secondRun.journal.entries.length, journalBefore, "idempotent reapply adds no entry");
 
   const rejected = load();
   const before = structuredClone(rejected);
@@ -150,6 +184,11 @@ test("the portable engine contract runs from JSON alone", () => {
       return copy;
     };
     assert.deepEqual(normalize(result.state), normalize(replayed));
+    assert.equal(
+      (result.state.journal as { entries: unknown[] }).entries.length,
+      (replayed.journal as { entries: unknown[] }).entries.length,
+      "journal replay preserves the journal",
+    );
   }
 
   const projection = contract.cases.projection!;
