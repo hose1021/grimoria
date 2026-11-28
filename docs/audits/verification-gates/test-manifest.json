@@ -917,6 +917,21 @@
       "name": "root paths named after Object members are not release metadata"
     },
     {
+      "key": "scripts/release-provenance.test.ts::a differing target first add needs the reviewed record",
+      "file": "scripts/release-provenance.test.ts",
+      "name": "a differing target first add needs the reviewed record"
+    },
+    {
+      "key": "scripts/release-provenance.test.ts::a record that differs from the index fails",
+      "file": "scripts/release-provenance.test.ts",
+      "name": "a record that differs from the index fails"
+    },
+    {
+      "key": "scripts/release-provenance.test.ts::a target first add that equals the index needs no record",
+      "file": "scripts/release-provenance.test.ts",
+      "name": "a target first add that equals the index needs no record"
+    },
+    {
       "key": "scripts/role-ownership.test.ts::a migrated attack keeps the references of the shared succession, not of the step completion",
       "file": "scripts/role-ownership.test.ts",
       "name": "a migrated attack keeps the references of the shared succession, not of the step completion"

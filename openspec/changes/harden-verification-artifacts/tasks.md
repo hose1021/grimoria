@@ -131,3 +131,11 @@
   requires every anchor name in the target tree and every newer archive in the
   current baseline. `node scripts/archive-index.ts --check` and `--against
   <baseline>` pass with 173 archives; `scripts/archive-index.test.ts` 35/35.
+- RED: a simulated 0.14.0 squash into `main` failed `archive:index --check`
+  without `--against` for 78 archives whose target first add differs from the
+  dev index origin; no reviewed record covered them.
+- GREEN: independent verification accepted the dev origin of each of the 78 as
+  an add on `dev`; `archive-origins.json` now holds 117 records and the
+  simulated squash passes with 173 archives. `npm run release:preflight --
+  origin/main` passes, and `scripts/release-provenance.test.ts` 3/3 covers a
+  missing record, a covered record and a mismatched record.

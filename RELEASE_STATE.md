@@ -19,6 +19,7 @@ Canonical handoff for epic #200, release candidate 0.14.0. Updated 2026-11-28.
 - [x] Release-metadata policy PR #528 merged; the semantic R0 exemption is operational.
 - [x] Version files and changelog prepared for 0.14.0; checks pass on the candidate.
 - [ ] Preparation PR #529 merged into `dev`.
+- [ ] `npm run release:preflight -- origin/main` passes before the release PR.
 - [ ] Exact-head release PR CI, specifications, provenance, verification gates, full-game and Playwright browser checks pass.
 - [ ] Owner reviews and merges the 0.14.0 PR into main.
 - [ ] Post-merge Pages deployment and production smoke, locale, offline update, privacy, replay and pg.game.v4 verified on final main SHA.
