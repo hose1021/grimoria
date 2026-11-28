@@ -1,0 +1,84 @@
+{
+  "methodologyVersion": 1,
+  "measuredAt": "2026-11-28T12:54:27.050Z",
+  "environment": {
+    "node": "v26.8.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "iterations": {
+      "apply": 500,
+      "preview": 500,
+      "serialization": 300,
+      "replaySmall": 200,
+      "replayLarge": 10
+    }
+  },
+  "metrics": {
+    "applySetNotes": {
+      "median": 0.5127079999999751,
+      "p95": 0.8187079999999582,
+      "mean": 0.49290516600000184
+    },
+    "previewSetNotes": {
+      "median": 0.00458400000002257,
+      "p95": 0.00570799999997007,
+      "mean": 0.004751849999999422
+    },
+    "jsonStringifyState": {
+      "median": 0.147625000000005,
+      "p95": 0.15895899999998164,
+      "mean": 0.1492754066666665
+    },
+    "jsonRoundTripState": {
+      "median": 0.3847919999999476,
+      "p95": 0.4252079999999978,
+      "mean": 0.39146912999999967
+    },
+    "exportGame": {
+      "median": 0.33462499999996,
+      "p95": 0.3620409999999765,
+      "mean": 0.33876429333333286
+    },
+    "importGame": {
+      "median": 0.7313750000000709,
+      "p95": 0.9036669999999276,
+      "mean": 0.7574540299999978
+    },
+    "cloneState": {
+      "median": 0.39179200000012315,
+      "p95": 0.4731249999999818,
+      "mean": 0.40366807000000526
+    },
+    "replayLegacyJournal": {
+      "median": 4.744666999999936,
+      "p95": 5.470583999999917,
+      "mean": 4.803595829999993
+    },
+    "replayLargeJournal": {
+      "median": 875.6268749999999,
+      "p95": 961.8115420000004,
+      "mean": 886.9316128000003
+    },
+    "replayLargeJournalPerEntry": {
+      "median": 0.8756268749999999,
+      "p95": 0.9618115420000004,
+      "mean": 0.8869316128000002
+    },
+    "memory": {
+      "heapDelta100RetainedImports": 13864656
+    },
+    "stateBytes": 152638
+  },
+  "bundle": {
+    "chunks": 22,
+    "rawBytes": 1168055,
+    "gzipBytes": 342062,
+    "brotliBytes": 285341
+  },
+  "startup": {
+    "samples": 5,
+    "readyMedian": 124.04225000000224,
+    "readyP95": 176.74645799999962,
+    "firstPaintMedian": 92
+  }
+}

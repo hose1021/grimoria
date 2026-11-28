@@ -277,6 +277,26 @@
       "name": "the same identifier declared by two roles fails"
     },
     {
+      "key": "scripts/check-cargo-graph.test.ts::a cycle fails",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "a cycle fails"
+    },
+    {
+      "key": "scripts/check-cargo-graph.test.ts::a dependency outside the workspace fails",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "a dependency outside the workspace fails"
+    },
+    {
+      "key": "scripts/check-cargo-graph.test.ts::an extra edge fails",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "an extra edge fails"
+    },
+    {
+      "key": "scripts/check-cargo-graph.test.ts::the approved workspace graph passes",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "the approved workspace graph passes"
+    },
+    {
       "key": "scripts/check-official.test.ts::a covered pin passes",
       "file": "scripts/check-official.test.ts",
       "name": "a covered pin passes"
@@ -750,6 +770,26 @@
       "key": "scripts/engine-boundary.test.ts::the engine boundary names only source files that exist",
       "file": "scripts/engine-boundary.test.ts",
       "name": "the engine boundary names only source files that exist"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the error layers cover all 108 core codes",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the error layers cover all 108 core codes"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the inventory counts match the live sources",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the inventory counts match the live sources"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the read-model query surface matches the console projection",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the read-model query surface matches the console projection"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the serialization and lifecycle contracts are explicit",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the serialization and lifecycle contracts are explicit"
     },
     {
       "key": "scripts/fetch-official.test.ts::a second run leaves the manifest and snapshots byte-identical",
