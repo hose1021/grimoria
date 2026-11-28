@@ -1,6 +1,6 @@
 # ADR 0006: Rust/WASM engine migration with a TypeScript reference oracle
 
-- Status: Proposed (Phase 0 scaffolding only)
+- Status: Proposed (Phase 0 complete; Phase 1 wire contract implemented)
 - Date: 2026-11-28
 - Issue: [#535](https://github.com/hose1021/grimoria/issues/535)
 - Baseline: tag `v0.14.0`, `main` `de6a17a8997f1dfa22ebbc50a36b4bd57640ad7c`
@@ -102,6 +102,21 @@ explicit WTF-16 string type for text fields, hashes over `encode_utf16`, and
 serializes unpaired surrogates as `\uXXXX` escapes. Vectors:
 `\uD800`, `\uDC00`, `a\uD800b`, `\uD800\uDC00`, `\uD83D\uDE00`, `\u0000`,
 `café`.
+
+## Phase 1 wire implementation
+
+`grimoria-wire` owns the executable contract: `WIRE_VERSION = 1`, request and
+response DTOs, a strict JSON parser, `Wtf16`, and wire/canonical serializers.
+`ryu-js` supplies ECMAScript number formatting. The only other direct external
+crates are `wasm-bindgen` in `grimoria-wasm` and the test-only
+`wasm-bindgen-test`. `scripts/check-cargo-graph.ts` enforces this direct
+allowlist per package and dependency kind; transitive crates are pinned by the
+committed `Cargo.lock`, and every check uses `--locked --offline`.
+
+The committed `fixtures/conformance/wire-serialization.json` runs natively in
+`grimoria-conformance` and through `wasm-bindgen-test` in Node. The wasm32 CI job
+installs `wasm-bindgen-cli` at the lockfile version and executes the test with
+the matching runner, so parity is executable rather than compile-only.
 
 ## Oracle versioning
 

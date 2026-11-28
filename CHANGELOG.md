@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Add the versioned Rust wire contract with ECMAScript-compatible canonical JSON, WTF-16 lone-surrogate preservation, portable native/WASM fixtures and an explicit external dependency allowlist. TypeScript remains the production engine (#535).
+
 ## [0.14.0] - 2026-11-28
 
 ### Changed

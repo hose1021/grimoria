@@ -307,6 +307,11 @@
       "name": "the canonical five-crate workspace passes"
     },
     {
+      "key": "scripts/check-cargo-graph.test.ts::the external allowlist names each package and kind",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "the external allowlist names each package and kind"
+    },
+    {
       "key": "scripts/check-official.test.ts::a covered pin passes",
       "file": "scripts/check-official.test.ts",
       "name": "a covered pin passes"
@@ -1480,6 +1485,31 @@
       "key": "scripts/verification/source-text.test.ts::testDeclarations treats every test in a skipped suite as skipped",
       "file": "scripts/verification/source-text.test.ts",
       "name": "testDeclarations treats every test in a skipped suite as skipped"
+    },
+    {
+      "key": "scripts/wire-contract.test.ts::every fixture vector has a unique id and strict JSON input",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "every fixture vector has a unique id and strict JSON input"
+    },
+    {
+      "key": "scripts/wire-contract.test.ts::the envelope requires its fields and forbids extras",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "the envelope requires its fields and forbids extras"
+    },
+    {
+      "key": "scripts/wire-contract.test.ts::the schema and the Rust DTO pin the same operation enum",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "the schema and the Rust DTO pin the same operation enum"
+    },
+    {
+      "key": "scripts/wire-contract.test.ts::the schema and the Rust DTO pin the same version",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "the schema and the Rust DTO pin the same version"
+    },
+    {
+      "key": "scripts/wire-contract.test.ts::the WASM runner is pinned to the locked wasm-bindgen version",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "the WASM runner is pinned to the locked wasm-bindgen version"
     },
     {
       "key": "src/application/dispatch/adapt.test.ts::a missing payload becomes an empty object",

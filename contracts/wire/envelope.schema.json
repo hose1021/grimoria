@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grimoria.local/contracts/wire/envelope.schema.json",
+  "title": "Grimoria wire envelope",
+  "description": "Versioned request and response envelopes for the JSON engine boundary.",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/response" }
+  ],
+  "$defs": {
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wireVersion", "operation", "payload"],
+      "properties": {
+        "wireVersion": { "const": 1 },
+        "operation": {
+          "enum": [
+            "apply_command",
+            "preview_command",
+            "validate_command",
+            "replay",
+            "import_save",
+            "export_save",
+            "canonical_state",
+            "canonical_bytes"
+          ]
+        },
+        "payload": { "$ref": "value.schema.json" }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wireVersion", "result"],
+      "properties": {
+        "wireVersion": { "const": 1 },
+        "result": { "$ref": "value.schema.json" },
+        "state": { "$ref": "value.schema.json" }
+      }
+    }
+  }
+}

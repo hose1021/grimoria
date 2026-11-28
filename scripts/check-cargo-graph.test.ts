@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { cargoGraphFailures } from "./check-cargo-graph.ts";
+import { cargoGraphFailures, isApprovedExternal } from "./check-cargo-graph.ts";
 
 const MEMBERS = [
   "grimoria-domain",
@@ -187,6 +187,15 @@ test("an extra member fails", () => {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("the external allowlist names each package and kind", () => {
+  assert.equal(isApprovedExternal("grimoria-wire", "ryu-js", "normal"), true);
+  assert.equal(isApprovedExternal("grimoria-wasm", "wasm-bindgen", "normal"), true);
+  assert.equal(isApprovedExternal("grimoria-wasm", "wasm-bindgen-test", "dev"), true);
+  assert.equal(isApprovedExternal("grimoria-wasm", "wasm-bindgen-test", "normal"), false);
+  assert.equal(isApprovedExternal("grimoria-conformance", "ryu-js", "normal"), false);
+  assert.equal(isApprovedExternal("grimoria-domain", "wasm-bindgen", "normal"), false);
 });
 
 test("a dependency cycle fails", () => {

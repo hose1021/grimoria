@@ -20,6 +20,20 @@ const ALLOWED: Record<string, readonly string[]> = {
   "grimoria-cli": ["grimoria-conformance"],
 };
 
+const EXTERNAL_ALLOWED: Record<string, Record<string, readonly string[]>> = {
+  "grimoria-wire": { normal: ["ryu-js"] },
+  "grimoria-wasm": { normal: ["wasm-bindgen"], dev: ["wasm-bindgen-test"] },
+};
+
+/** True only for a named external crate in an allowed package and kind. */
+export function isApprovedExternal(
+  packageName: string,
+  dependencyName: string,
+  kind: string,
+): boolean {
+  return (EXTERNAL_ALLOWED[packageName]?.[kind] ?? []).includes(dependencyName);
+}
+
 interface Dependency {
   name: string;
   rename: string | null;
@@ -86,10 +100,12 @@ export function cargoGraphFailures(root: string): string[] {
       failures.push(`${pkg.name}: manifest directory does not match the package name`);
     const edges: string[] = [];
     for (const dep of pkg.dependencies) {
+      const kind = dep.kind ?? "normal";
       const workspacePath = dep.path ? resolve(dep.path, "Cargo.toml") : null;
       if (dep.source !== null || !workspacePath || !workspacePaths.has(workspacePath)) {
+        if (isApprovedExternal(pkg.name, dep.name, kind)) continue;
         failures.push(
-          `${pkg.name}: external dependency ${dep.rename ?? dep.name} (kind ${dep.kind ?? "normal"}, target ${dep.target ?? "any"})`,
+          `${pkg.name}: external dependency ${dep.rename ?? dep.name} (kind ${kind}, target ${dep.target ?? "any"}) is not allowed`,
         );
         continue;
       }

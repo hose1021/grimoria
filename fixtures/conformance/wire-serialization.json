@@ -1,0 +1,78 @@
+{
+  "fixtureVersion": 1,
+  "wireVersion": 1,
+  "vectors": [
+    {
+      "id": "object-key-order",
+      "input": "{\"1\":3,\"2\":2,\"10\":4,\"b\":1,\"a\":0}",
+      "wire": "{\"1\":3,\"2\":2,\"10\":4,\"b\":1,\"a\":0}",
+      "canonical": "{\"1\":3,\"10\":4,\"2\":2,\"a\":0,\"b\":1}"
+    },
+    {
+      "id": "number-forms",
+      "input": "[1.0,1e21,1e-7,-0,9007199254740993,0.1,1e-6,123456789012345678901]",
+      "wire": "[1,1e+21,1e-7,0,9007199254740992,0.1,0.000001,123456789012345680000]",
+      "canonical": "[1,1e+21,1e-7,0,9007199254740992,0.1,0.000001,123456789012345680000]"
+    },
+    {
+      "id": "lone-high-surrogate",
+      "input": "\"\\ud800\"",
+      "wire": "\"\\ud800\"",
+      "canonical": "\"\\ud800\""
+    },
+    {
+      "id": "lone-low-surrogate",
+      "input": "\"\\udc00\"",
+      "wire": "\"\\udc00\"",
+      "canonical": "\"\\udc00\""
+    },
+    {
+      "id": "surrogate-in-text",
+      "input": "\"a\\ud800b\"",
+      "wire": "\"a\\ud800b\"",
+      "canonical": "\"a\\ud800b\""
+    },
+    {
+      "id": "valid-surrogate-pair",
+      "input": "\"\\ud83d\\ude00\"",
+      "wire": "\"😀\"",
+      "canonical": "\"😀\""
+    },
+    {
+      "id": "nul",
+      "input": "\"\\u0000\"",
+      "wire": "\"\\u0000\"",
+      "canonical": "\"\\u0000\""
+    },
+    {
+      "id": "cafe",
+      "input": "\"café\"",
+      "wire": "\"café\"",
+      "canonical": "\"café\""
+    },
+    {
+      "id": "escapes",
+      "input": "\"a\\\"b\\\\c\\n\\t\\b\\f\\r/\"",
+      "wire": "\"a\\\"b\\\\c\\n\\t\\b\\f\\r/\"",
+      "canonical": "\"a\\\"b\\\\c\\n\\t\\b\\f\\r/\""
+    },
+    {
+      "id": "absent-null",
+      "input": "{\"present\":null,\"value\":1}",
+      "wire": "{\"present\":null,\"value\":1}",
+      "canonical": "{\"present\":null,\"value\":1}"
+    },
+    {
+      "id": "nested-null",
+      "input": "{\"nested\":{\"a\":null},\"array\":[3,1,2]}",
+      "wire": "{\"nested\":{\"a\":null},\"array\":[3,1,2]}",
+      "canonical": "{\"array\":[3,1,2],\"nested\":{\"a\":null}}"
+    },
+    {
+      "id": "array-order",
+      "input": "[3,1,2]",
+      "wire": "[3,1,2]",
+      "canonical": "[3,1,2]"
+    }
+  ]
+}
