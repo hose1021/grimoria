@@ -32,6 +32,11 @@
       "name": "a malformed baseline cannot silently drop pinned records"
     },
     {
+      "key": "scripts/archive-index.test.ts::a multi-archive squash keeps the integrated check green",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a multi-archive squash keeps the integrated check green"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a new archive cannot use a fabricated origin",
       "file": "scripts/archive-index.test.ts",
       "name": "a new archive cannot use a fabricated origin"
@@ -357,6 +362,11 @@
       "name": "files alongside a delta cannot stand in for a changed spec"
     },
     {
+      "key": "scripts/check-risk-artifacts.test.ts::release metadata needs no OpenSpec package",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "release metadata needs no OpenSpec package"
+    },
+    {
       "key": "scripts/check-risk-tier.test.ts::a changed-file list may be NUL or newline separated",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "a changed-file list may be NUL or newline separated"
@@ -370,6 +380,11 @@
       "key": "scripts/check-risk-tier.test.ts::a mixed gameplay and R3 diff keeps the gameplay evidence",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "a mixed gameplay and R3 diff keeps the gameplay evidence"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a proven release metadata diff is R0 without an OpenSpec package",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a proven release metadata diff is R0 without an OpenSpec package"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::a Verification section is the evidence when no Evidence line exists",
@@ -860,6 +875,36 @@
       "key": "scripts/openspec-reconcile.test.ts::missing evidence and empty task lists block an archive separately",
       "file": "scripts/openspec-reconcile.test.ts",
       "name": "missing evidence and empty task lists block an archive separately"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a dependency, script or lock dependency change fails the exemption",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a dependency, script or lock dependency change fails the exemption"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a release without the lock version change passes",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a release without the lock version change passes"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a runtime, workflow or verification change is not release metadata",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a runtime, workflow or verification change is not release metadata"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a version bump that touches release metadata only passes",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a version bump that touches release metadata only passes"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::an empty commit range is not release metadata",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "an empty commit range is not release metadata"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::an incomplete or inconsistent bump fails",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "an incomplete or inconsistent bump fails"
     },
     {
       "key": "scripts/role-ownership.test.ts::a migrated attack keeps the references of the shared succession, not of the step completion",
