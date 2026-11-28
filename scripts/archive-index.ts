@@ -14,6 +14,7 @@ export interface ArchiveEntry {
   date: string;
   path: string;
   treeHash: string;
+  issue?: string | null;
 }
 
 export function entriesFrom(rows: readonly ArchiveEntry[]): ArchiveEntry[] {
@@ -53,7 +54,17 @@ function build(root: string): ArchiveEntry[] {
           .filter(Boolean);
         const [commit = "", date = ""] = (history.at(-1) ?? "").split(" ");
         if (!commit) throw new Error(`no introducing commit for ${name}`);
-        return { name, commit, date, path, treeHash: treeHash(root, path) };
+        const issue = /^Issue:\s*(?:#|https?:\/\/\S*\/issues\/)?(\d+)/m.exec(
+          readFileSync(join(root, path, "proposal.md"), "utf8"),
+        )?.[1];
+        return {
+          name,
+          commit,
+          date,
+          path,
+          treeHash: treeHash(root, path),
+          issue: issue ? `#${issue}` : null,
+        };
       }),
   );
 }
@@ -67,22 +78,38 @@ function isEntry(value: unknown): value is ArchiveEntry {
     typeof entry.date === "string" &&
     typeof entry.path === "string" &&
     typeof entry.treeHash === "string" &&
+    (entry.issue === undefined || entry.issue === null || typeof entry.issue === "string") &&
     /^[0-9a-f]{64}$/.test(entry.treeHash)
   );
 }
 
-function readIndex(path: string): ArchiveEntry[] | null {
-  if (!existsSync(path)) return null;
-  const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+export function parseIndex(text: string): ArchiveEntry[] | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
   if (typeof parsed !== "object" || parsed === null || !("entries" in parsed)) return null;
+  const meta = parsed as { schemaVersion?: unknown; canonicalization?: unknown };
+  if (meta.schemaVersion !== 2 || meta.canonicalization !== "text-lf-binary-raw-v1") return null;
   const entries = parsed.entries;
   if (!Array.isArray(entries) || !entries.every(isEntry)) return null;
   return entries;
 }
 
+function readIndex(path: string): ArchiveEntry[] | null {
+  if (!existsSync(path)) return null;
+  return parseIndex(readFileSync(path, "utf8"));
+}
+
 export function canonicalBytes(stored: Buffer): Buffer {
-  if (stored.includes(0)) return stored;
-  const decoded = stored.toString("utf8");
+  let decoded: string;
+  try {
+    decoded = new TextDecoder("utf-8", { fatal: true }).decode(stored);
+  } catch {
+    return stored;
+  }
   return Buffer.from(decoded.replace(/\r\n/g, "\n"));
 }
 
@@ -127,6 +154,16 @@ function commitResolvable(root: string, commit: string): boolean {
   } catch {
     return false;
   }
+}
+
+export function unresolvedOriginFailures(
+  entries: readonly ArchiveEntry[],
+  historicalNames: ReadonlySet<string>,
+  resolvable: (commit: string) => boolean,
+): string[] {
+  return entries
+    .filter((entry) => !resolvable(entry.commit) && !historicalNames.has(entry.name))
+    .map((entry) => `${entry.name}: unresolved origin for a new archive`);
 }
 
 export function originFailures(
@@ -177,6 +214,26 @@ export function applyCorrections(
     );
     return correction ? { name: entry.name, treeHash: correction.toHash } : entry;
   });
+}
+
+export function correctionFailures(
+  corrections: readonly ArchiveCorrection[],
+  index: readonly ArchiveEntry[],
+): string[] {
+  const failures: string[] = [];
+  const names = new Set<string>();
+  for (const correction of corrections) {
+    if (names.has(correction.name))
+      failures.push(`${correction.name}: only one correction per archive is allowed`);
+    names.add(correction.name);
+    if (!/^[0-9a-f]{64}$/.test(correction.fromHash) || !/^[0-9a-f]{64}$/.test(correction.toHash))
+      failures.push(`${correction.name}: correction hashes are not SHA-256`);
+    if (!correction.reason.trim()) failures.push(`${correction.name}: correction has no reason`);
+    const current = index.find((entry) => entry.name === correction.name);
+    if (!current || current.treeHash !== correction.toHash)
+      failures.push(`${correction.name}: correction target is not the current tree`);
+  }
+  return failures;
 }
 
 export function provenanceFailures(entry: ArchiveEntry): string[] {
@@ -372,23 +429,31 @@ function main(): void {
       ? (JSON.parse(readFileSync(correctionsPath, "utf8")) as { corrections: ArchiveCorrection[] })
           .corrections
       : [];
-    const correctionFailures: string[] = [];
-    for (const correction of corrections) {
-      if (!/^[0-9a-f]{64}$/.test(correction.fromHash) || !/^[0-9a-f]{64}$/.test(correction.toHash))
-        correctionFailures.push(`${correction.name}: correction hashes are not SHA-256`);
-      if (!correction.reason.trim())
-        correctionFailures.push(`${correction.name}: correction has no reason`);
-      const current = existing.find((entry) => entry.name === correction.name);
-      if (!current || current.treeHash !== correction.toHash)
-        correctionFailures.push(`${correction.name}: correction target is not the current tree`);
-    }
     const correctedBaseline = applyCorrections(baseline, corrections);
+    const anchorEarlyPath = join(root, "fixtures/conformance/openspec-archive-baseline.json");
+    const anchorEarly = existsSync(anchorEarlyPath) ? readBaseline(anchorEarlyPath) : null;
+    const historicalNames = new Set((anchorEarly ?? []).map((entry) => entry.name));
+    const refArgIndex = process.argv.indexOf("--against");
+    const refEarly =
+      refArgIndex >= 0 ? process.argv[refArgIndex + 1] : process.env.ARCHIVE_BASELINE_REF;
+    if (refEarly) {
+      const acceptedEarly = refBaseline(root, refEarly);
+      if (Array.isArray(acceptedEarly))
+        for (const entry of acceptedEarly) historicalNames.add(entry.name);
+      else if (acceptedEarly === "absent") {
+        const tree = refArchiveEntries(root, refEarly);
+        if (tree) for (const entry of tree) historicalNames.add(entry.name);
+      }
+    }
     const shallow =
       execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
         cwd: root,
         encoding: "utf8",
       }).trim() === "true";
     const changed = [
+      ...unresolvedOriginFailures(existing, historicalNames, (commit) =>
+        commitResolvable(root, commit),
+      ),
       ...existing.flatMap((entry) => provenanceFailures(entry)),
       ...(shallow
         ? []
@@ -398,7 +463,7 @@ function main(): void {
           )),
       ...baselineFailures(correctedBaseline, existing),
       ...baselineCoverageFailures(correctedBaseline, existing),
-      ...correctionFailures,
+      ...correctionFailures(corrections, existing),
     ];
     if (changed.length) {
       console.error(`archived trees changed or unpinned: ${changed.join("; ")}`);

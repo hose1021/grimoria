@@ -123,6 +123,7 @@ export function riskArtifactFailures(
     ],
     ["app/offline", ["src/infrastructure/offline/"]],
     ["app/store-boundaries", ["src/entry/store.ts", "src/application/store/", "src/entry/"]],
+    ["game/state-and-storage", ["src/infrastructure/storage/"]],
     ["game/role-modules", ["src/core/roles/"]],
     ["game/command-engine", ["src/core/engine/", "src/core/model/", "src/core/commands/"]],
     ["game/setup", ["src/core/model/setup"]],

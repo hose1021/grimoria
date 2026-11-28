@@ -103,12 +103,21 @@ const contract = JSON.parse(
   >;
 };
 
+function withoutAt(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutAt);
+  if (typeof value !== "object" || value === null) return value;
+  const copy: Record<string, unknown> = { ...(value as Record<string, unknown>) };
+  delete copy.at;
+  for (const [key, child] of Object.entries(copy)) copy[key] = withoutAt(child);
+  return copy;
+}
+
 function normalize(value: unknown, drop: string[] = []): unknown {
   if (Array.isArray(value)) return value.map((child) => normalize(child, drop));
   if (typeof value !== "object" || value === null) return value;
   const copy: Record<string, unknown> = { ...(value as Record<string, unknown>) };
-  for (const key of ["applied", "journal", "updatedAt", "createdAt", ...drop]) delete copy[key];
-  for (const [key, child] of Object.entries(copy)) copy[key] = normalize(child, drop);
+  for (const key of ["updatedAt", "createdAt", "applied", "journal", ...drop]) delete copy[key];
+  for (const [key, child] of Object.entries(copy)) copy[key] = normalize(child, []);
   return copy;
 }
 
@@ -137,17 +146,9 @@ test("the portable engine contract runs from JSON alone", () => {
     "independent deterministic executions end in the same normalized state",
   );
   assert.deepEqual(
-    {
-      status: first.status,
-      result: (first as { result?: unknown }).result,
-      events: (first as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
-    },
-    {
-      status: second.status,
-      result: (second as { result?: unknown }).result,
-      events: (second as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
-    },
-    "independent executions return the same command result",
+    withoutAt(first),
+    withoutAt(second),
+    "independent executions return the same command result and event payloads",
   );
   const beforeReapply = normalize(secondRun);
   const journalBefore = secondRun.journal.entries.length;
@@ -184,10 +185,10 @@ test("the portable engine contract runs from JSON alone", () => {
       return copy;
     };
     assert.deepEqual(normalize(result.state), normalize(replayed));
-    assert.equal(
-      (result.state.journal as { entries: unknown[] }).entries.length,
-      (replayed.journal as { entries: unknown[] }).entries.length,
-      "journal replay preserves the journal",
+    assert.deepEqual(
+      withoutAt((result.state.journal as { entries: unknown[] }).entries),
+      withoutAt((replayed.journal as { entries: unknown[] }).entries),
+      "journal replay preserves the journal contents",
     );
   }
 

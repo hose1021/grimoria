@@ -381,3 +381,39 @@ test("the citation legacy check fails closed on an invalid ref", () => {
   assert.equal(result.status, 1);
   assert.match(result.stderr, /cannot read the legacy rule sources/);
 });
+
+test("an applied citation correction still passes after the target branch integrated it", () => {
+  const correction = {
+    id: "SNV-ARTIST-01",
+    from: { file: "src/core/engine/snv.test.ts", name: "old artist name" },
+    to: { file: "src/core/engine/snv.test.ts", name: "new artist name" },
+    reason: "renamed",
+  };
+  const migrated = {
+    "SNV-ARTIST-01": [{ file: "src/core/engine/snv.test.ts", name: "new artist name" }],
+  };
+  assert.deepEqual(
+    citationParityFailures(migrated, new Map([["SNV-ARTIST-01", migrated["SNV-ARTIST-01"]!]]), [
+      correction,
+    ]),
+    [],
+  );
+  assert.deepEqual(
+    citationParityFailures(
+      { "SNV-ARTIST-01": [{ file: "src/core/engine/snv.test.ts", name: "other name" }] },
+      new Map([["SNV-ARTIST-01", [{ file: "src/core/engine/snv.test.ts", name: "other name" }]]]),
+      [correction],
+    ).some((failure) => failure.includes("not in the baseline and it is not applied")),
+    true,
+  );
+});
+
+test("a duplicate citation inside one rule is rejected", () => {
+  const citation = rule().assertingTests[0];
+  const result = validateRegistry(
+    { schemaVersion: 1, rules: [rule({ assertingTests: [citation, citation] })] },
+    context,
+  );
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.ok(result.errors.some((error) => error.includes("duplicate citation")));
+});

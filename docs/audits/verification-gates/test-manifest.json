@@ -17,6 +17,11 @@
       "name": "a malformed baseline cannot silently drop pinned records"
     },
     {
+      "key": "scripts/archive-index.test.ts::a new archive cannot use a fabricated origin",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a new archive cannot use a fabricated origin"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a re-archive takes the provenance the history scan derived",
       "file": "scripts/archive-index.test.ts",
       "name": "a re-archive takes the provenance the history scan derived"
@@ -42,6 +47,11 @@
       "name": "an explicit correction replaces a baseline hash and needs a reason"
     },
     {
+      "key": "scripts/archive-index.test.ts::archive corrections are unique and target the current tree",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive corrections are unique and target the current tree"
+    },
+    {
       "key": "scripts/archive-index.test.ts::archive hashes canonicalize text and keep binary bytes",
       "file": "scripts/archive-index.test.ts",
       "name": "archive hashes canonicalize text and keep binary bytes"
@@ -50,6 +60,11 @@
       "key": "scripts/archive-index.test.ts::archive provenance validates path, date and commit shape",
       "file": "scripts/archive-index.test.ts",
       "name": "archive provenance validates path, date and commit shape"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::binary bytes without a NUL stay unchanged and index metadata is validated",
+      "file": "scripts/archive-index.test.ts",
+      "name": "binary bytes without a NUL stay unchanged and index metadata is validated"
     },
     {
       "key": "scripts/archive-index.test.ts::provenance survives a squash with missing origin commits",
@@ -70,6 +85,11 @@
       "key": "scripts/archive-index.test.ts::the baseline rejects duplicates, extra records and unpinned trees",
       "file": "scripts/archive-index.test.ts",
       "name": "the baseline rejects duplicates, extra records and unpinned trees"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the committed archive index carries an origin and issue reference",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the committed archive index carries an origin and issue reference"
     },
     {
       "key": "scripts/archive-index.test.ts::the original baseline catches a coordinated archive deletion",
@@ -217,6 +237,11 @@
       "name": "one changed byte fails with a hash mismatch"
     },
     {
+      "key": "scripts/check-risk-artifacts.test.ts::a storage change needs the state-and-storage delta spec",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "a storage change needs the state-and-storage delta spec"
+    },
+    {
       "key": "scripts/check-risk-artifacts.test.ts::an archive-only transition keeps the package and its evidence",
       "file": "scripts/check-risk-artifacts.test.ts",
       "name": "an archive-only transition keeps the package and its evidence"
@@ -240,6 +265,11 @@
       "key": "scripts/check-risk-tier.test.ts::each tier needs the evidence its risk implies",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "each tier needs the evidence its risk implies"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::R2 rejects a body without pinned sources, revision or RED/GREEN",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "R2 rejects a body without pinned sources, revision or RED/GREEN"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::the diff decides the tier from its highest-risk path",
@@ -807,9 +837,19 @@
       "name": "the Tinker, the Po and the Shabaloth resolve on the night-step capability, not in the step completion"
     },
     {
+      "key": "scripts/rule-registry.test.ts::a duplicate citation inside one rule is rejected",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "a duplicate citation inside one rule is rejected"
+    },
+    {
       "key": "scripts/rule-registry.test.ts::an accepted citation baseline cannot lose entries",
       "file": "scripts/rule-registry.test.ts",
       "name": "an accepted citation baseline cannot lose entries"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::an applied citation correction still passes after the target branch integrated it",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "an applied citation correction still passes after the target branch integrated it"
     },
     {
       "key": "scripts/rule-registry.test.ts::an unappliable registry fails closed on ids, roles, levels, fields and tests",

@@ -60,11 +60,24 @@ test("each tier needs the evidence its risk implies", () => {
     checkRisk(body("R2", "- BMR-SAILOR-01 covered by src/core/roles/sailor/role.test.ts"), [
       "src/core/roles/sailor/role.ts",
     ]).ok,
-    true,
+    false,
+    "R2 needs pinned source, revision and RED/GREEN evidence",
   );
   assert.equal(
     checkRisk(body("R3", ""), ["src/core/engine/commands.ts"]).ok,
     false,
     "R3 needs a concrete evidence bullet",
   );
+});
+
+test("R2 rejects a body without pinned sources, revision or RED/GREEN", () => {
+  assert.equal(
+    checkRisk(body("R2", "- TB-MONK-01 test.test.ts"), ["src/core/roles/monk/role.ts"]).ok,
+    false,
+  );
+  const complete = body(
+    "R2",
+    "- TB-MONK-01 [Monk r3124](https://wiki.bloodontheclocktower.com/index.php?title=Monk&oldid=3124) covered by src/core/roles/monk/role.test.ts\n- RED: the assert failed before the fix.\n- GREEN: the assert passes.",
+  );
+  assert.equal(checkRisk(complete, ["src/core/roles/monk/role.ts"]).ok, true);
 });

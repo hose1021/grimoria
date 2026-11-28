@@ -90,13 +90,20 @@ function evidenceFailures(tier: Tier, body: string): string[] {
   }
   if (!substantive) return [`${tier} needs at least one concrete Evidence bullet`];
   const haystack = chunk + "\n" + body;
-  if (tier === "R1" && !/test|check|npm |node --test|browser/i.test(haystack))
-    return ["R1 needs regression or characterization evidence"];
+  if (tier === "R1") {
+    if (!/\.test\.ts|npm (?:run )?\S+|node --test|browser-check/i.test(haystack))
+      return ["R1 needs regression or characterization evidence naming a test or command"];
+    return [];
+  }
   if (tier === "R2") {
     const failures: string[] = [];
     if (!/\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d\d\b/.test(body))
       failures.push("R2 needs a stable rule identifier");
     if (!/\.test\.ts/.test(body)) failures.push("R2 needs the asserting test file");
+    if (!/oldid=\d+|\br\d{3,}\b/.test(body)) failures.push("R2 needs the pinned source revision");
+    if (!/https?:\/\/\S+/.test(body)) failures.push("R2 needs the pinned source link");
+    if (!/^\s*[-*]\s*RED[::]/im.test(body)) failures.push("R2 needs RED evidence");
+    if (!/^\s*[-*]\s*GREEN[::]/im.test(body)) failures.push("R2 needs GREEN evidence");
     return failures;
   }
   return [];

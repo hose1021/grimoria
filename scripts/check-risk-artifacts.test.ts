@@ -185,3 +185,28 @@ test("an archived package cannot satisfy a behavior change", () => {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test("a storage change needs the state-and-storage delta spec", () => {
+  const root = fixture({ specs: "workflow" });
+  const body =
+    "Issue: #1\nRisk: R3\nPolicy migration: true\nOpenSpec change: openspec/changes/sample-change\n";
+  const touched = [
+    "openspec/changes/sample-change/proposal.md",
+    "openspec/changes/sample-change/specs/workflow/spec.md",
+    "src/infrastructure/storage/local-game-storage.ts",
+  ];
+  try {
+    assert.ok(
+      riskArtifactFailures(body, root, { changedFiles: touched }).some((failure) =>
+        failure.includes("game/state-and-storage delta spec"),
+      ),
+      "a storage change must name the persistence contract",
+    );
+    const storageDir = join(root, "openspec/changes/sample-change/specs/game/state-and-storage");
+    mkdirSync(storageDir, { recursive: true });
+    writeFileSync(join(storageDir, "spec.md"), "### Requirement: Saved game\n");
+    assert.deepEqual(riskArtifactFailures(body, root, { changedFiles: touched }), []);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

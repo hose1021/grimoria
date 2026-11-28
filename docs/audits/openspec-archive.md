@@ -6,7 +6,9 @@ are not the final storage form.
 
 ## Implemented now
 
-Each index entry records two different facts. `commit` and `date` are the
+Each index entry records the archived change, its issue line and its origin commit;
+those references are the evidence for the historical checklist items closed when
+the change was archived. It records two different facts. `commit` and `date` are the
 historical origin: where the change was first added. Retrieval does not depend on
 those commits, which a squash merge may drop: the evidence is the archived tree
 in the integrated tree, pinned by `treeHash`, the index and the baseline fixture.

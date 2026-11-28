@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   applyCorrections,
   baselineCoverageFailures,
   canonicalBytes,
   chooseProvenance,
+  correctionFailures,
   originFailures,
   parseBaseline,
+  parseIndex,
+  unresolvedOriginFailures,
   baselineFailures,
   entriesFrom,
   historicalFailures,
@@ -194,4 +198,73 @@ test("an explicit correction replaces a baseline hash and needs a reason", () =>
     { name: "2026-11-01-a", treeHash: "b".repeat(64) },
   ]);
   assert.deepEqual(applyCorrections(baseline, []), baseline);
+});
+
+test("binary bytes without a NUL stay unchanged and index metadata is validated", () => {
+  const binary = Buffer.from([0xff, 0x00, 0xfe]);
+  assert.deepEqual(canonicalBytes(binary), binary);
+  const single = Buffer.from([0xff]);
+  assert.deepEqual(canonicalBytes(single), single);
+  assert.equal(parseIndex("not json"), null);
+  assert.equal(parseIndex(JSON.stringify({ schemaVersion: 1, entries: [] })), null);
+  assert.equal(
+    parseIndex(JSON.stringify({ schemaVersion: 2, canonicalization: "other", entries: [] })),
+    null,
+  );
+  assert.deepEqual(
+    parseIndex(
+      JSON.stringify({ schemaVersion: 2, canonicalization: "text-lf-binary-raw-v1", entries: [] }),
+    ),
+    [],
+  );
+});
+
+test("a new archive cannot use a fabricated origin", () => {
+  const fresh = { ...row("2026-12-01-new"), commit: "c".repeat(40) };
+  assert.ok(
+    unresolvedOriginFailures([fresh], new Set(["2026-11-01-old"]), () => false).some((failure) =>
+      failure.includes("unresolved origin for a new archive"),
+    ),
+  );
+  assert.deepEqual(
+    unresolvedOriginFailures([fresh], new Set([fresh.name]), () => false),
+    [],
+    "accepted historical provenance may survive a squash",
+  );
+});
+
+test("archive corrections are unique and target the current tree", () => {
+  const index = [row("2026-11-01-a")];
+  const good = {
+    name: "2026-11-01-a",
+    fromHash: "a".repeat(64),
+    toHash: "0".repeat(64),
+    reason: "reviewed",
+  };
+  assert.deepEqual(correctionFailures([good], index), []);
+  assert.ok(
+    correctionFailures([good, { ...good, fromHash: "b".repeat(64) }], index).some((failure) =>
+      failure.includes("only one correction"),
+    ),
+  );
+  assert.ok(
+    correctionFailures([{ ...good, toHash: "c".repeat(64) }], index).some((failure) =>
+      failure.includes("not the current tree"),
+    ),
+  );
+});
+
+test("the committed archive index carries an origin and issue reference", () => {
+  const index = JSON.parse(
+    readFileSync(new URL("../docs/audits/openspec-archive-index.json", import.meta.url), "utf8"),
+  ) as { entries: Array<{ name: string; commit: string; issue?: string | null }> };
+  assert.equal(index.entries.length, 173);
+  for (const entry of index.entries) {
+    assert.match(entry.commit, /^[0-9a-f]{40}$/, entry.name);
+    assert.ok(
+      entry.issue === null || entry.issue === undefined || /^#\d+$/.test(entry.issue),
+      entry.name,
+    );
+  }
+  assert.ok(index.entries.some((entry) => typeof entry.issue === "string"));
 });

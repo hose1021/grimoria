@@ -104,6 +104,7 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
     if (context.shared && rule.roleId !== undefined)
       errors.push(`${where}: shared rules carry no roleId`);
     const tests: RegistryTest[] = [];
+    const citationKeys = new Set<string>();
     if (!Array.isArray(rule.assertingTests) || rule.assertingTests.length === 0)
       errors.push(`${where}: no assertingTests`);
     else
@@ -131,6 +132,10 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
           errors.push(`${at}: ${citation.file} has no test ${JSON.stringify(citation.name)}`);
         if (context.skipped.get(citation.file)?.has(citation.name))
           errors.push(`${at}: test is skipped`);
+        const citationKey = citation.file + "\0" + citation.name;
+        if (citationKeys.has(citationKey))
+          errors.push(`${at}: duplicate citation ${citation.file} "${citation.name}"`);
+        citationKeys.add(citationKey);
         tests.push({ file: citation.file, name: citation.name });
       }
     if (errors.length) continue;
@@ -175,12 +180,14 @@ export function citationParityFailures(
         failures.push(`${id}: missing ${corrected.file} "${corrected.name}"`);
     }
     if (correction) {
-      if (
-        !citations.some(
-          (entry) => entry.file === correction.from.file && entry.name === correction.from.name,
-        )
-      )
-        failures.push(`${id}: correction source is not in the baseline`);
+      const hasSource = citations.some(
+        (entry) => entry.file === correction.from.file && entry.name === correction.from.name,
+      );
+      const hasTarget = citations.some(
+        (entry) => entry.file === correction.to.file && entry.name === correction.to.name,
+      );
+      if (!hasSource && !hasTarget)
+        failures.push(`${id}: correction source is not in the baseline and it is not applied`);
       if (
         !own.some((entry) => entry.file === correction.to.file && entry.name === correction.to.name)
       )
