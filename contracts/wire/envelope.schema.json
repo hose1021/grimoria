@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grimoria.local/contracts/wire/envelope.schema.json",
+  "title": "Grimoria wire envelope",
+  "description": "Versioned request and response envelopes for the JSON engine boundary.",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/response" }
+  ],
+  "x-unavailableOperation": "Any operation not listed in x-operationStatus is unavailable and returns engine-contract-violation.",
+  "x-operationStatus": {
+    "apply_command": "reserved",
+    "prepare_command": "reserved",
+    "preview_command": "reserved",
+    "validate_command": "reserved",
+    "replay": "reserved",
+    "import_save": "reserved",
+    "export_save": "reserved",
+    "query": "reserved",
+    "public_projection": "reserved",
+    "player_projection": "reserved",
+    "canonical_state": "reserved",
+    "canonical_bytes": "implemented"
+  },
+  "x-operationBoundary": {
+    "apply_command": "previewAndApply",
+    "prepare_command": "previewAndApply",
+    "preview_command": "previewAndApply",
+    "validate_command": "commands",
+    "replay": "replay",
+    "import_save": "persistence",
+    "export_save": "persistence",
+    "query": "readModels",
+    "public_projection": "publicProjection",
+    "player_projection": "playerProjection",
+    "canonical_state": "gameState",
+    "canonical_bytes": "wasmBoundary"
+  },
+  "$defs": {
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wireVersion", "operation", "payload"],
+      "properties": {
+        "wireVersion": { "const": 1 },
+        "operation": {
+          "enum": [
+            "apply_command",
+            "prepare_command",
+            "preview_command",
+            "validate_command",
+            "replay",
+            "import_save",
+            "export_save",
+            "query",
+            "public_projection",
+            "player_projection",
+            "canonical_state",
+            "canonical_bytes"
+          ]
+        },
+        "payload": { "$ref": "value.schema.json" }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wireVersion", "result"],
+      "properties": {
+        "wireVersion": { "const": 1 },
+        "result": { "$ref": "value.schema.json" },
+        "state": { "$ref": "value.schema.json" }
+      }
+    }
+  }
+}

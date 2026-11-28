@@ -1,8 +1,10 @@
-//! Native conformance runner. Phase 0 has no fixtures yet.
+//! Native conformance runner.
+
+pub mod fixture;
 
 use grimoria_wire::CONTRACT_VERSION;
 
-/// Suite identity used by future fixture runs.
+/// Suite identity used by fixture runs.
 pub fn suite_identity() -> String {
     format!("grimoria-conformance@{CONTRACT_VERSION}")
 }

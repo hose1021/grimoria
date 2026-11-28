@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grimoria.local/contracts/wire/value.schema.json",
+  "title": "Grimoria canonical JSON value",
+  "description": "Any strict JSON value. Object order is carried by the wire, not by this schema.",
+  "anyOf": [
+    { "type": "null" },
+    { "type": "boolean" },
+    { "type": "number" },
+    { "type": "string" },
+    { "type": "array", "items": { "$ref": "#" } },
+    {
+      "type": "object",
+      "additionalProperties": { "$ref": "#" }
+    }
+  ]
+}

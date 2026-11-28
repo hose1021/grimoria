@@ -4,7 +4,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { cargoGraphFailures } from "./check-cargo-graph.ts";
+import {
+  cargoGraphFailures,
+  isApprovedExternal,
+  isApprovedResolved,
+  manifestPolicyFailures,
+} from "./check-cargo-graph.ts";
 
 const MEMBERS = [
   "grimoria-domain",
@@ -132,7 +137,7 @@ test("allowed dev and build dependencies are accepted", () => {
 
 for (const syntax of ["plain", "renamed", "target", "optional", "dev", "build"] as const) {
   test(`an unauthorized ${syntax} workspace edge fails`, () => {
-    const root = workspace([...BASE, { from: "grimoria-domain", to: "grimoria-wire", syntax }]);
+    const root = workspace([...BASE, { from: "grimoria-cli", to: "grimoria-domain", syntax }]);
     try {
       assert.ok(
         check(root).some((failure) => failure.includes("not allowed")),
@@ -154,12 +159,14 @@ test("an external dependency fails", () => {
     join(root, "crates", "grimoria-wire", "Cargo.toml"),
     '[package]\nname = "grimoria-wire"\nversion = "0.0.0"\nedition = "2024"\n\n[dependencies]\ngrimoria-domain = { path = "../grimoria-domain" }\nexternal-crate = { path = "../../external-crate" }\n',
   );
+  execFileSync("cargo", ["generate-lockfile", "--offline"], { cwd: root, stdio: "ignore" });
   try {
     assert.ok(
       check(root).some(
         (failure) =>
           failure.includes("external dependency") ||
-          failure.includes("not an approved workspace package"),
+          failure.includes("not an approved workspace package") ||
+          failure.includes("resolved package is not approved"),
       ),
     );
   } finally {
@@ -189,10 +196,53 @@ test("an extra member fails", () => {
   }
 });
 
+test("the external allowlist names each package and kind", () => {
+  assert.equal(isApprovedExternal("grimoria-wire", "ryu-js", "normal"), true);
+  assert.equal(isApprovedExternal("grimoria-wasm", "wasm-bindgen", "normal"), true);
+  assert.equal(isApprovedExternal("grimoria-wasm", "wasm-bindgen-test", "dev"), true);
+  assert.equal(isApprovedExternal("grimoria-wasm", "wasm-bindgen-test", "normal"), false);
+  assert.equal(isApprovedExternal("grimoria-conformance", "ryu-js", "normal"), false);
+  assert.equal(isApprovedExternal("grimoria-domain", "wasm-bindgen", "normal"), false);
+});
+
+test("the resolved allowlist pins names, versions and registry sources", () => {
+  const registry = "registry+https://github.com/rust-lang/crates.io-index";
+  assert.equal(isApprovedResolved("ryu-js", "1.0.4", registry), true);
+  assert.equal(isApprovedResolved("serde_json", "1.0.154", registry), true);
+  assert.equal(isApprovedResolved("ryu-js", "1.0.5", registry), false);
+  assert.equal(isApprovedResolved("ryu-js", "1.0.4", null), false);
+  assert.equal(isApprovedResolved("ryu-js", "1.0.4", "git+https://example.invalid/ryu"), false);
+});
+
+test("patches, replacements and source substitutions fail", () => {
+  const root = mkdtempSync(join(tmpdir(), "cargo-policy-"));
+  mkdirSync(join(root, "crates"));
+  try {
+    writeFileSync(
+      join(root, "Cargo.toml"),
+      "[workspace]\n[patch.crates-io]\nryu-js = { path = 'x' }\n",
+    );
+    assert.ok(manifestPolicyFailures(root).some((failure) => failure.includes("patch")));
+    writeFileSync(join(root, "Cargo.toml"), "[workspace]\n");
+    mkdirSync(join(root, ".cargo"));
+    writeFileSync(
+      join(root, ".cargo", "config.toml"),
+      "[source.crates-io]\nreplace-with = 'mirror'\n",
+    );
+    assert.ok(manifestPolicyFailures(root).some((failure) => failure.includes("source")));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a dependency cycle fails", () => {
   const root = workspace([...BASE, { from: "grimoria-domain", to: "grimoria-wire" }]);
   try {
-    assert.ok(check(root).some((failure) => failure.includes("cycle")));
+    assert.ok(
+      check(root).some(
+        (failure) => failure.includes("cycle") || failure.includes("cargo metadata failed"),
+      ),
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

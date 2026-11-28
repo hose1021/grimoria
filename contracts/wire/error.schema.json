@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grimoria.local/contracts/wire/error.schema.json",
+  "title": "Grimoria wire contract failure",
+  "description": "Machine-readable engine-contract-violation response.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["code", "kind", "message"],
+  "properties": {
+    "code": { "const": "engine-contract-violation" },
+    "kind": {
+      "enum": ["syntax", "duplicate-key", "non-finite-number", "limit", "contract"]
+    },
+    "message": { "type": "string" },
+    "offset": { "type": "integer", "minimum": 0 },
+    "limitKind": {
+      "enum": ["input-bytes", "depth", "collection-entries", "nodes"]
+    },
+    "max": { "type": "integer", "minimum": 0 },
+    "actual": { "type": "integer", "minimum": 0 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "limit" } } },
+      "then": { "required": ["limitKind", "max", "actual"] }
+    }
+  ]
+}

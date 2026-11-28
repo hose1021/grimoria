@@ -15,3 +15,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 grimoria-domain = { path = "../grimoria-domain" }
 grimoria-wire = { path = "../grimoria-wire" }
+wasm-bindgen = "0.2.130"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.80"

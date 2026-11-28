@@ -1,6 +1,6 @@
 # ADR 0006: Rust/WASM engine migration with a TypeScript reference oracle
 
-- Status: Proposed (Phase 0 scaffolding only)
+- Status: Proposed (Phase 0 complete; Phase 1 wire contract implemented)
 - Date: 2026-11-28
 - Issue: [#535](https://github.com/hose1021/grimoria/issues/535)
 - Baseline: tag `v0.14.0`, `main` `de6a17a8997f1dfa22ebbc50a36b4bd57640ad7c`
@@ -102,6 +102,40 @@ explicit WTF-16 string type for text fields, hashes over `encode_utf16`, and
 serializes unpaired surrogates as `\uXXXX` escapes. Vectors:
 `\uD800`, `\uDC00`, `a\uD800b`, `\uD800\uDC00`, `\uD83D\uDE00`, `\u0000`,
 `café`.
+
+## Phase 1 wire implementation
+
+`grimoria-wire` owns the executable contract: `WIRE_VERSION = 1`, request and
+response DTOs, a strict JSON parser, `Wtf16`, and wire/canonical serializers.
+The comparison encoding is `grimoria-canonical-v1`; legacy fingerprints use
+the separate `grimoria-legacy-canonical-v0.14.0`, which reproduces the v0.14.0
+TypeScript canonicalize plus `JSON.stringify`, including numeric-first array
+indexes. `ryu-js` supplies ECMAScript number formatting.
+
+Failures are JSON with code `engine-contract-violation`, a stable category, an
+optional offset and a `limitKind` for bounded failures. Input bytes, depth,
+collection entries and nodes are bounded; duplicate keys use a hash set.
+Wire objects enumerate canonical array-index keys first in ascending numeric
+order, then the remaining keys in stored order, matching `JSON.stringify`.
+
+Operations carry an explicit implemented, reserved or unavailable status.
+`canonical_bytes` is implemented. `apply_command`, `prepare_command`,
+`preview_command`, `validate_command`, `replay`, `import_save`, `export_save`,
+`query`, `public_projection`, `player_projection` and `canonical_state` are
+reserved; `canonical_state` waits for exact TypeScript `canonicalState`
+semantics.
+
+`scripts/check-cargo-graph.ts` checks the full resolved graph: approved
+name/version/crates.io source for every direct and transitive package, lock
+checksum equality, no path or git substitution, no patch/replace and no source
+replacement. `Cargo.lock` is committed and every check uses `--locked
+--offline`.
+
+The committed fixtures run natively in `grimoria-conformance` and through
+`wasm-bindgen-test` in Node. `scripts/wire-differential.test.ts` compares them
+with ECMAScript and the real TypeScript canonicalizer, and
+`scripts/wire-wasm-parity.ts` executes the generated Node bindings. The wasm32
+CI job installs `wasm-bindgen-cli` at the lockfile version and runs both.
 
 ## Oracle versioning
 
