@@ -584,6 +584,13 @@ test("a dangling archived test reference needs a reviewed correction", () => {
     ),
   );
   assert.ok(
+    testReferenceFailures(
+      [entry],
+      [{ ...correction, to: "src/kept.ts" }],
+      (path) => path === "src/kept.ts",
+    ).some((failure) => failure.includes("not an asserting test file")),
+  );
+  assert.ok(
     testReferenceFailures([entry], [correction, correction], exists).some((failure) =>
       failure.includes("duplicate correction"),
     ),

@@ -9,6 +9,7 @@ import {
   citationParityFailures,
   correctionUniquenessFailures,
   legacyCitations,
+  levelParityFailures,
   crossReferences,
   loadContext,
   parity,
@@ -443,6 +444,39 @@ test("every correction for one rule applies by its full citation identity", () =
   assert.deepEqual(
     citationBaselineFailures(baseline, { "SNV-ARTIST-01": [first.to, second.to] }, [first, second]),
     [],
+  );
+});
+
+test("a level accepted on the target branch cannot drop", () => {
+  const accepted = new Map([
+    ["BMR-SAILOR-01", "verified"],
+    ["BMR-SAILOR-02", "host-choice"],
+  ]);
+  assert.deepEqual(levelParityFailures(accepted, accepted), []);
+  assert.deepEqual(
+    levelParityFailures(
+      accepted,
+      new Map([
+        ["BMR-SAILOR-01", "verified"],
+        ["BMR-SAILOR-02", "verified"],
+      ]),
+    ),
+    [],
+    "a raise is allowed",
+  );
+  assert.ok(
+    levelParityFailures(
+      accepted,
+      new Map([
+        ["BMR-SAILOR-01", "host-choice"],
+        ["BMR-SAILOR-02", "host-choice"],
+      ]),
+    ).some((failure) => failure.includes("verified to host-choice")),
+  );
+  assert.ok(
+    levelParityFailures(accepted, new Map([["BMR-SAILOR-02", "host-choice"]])).some((failure) =>
+      failure.includes("dropped a rule"),
+    ),
   );
 });
 

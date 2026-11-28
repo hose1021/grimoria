@@ -389,6 +389,10 @@ export function testReferenceFailures(
       failures.push(`${correction.archive}: ${correction.from} exists; the correction is stale`);
     if (!exists(correction.to))
       failures.push(`${correction.archive}: correction target ${correction.to} is missing`);
+    else if (!correction.to.endsWith(".test.ts") && correction.to !== "scripts/browser-check.ts")
+      failures.push(
+        `${correction.archive}: correction target ${correction.to} is not an asserting test file`,
+      );
     corrected.set(key, correction.to);
   }
   for (const entry of entries)

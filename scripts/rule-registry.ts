@@ -225,10 +225,8 @@ export function citationParityFailures(
   return failures;
 }
 
-export function legacyCitations(
-  matrix: string,
-  ruleDocs: ReadonlyMap<string, string>,
-): Record<string, Array<{ file: string; name: string }>> {
+/** The matrix rows of a document, parsed once for the citation and level checks. */
+function matrixRows(matrix: string) {
   const cellsOf = (line: string): string[] | null => {
     const trimmed = line.trim();
     if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return null;
@@ -237,13 +235,20 @@ export function legacyCitations(
       .split("|")
       .map((cell) => cell.trim());
   };
-  const out: Record<string, Array<{ file: string; name: string }>> = {};
-  for (const row of matrixRuleRows(
+  return matrixRuleRows(
     matrix
       .split("\n")
       .map(cellsOf)
       .filter((cells) => cells !== null),
-  )) {
+  );
+}
+
+export function legacyCitations(
+  matrix: string,
+  ruleDocs: ReadonlyMap<string, string>,
+): Record<string, Array<{ file: string; name: string }>> {
+  const out: Record<string, Array<{ file: string; name: string }>> = {};
+  for (const row of matrixRows(matrix)) {
     if (row.id === null) continue;
     out[row.id] ??= [];
     out[row.id].push(...row.citations);
@@ -299,6 +304,38 @@ export function parity(legacy: RegistryRule[], registry: RegistryRule[]): string
   for (const [id, value] of left) if (right.get(id) !== value) differences.add(id);
   for (const id of right.keys()) if (!left.has(id)) differences.add(id);
   return [...differences].sort();
+}
+
+export function legacyLevels(matrix: string): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const row of matrixRows(matrix)) if (row.id !== null) out.set(row.id, row.level);
+  return out;
+}
+
+const LEVEL_RANK: Record<string, number> = {
+  unsupported: 0,
+  "host-choice": 1,
+  "implemented-unverified": 2,
+  verified: 3,
+};
+
+/**
+ * A level accepted on the target branch cannot fall. A raise is allowed, and a
+ * rule may not disappear: the registry is the reviewed classification, and a
+ * silent downgrade would weaken the acceptance evidence.
+ */
+export function levelParityFailures(
+  accepted: ReadonlyMap<string, string>,
+  current: ReadonlyMap<string, string>,
+): string[] {
+  const failures: string[] = [];
+  for (const [id, level] of accepted) {
+    const now = current.get(id);
+    if (now === undefined) failures.push(`${id}: the registry dropped a rule the target accepted`);
+    else if ((LEVEL_RANK[now] ?? -1) < (LEVEL_RANK[level] ?? -1))
+      failures.push(`${id}: level dropped from ${level} to ${now}`);
+  }
+  return failures;
 }
 
 export function crossReferences(
@@ -432,7 +469,11 @@ function main(): void {
     }
     const legacy = legacyCitations(matrixText, ruleDocs);
     const registry = new Map<string, Array<{ file: string; name: string }>>();
-    for (const rule of [...validated.values()].flat()) registry.set(rule.id, rule.assertingTests);
+    const levels = new Map<string, string>();
+    for (const rule of [...validated.values()].flat()) {
+      registry.set(rule.id, rule.assertingTests);
+      levels.set(rule.id, rule.level);
+    }
     const corrections = (
       JSON.parse(
         readFileSync(join(root, "fixtures/conformance/citation-corrections.json"), "utf8"),
@@ -442,6 +483,7 @@ function main(): void {
     const failures = [
       ...duplicateCorrections,
       ...citationParityFailures(legacy, registry, corrections),
+      ...levelParityFailures(legacyLevels(matrixText), levels),
     ];
     if (failures.length) {
       for (const failure of failures) console.error(failure);
@@ -449,7 +491,9 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
-    console.log(`Citation legacy parity passed: ${Object.keys(legacy).length} rules at ${ref}.`);
+    console.log(
+      `Citation and level legacy parity passed: ${Object.keys(legacy).length} rules at ${ref}.`,
+    );
   }
   const rules = [...validated.values()].reduce((sum, list) => sum + list.length, 0);
   console.log(`Rule registry check passed: ${rules} rule(s).`);

@@ -2,6 +2,11 @@
   "version": 1,
   "tests": [
     {
+      "key": "scripts/archive-index.test.ts::a dangling archived test reference needs a reviewed correction",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a dangling archived test reference needs a reviewed correction"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a disappeared historical record stops the index build",
       "file": "scripts/archive-index.test.ts",
       "name": "a disappeared historical record stops the index build"
@@ -20,6 +25,11 @@
       "key": "scripts/archive-index.test.ts::a new archive cannot use a fabricated origin",
       "file": "scripts/archive-index.test.ts",
       "name": "a new archive cannot use a fabricated origin"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a new archive is appended to the baseline and an accepted hash is never rewritten",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a new archive is appended to the baseline and an accepted hash is never rewritten"
     },
     {
       "key": "scripts/archive-index.test.ts::a re-archive takes the provenance the history scan derived",
@@ -42,6 +52,11 @@
       "name": "an archive accepted on the target branch cannot be removed"
     },
     {
+      "key": "scripts/archive-index.test.ts::an archive outside the accepted anchor must be finished and carry evidence",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an archive outside the accepted anchor must be finished and carry evidence"
+    },
+    {
       "key": "scripts/archive-index.test.ts::an explicit correction replaces a baseline hash and needs a reason",
       "file": "scripts/archive-index.test.ts",
       "name": "an explicit correction replaces a baseline hash and needs a reason"
@@ -55,6 +70,11 @@
       "key": "scripts/archive-index.test.ts::archive hashes canonicalize text and keep binary bytes",
       "file": "scripts/archive-index.test.ts",
       "name": "archive hashes canonicalize text and keep binary bytes"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive origins survive repeated feature, squash, release and back-merge cycles",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive origins survive repeated feature, squash, release and back-merge cycles"
     },
     {
       "key": "scripts/archive-index.test.ts::archive origins survive squash integration into a legacy target",
@@ -75,6 +95,11 @@
       "key": "scripts/archive-index.test.ts::provenance survives a squash with missing origin commits",
       "file": "scripts/archive-index.test.ts",
       "name": "provenance survives a squash with missing origin commits"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the archive check fails closed on an invalid target ref",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the archive check fails closed on an invalid target ref"
     },
     {
       "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
@@ -905,6 +930,11 @@
       "key": "scripts/rule-registry.test.ts::every baseline citation is preserved exactly, with recorded corrections",
       "file": "scripts/rule-registry.test.ts",
       "name": "every baseline citation is preserved exactly, with recorded corrections"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::every correction for one rule applies by its full citation identity",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every correction for one rule applies by its full citation identity"
     },
     {
       "key": "scripts/rule-registry.test.ts::every registry requirement text matches the matrix and the exception register is intact",

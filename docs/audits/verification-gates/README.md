@@ -70,9 +70,11 @@ node scripts/verification/mutation.ts
 node --test scripts/verification/source-text.test.ts scripts/verification/gate-rules.test.ts
 ```
 
-The generated files (`traceability.json`, `test-manifest.json`, `uncovered.json`
-and the two matrices) are committed. The gate fails when any is stale, so a rule
-ID, contract ID or test cannot disappear silently.
+`traceability.json` and `test-manifest.json` are committed. `reports/` is
+ignored: `build-uncovered.ts` and `render-matrix.ts` regenerate it on demand, and
+their `--check` mode compares the result. The gate fails when a committed file is
+stale or a regenerated file differs, so a rule ID, contract ID or test cannot
+disappear silently.
 
 ## Test layers
 
@@ -108,7 +110,7 @@ review.
 - `atomic-map.json` — reviewed official-rule → engine-rule mappings.
 - `removed-verification.json` — allowed mapping downgrades with reasons.
 - `removed-tests.json` — allowed test-identity removals with reasons.
-- `uncovered.json` — every uncovered rule/contract with reason and task.
+- `reports/uncovered.json` — every uncovered rule/contract with reason and task, regenerated.
 - `command-scope.json` — UI/product/internal/missing command classification.
 - `known-findings.md` — red regression tests and linked issues.
 - `architecture.md`, `coverage-policy.md`, `ci.md`, `mutation.md`.

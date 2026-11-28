@@ -19,7 +19,12 @@ jobs:
     name: Specifications
     # A release or back-merge pull request adds no OpenSpec change: `dev`
     # already validated its changes, and the release body carries no issue line.
-    if: github.head_ref != 'dev' && github.head_ref != 'main'
+    # The exemption needs the repository's own branch named dev or main; a fork
+    # cannot skip the checks by naming its head branch the same way.
+    if: >-
+      github.event_name != 'pull_request' ||
+      !(github.event.pull_request.head.repo.full_name == github.repository &&
+        (github.head_ref == 'dev' || github.head_ref == 'main'))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:

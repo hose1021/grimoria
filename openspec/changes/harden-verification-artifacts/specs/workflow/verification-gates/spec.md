@@ -48,3 +48,102 @@ satisfied.
 
 - **WHEN** the bytes of an accepted tree change
 - **THEN** the archive gate fails with the new hash mismatch
+
+### Requirement: Archive provenance survives squash integration
+
+A new archive SHALL keep the origin recorded by the index committed with its
+first add when the target branch holds no record for it, so a squash merge,
+release and back-merge cannot lose it. A record the target branch accepted SHALL
+take precedence, and a rewritten origin SHALL fail the gate.
+
+**Source**: Issue #519
+**Tests**: `scripts/archive-index.test.ts`
+
+#### Scenario: Squash release
+
+- **WHEN** a feature archive is squashed into the integration branch, released
+  and back-merged, and the target holds no record for it
+- **THEN** the gate accepts the origin committed with the first add
+
+#### Scenario: Accepted record wins
+
+- **WHEN** the target branch already holds a record whose origin differs
+- **THEN** the gate fails and names the archive
+
+### Requirement: Archived references and completion are verifiable
+
+The archive gate SHALL reject an indexed test reference that resolves to no file
+unless a reviewed correction maps it to an existing asserting test file, and the
+index test list SHALL equal the references in the archived delta specs. An
+archive outside the accepted anchor SHALL have no open checklist item and SHALL
+carry RED/GREEN evidence.
+
+**Source**: Issue #519
+**Tests**: `scripts/archive-index.test.ts`
+
+#### Scenario: Dangling reference
+
+- **WHEN** an archived delta spec names a test file that does not exist
+- **THEN** the gate fails unless a correction names an existing asserting file
+
+#### Scenario: Unfinished archive
+
+- **WHEN** a new archive holds an open checklist item or no RED/GREEN record
+- **THEN** the gate fails and names the archive
+
+### Requirement: Citation corrections use the complete identity
+
+A citation correction SHALL match a citation by rule identifier, file and test
+name. Several corrections for one rule SHALL all apply, and a correction whose
+target is absent from the registry SHALL fail.
+
+**Source**: Issue #519
+**Tests**: `scripts/rule-registry.test.ts`
+
+#### Scenario: Two corrected citations
+
+- **WHEN** two citations of one rule are corrected and both targets exist
+- **THEN** the parity check passes with both corrections
+
+#### Scenario: Missing target
+
+- **WHEN** a correction names a target the registry does not hold
+- **THEN** the check fails and names the rule
+
+### Requirement: An accepted verification level cannot drop
+
+The registry check against the target branch SHALL fail when a rule's level falls
+below the level the target accepted, and when an accepted rule disappears. A
+raise SHALL pass.
+
+**Source**: Issue #519
+**Tests**: `scripts/rule-registry.test.ts`
+
+#### Scenario: Downgrade
+
+- **WHEN** a rule the target holds as `verified` becomes `host-choice`
+- **THEN** the check fails and names the rule
+
+#### Scenario: Raise
+
+- **WHEN** a rule the target holds as `host-choice` becomes `verified`
+- **THEN** the check passes
+
+### Requirement: Pull request metadata is revalidated
+
+Every pull request workflow SHALL run again when the body, title or base branch
+changes. The release and back-merge exemption SHALL apply only to the
+repository's own `dev` or `main` branch.
+
+**Source**: Issue #519
+**Tests**: `.github/workflows/openspec.yml`, `.github/workflows/ci.yml`
+
+#### Scenario: Edited body
+
+- **WHEN** the pull request body, title or base branch changes
+- **THEN** the artifact and risk checks run again
+
+#### Scenario: Foreign branch name
+
+- **WHEN** a fork pull request names its head branch `dev` or `main`
+- **THEN** the specifications job still runs
