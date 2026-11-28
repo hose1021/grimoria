@@ -1,3 +1,238 @@
 {
-  "origins": []
+  "origins": [
+    {
+      "name": "2026-11-27-bluff-picker-replacement",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-27-shared-alignment-reveal",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-27-snv-gap-coverage",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-27-stabilize-browser-acceptance",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-bmr-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-clockmaker-oracle-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-death-step-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-death-step-roles",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-dreamer-information-capability",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-drunk-slayer-attempt",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-evidence-gate",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-evil-twin-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-flowergirl-towncrier-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-game-chronicle-undo",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-guard-private-views-and-restores",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-jinx-residual-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-journal-phase-groups",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-juggler-wake-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-mathematician-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-mixed-regression-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-mobile-bag-order",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-permanent-verification-gates",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-pithag-arbitrary-death",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-protect-handoffs-and-recovery",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-protect-library-capacity",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-protect-recovery-and-setup-edits",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-recover-live-saves-and-offline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-recover-saves-and-streamline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-release-defect-reachability",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-remove-player-card-countdown",
+      "commit": "1b09b9500b431940555a591d602cf13eb4236cb6",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-role-choice-log",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-secrets-checksheet",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-setup-random-swap",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-snv-wake-capabilities",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-storyteller-reference",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-storyteller-workspace",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-tb-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-verified-jinx-behaviors",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-windows-verification",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    }
+  ]
 }

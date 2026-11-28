@@ -1326,10 +1326,22 @@ test("every archived change names a test and the anchor matches the target tree"
       .map((file) => file.split("/")[3])
       .filter((name) => name && name !== ".gitkeep"),
   );
+  const baseline = JSON.parse(
+    readFileSync(join(root, "docs/audits/openspec-archive-baseline.json"), "utf8"),
+  ) as { entries: Array<{ name: string }> };
+  const anchorNames = new Set(anchor.entries.map((entry) => entry.name));
+  const baselineNames = new Set(baseline.entries.map((entry) => entry.name));
   assert.deepEqual(
-    new Set(anchor.entries.map((entry) => entry.name)),
-    target,
-    "the anchor records only the archives the target branch accepted",
+    [...anchorNames].filter((name) => !target.has(name)),
+    [],
+    "the anchor records only archives the target branch holds",
+  );
+  // The anchor is immutable and predates an archive-introducing merge, so the
+  // archives the target gained since are pinned by the current baseline.
+  assert.deepEqual(
+    [...target].filter((name) => !anchorNames.has(name) && !baselineNames.has(name)),
+    [],
+    "every archive outside the anchor is pinned by the current baseline",
   );
 });
 

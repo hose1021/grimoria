@@ -102,6 +102,19 @@ commit as the archive SHALL fail.
 - **WHEN** the target branch already holds a record whose origin differs
 - **THEN** the gate fails and names the archive
 
+#### Scenario: Squash-merged integration
+
+- **WHEN** one squash merge adds several archives and the branch commits that
+  first added them are not reachable from the integration branch
+- **THEN** every indexed origin has a reviewed record and the archive check
+  passes with the original index values
+
+#### Scenario: Grown target after the anchor
+
+- **WHEN** the target tree gains archives the immutable anchor does not hold
+- **THEN** the anchor check passes and every newer archive is pinned by the
+  current baseline, not by the anchor
+
 ### Requirement: Archived test references resolve
 
 The archive gate SHALL reject an indexed test reference that resolves to no

@@ -15,6 +15,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Prioritise the saved session on the home screen, link whole scenario rows to their character sheets, show setup stages on host screens and filter the Storyteller reference by scenario, translated name or character ID. The seating surface follows the oval and night progress shows the exact completed count (#517).
 
+### Fixed
+
+- Restore the archive gate after a squash integration: record the reviewed origin of the 39 archives merged in #526 and check the immutable anchor without assuming the target tree already equals it (#519).
+
 ## [0.13.0] - 2026-11-27
 
 ### Changed

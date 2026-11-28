@@ -121,3 +121,13 @@
   and refuses a mismatch unless a reviewed record names the archive and the
   requirement; the 10 historical drifts carry records, and a stale, duplicate,
   empty or unknown record fails.
+- RED: after PR #526 was squash-merged, `node scripts/archive-index.ts --check`
+  on the integrated tree failed for 39 archives with `origin differs from its
+  accepted record or first add`; the first add was the squash commit because
+  the PR branch commits are not reachable from `dev`. The anchor test compared
+  the immutable 134-entry anchor with the grown target tree and expected 173.
+- GREEN: `fixtures/conformance/archive-origins.json` records the reviewed
+  squash-integrated origin of each of the 39 archives, and the anchor test
+  requires every anchor name in the target tree and every newer archive in the
+  current baseline. `node scripts/archive-index.ts --check` and `--against
+  <baseline>` pass with 173 archives; `scripts/archive-index.test.ts` 35/35.
