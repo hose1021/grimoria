@@ -51,6 +51,31 @@ impl Inputs {
     }
 }
 
+/// Exact `prepareCommand` failure contract.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PrepareFailure {
+    pub error_code: &'static str,
+    pub reason: String,
+}
+
+impl PrepareFailure {
+    /// Serializes the `PrepareResult` shape.
+    pub fn to_value(&self) -> Value {
+        object(vec![
+            ("ok", Value::Bool(false)),
+            ("errorCode", string(self.error_code)),
+            ("reason", Value::String(Wtf16::from_utf8(&self.reason))),
+        ])
+    }
+
+    fn new(error_code: &'static str, reason: impl Into<String>) -> Self {
+        Self {
+            error_code,
+            reason: reason.into(),
+        }
+    }
+}
+
 /// A prepared command with its legacy fingerprint.
 #[derive(Clone, Debug)]
 pub struct PreparedCommand {
@@ -58,73 +83,84 @@ pub struct PreparedCommand {
     pub type_name: &'static str,
     pub payload: Value,
     pub at: Wtf16,
+    pub at_iso: Wtf16,
     pub ruleset_version: Wtf16,
     pub fingerprint: Wtf16,
     pub identity: Wtf16,
 }
 
 /// Prepares and validates one command envelope.
-pub fn prepare(command: &Value, inputs: &Inputs) -> Result<PreparedCommand, Value> {
+pub fn prepare(command: &Value, inputs: &Inputs) -> Result<PreparedCommand, PrepareFailure> {
     let entries = entries(command)
-        .ok_or_else(|| rejected_plain("Команда отсутствует.", "command-unknown"))?;
+        .ok_or_else(|| PrepareFailure::new("command-unknown", "Command is missing."))?;
     let raw_type = text(field(entries, "type"))
         .and_then(|value| value.to_utf8().ok())
         .unwrap_or_default();
     if raw_type != "setNotes" {
-        let reason = if raw_type.is_empty() {
-            "Неизвестная команда: ".to_string()
-        } else {
-            format!("Неизвестная команда: {raw_type}")
-        };
-        return Err(rejected_plain(&reason, "command-unknown"));
-    }
-    let id = match field(entries, "id") {
-        Some(Value::String(value)) if !value.as_code_units().is_empty() => value.clone(),
-        Some(Value::String(_)) | Some(_) => {
-            return Err(rejected_plain("У команды нет id.", "command-missing-id"));
-        }
-        None => inputs.id.clone(),
-    };
-    if id.as_code_units().is_empty() {
-        return Err(rejected_plain("У команды нет id.", "command-missing-id"));
+        return Err(PrepareFailure::new(
+            "command-unknown",
+            format!("Unknown command: {raw_type}"),
+        ));
     }
     let payload = match field(entries, "payload") {
-        None | Some(Value::Null) => Value::Object(Vec::new()),
+        None => Value::Object(Vec::new()),
         Some(Value::Object(_)) => field(entries, "payload").unwrap().clone(),
         Some(_) => {
-            return Err(rejected_plain(
-                "Некорректные данные команды.",
+            return Err(PrepareFailure::new(
                 "command-payload",
+                "Command payload is not an object.",
             ));
         }
     };
     validate_set_notes_payload(&payload)?;
-    let at = match field(entries, "at") {
-        None => inputs.timestamp.clone(),
-        Some(Value::String(value)) if valid_timestamp(value) => value.clone(),
-        Some(_) => {
-            return Err(rejected_plain(
-                "Некорректная отметка времени команды.",
-                "command-at",
+    let id = match field(entries, "id") {
+        Some(Value::String(value)) if !is_blank(value) => value.clone(),
+        Some(Value::String(_)) | Some(_) => {
+            return Err(PrepareFailure::new(
+                "command-missing-id",
+                "The command id is empty.",
             ));
         }
+        None => {
+            if is_blank(&inputs.id) {
+                return Err(PrepareFailure::new(
+                    "command-missing-id",
+                    "The id source returned an empty id.",
+                ));
+            }
+            inputs.id.clone()
+        }
     };
+    let at = match field(entries, "at") {
+        Some(Value::String(value)) => value.clone(),
+        Some(_) => {
+            return Err(PrepareFailure::new(
+                "command-at",
+                "The command timestamp is invalid.",
+            ));
+        }
+        None => normalize_timestamp(&inputs.timestamp).ok_or_else(|| {
+            PrepareFailure::new("command-at", "The clock returned an invalid date.")
+        })?,
+    };
+    let at_iso = normalize_timestamp(&at)
+        .ok_or_else(|| PrepareFailure::new("command-at", "The command timestamp is invalid."))?;
     let ruleset_version = match field(entries, "rulesetVersion") {
         None => Wtf16::from_utf8(RULESET_VERSION),
         Some(Value::String(value)) if supported_version(value) => value.clone(),
         Some(Value::String(value)) => {
-            return Err(rejected_plain(
-                &format!(
-                    "Версия правил не поддерживается: {}",
+            return Err(PrepareFailure::new(
+                "ruleset-version-unsupported",
+                format!(
+                    "Unsupported ruleset version: {}",
                     value.to_utf8().unwrap_or_default()
                 ),
-                "ruleset-version-unsupported",
             ));
         }
         Some(_) => {
-            return Err(rejected_plain(
-                "Версия правил не поддерживается: ",
+            return Err(PrepareFailure::new(
                 "ruleset-version-unsupported",
+                "Unsupported ruleset version: ",
             ));
         }
     };
@@ -147,28 +183,29 @@ pub fn prepare(command: &Value, inputs: &Inputs) -> Result<PreparedCommand, Valu
         type_name: "setNotes",
         payload,
         at,
+        at_iso,
         ruleset_version,
         fingerprint,
         identity,
     })
 }
 
-fn validate_set_notes_payload(payload: &Value) -> Result<(), Value> {
+fn validate_set_notes_payload(payload: &Value) -> Result<(), PrepareFailure> {
     let entries = entries(payload).expect("payload is an object");
     for (name, value) in entries {
         if name.to_utf8().as_deref() != Ok("notes") {
-            return Err(rejected_plain(
-                &format!(
+            return Err(PrepareFailure::new(
+                "command-payload-unknown-field",
+                format!(
                     "Unknown field '{}' in setNotes.",
                     name.to_utf8().unwrap_or_default()
                 ),
-                "command-payload-unknown-field",
             ));
         }
         if !matches!(value, Value::String(_)) {
-            return Err(rejected_plain(
-                "Wrong type for field 'notes' in setNotes.",
+            return Err(PrepareFailure::new(
                 "command-payload-type",
+                "Wrong type for field 'notes' in setNotes.",
             ));
         }
     }
@@ -179,7 +216,7 @@ fn validate_set_notes_payload(payload: &Value) -> Result<(), Value> {
 pub fn validate(state: &State, command: &Value, inputs: &Inputs) -> Value {
     let prepared = match prepare(command, inputs) {
         Ok(prepared) => prepared,
-        Err(rejection) => return rejection,
+        Err(failure) => return command_rejection(command, &failure),
     };
     if let Some(stored) = stored_command(state, &prepared.id) {
         if !matches_stored(&stored, &prepared) {
@@ -191,6 +228,9 @@ pub fn validate(state: &State, command: &Value, inputs: &Inputs) -> Value {
             ("type", string("setNotes")),
             ("idempotent", Value::Bool(true)),
         ]);
+    }
+    if let Some(errors) = unsupported_state(state) {
+        return unsupported(&prepared, errors);
     }
     object(vec![
         ("status", string("allowed")),
@@ -205,7 +245,7 @@ pub fn validate(state: &State, command: &Value, inputs: &Inputs) -> Value {
 pub fn preview(state: &State, command: &Value, inputs: &Inputs) -> Value {
     let prepared = match prepare(command, inputs) {
         Ok(prepared) => prepared,
-        Err(rejection) => return rejection,
+        Err(failure) => return command_rejection(command, &failure),
     };
     if let Some(stored) = stored_command(state, &prepared.id) {
         if !matches_stored(&stored, &prepared) {
@@ -222,13 +262,16 @@ pub fn preview(state: &State, command: &Value, inputs: &Inputs) -> Value {
             ("future", future_of(state)),
         ]);
     }
+    if let Some(errors) = unsupported_state(state) {
+        return unsupported(&prepared, errors);
+    }
     let after = apply_notes(state, &prepared);
     let events = notes_events(state, &after, &prepared);
     object(vec![
         ("status", string("allowed")),
         ("id", Value::String(prepared.id)),
         ("type", string("setNotes")),
-        ("at", Value::String(prepared.at.clone())),
+        ("at", Value::String(prepared.at_iso.clone())),
         ("result", object(vec![("ok", Value::Bool(true))])),
         ("followUp", Value::Null),
         ("events", Value::Array(events.clone())),
@@ -241,7 +284,7 @@ pub fn preview(state: &State, command: &Value, inputs: &Inputs) -> Value {
 pub fn apply(state: &mut State, command: &Value, inputs: &Inputs) -> Value {
     let prepared = match prepare(command, inputs) {
         Ok(prepared) => prepared,
-        Err(rejection) => return rejection,
+        Err(failure) => return command_rejection(command, &failure),
     };
     if let Some(stored) = stored_command(state, &prepared.id) {
         if !matches_stored(&stored, &prepared) {
@@ -258,6 +301,9 @@ pub fn apply(state: &mut State, command: &Value, inputs: &Inputs) -> Value {
             ("followUp", stored.follow_up),
             ("undoable", Value::Bool(stored.undoable)),
         ]);
+    }
+    if let Some(errors) = unsupported_state(state) {
+        return unsupported(&prepared, errors);
     }
     let before = state.clone();
     let after = apply_notes(state, &prepared);
@@ -281,7 +327,7 @@ pub fn apply(state: &mut State, command: &Value, inputs: &Inputs) -> Value {
         ("status", string("allowed")),
         ("id", Value::String(prepared.id)),
         ("type", string("setNotes")),
-        ("at", Value::String(prepared.at)),
+        ("at", Value::String(prepared.at_iso)),
         ("result", object(vec![("ok", Value::Bool(true))])),
         ("followUp", Value::Null),
         ("events", Value::Array(events)),
@@ -297,6 +343,7 @@ pub fn replay(state: &mut State) -> Value {
         Some(Value::Object(_)) => state.get("journal").unwrap().clone(),
         _ => {
             return journal_error(
+                "journal-invalid",
                 "Журнал команд отсутствует: воспроизведение невозможно.",
                 None,
             );
@@ -306,18 +353,27 @@ pub fn replay(state: &mut State) -> Value {
     let base = match field(journal_entries, "base") {
         Some(Value::Null) | None => {
             return journal_error(
+                "journal-invalid",
                 "Журнал не содержит базового состояния: воспроизведение невозможно.",
                 None,
             );
         }
-        Some(value) => State::from_value(value.clone()).unwrap_or_else(|_| {
-            State::from_value(Value::Object(Vec::new())).expect("empty object")
-        }),
+        Some(value) => match State::from_value(value.clone()) {
+            Ok(state) => state,
+            Err(_) => {
+                return journal_error(
+                    "journal-invalid",
+                    "Журнал не содержит базового состояния: воспроизведение невозможно.",
+                    None,
+                );
+            }
+        },
     };
     let list = match field(journal_entries, "entries") {
         Some(Value::Array(entries)) => entries.clone(),
         _ => {
             return journal_error(
+                "journal-invalid",
                 "Журнал команд отсутствует: воспроизведение невозможно.",
                 None,
             );
@@ -340,6 +396,7 @@ pub fn replay(state: &mut State) -> Value {
         let type_name = text(field(entry_entries, "type")).unwrap_or_default();
         if type_name != Wtf16::from_utf8("setNotes") {
             return journal_error(
+                "journal-dependency",
                 &format!(
                     "Запись журнала «{}» не воспроизводится: команда вне вертикального среза.",
                     entry_id.to_utf8().unwrap_or_default()
@@ -374,9 +431,13 @@ pub fn replay(state: &mut State) -> Value {
         };
         let result = apply(&mut current, &command, &inputs);
         if result_status(&result) != Some("allowed".to_string()) {
+            let reason = text(field(entries(&result).unwrap_or(&[]), "reason"))
+                .and_then(|reason| reason.to_utf8().ok())
+                .unwrap_or_else(|| "команда не воспроизводится".to_string());
             return journal_error(
+                "journal-dependency",
                 &format!(
-                    "Запись журнала «{}» не воспроизводится.",
+                    "Запись журнала «{}» не воспроизводится: {reason}",
                     entry_id.to_utf8().unwrap_or_default()
                 ),
                 Some(entry_id),
@@ -384,6 +445,7 @@ pub fn replay(state: &mut State) -> Value {
         }
         if result_field_bool(&result, "idempotent") == Some(true) {
             return journal_error(
+                "journal-dependency",
                 &format!(
                     "Запись журнала «{}» уже была применена в базовом состоянии.",
                     entry_id.to_utf8().unwrap_or_default()
@@ -487,7 +549,7 @@ fn record_applied(state: &mut State, prepared: &PreparedCommand) {
     };
     let entry = object(vec![
         ("type", string("setNotes")),
-        ("at", Value::String(prepared.at.clone())),
+        ("at", Value::String(prepared.at_iso.clone())),
         (
             "rulesetVersion",
             Value::String(prepared.ruleset_version.clone()),
@@ -532,7 +594,7 @@ fn record_journal(state: &mut State, prepared: &PreparedCommand, base: Option<St
         ("id", Value::String(prepared.id.clone())),
         ("type", string("setNotes")),
         ("payload", prepared.payload.clone()),
-        ("at", Value::String(prepared.at.clone())),
+        ("at", Value::String(prepared.at_iso.clone())),
         (
             "rulesetVersion",
             Value::String(prepared.ruleset_version.clone()),
@@ -565,18 +627,15 @@ fn notes_events(before: &State, after: &State, prepared: &PreparedCommand) -> Ve
     if before.notes() == after.notes() {
         return Vec::new();
     }
+    let mut event_id = prepared.id.clone();
+    event_id.push_unit(u16::from(b':'));
+    event_id.push_unit(u16::from(b'1'));
     vec![object(vec![
-        (
-            "id",
-            Value::String(Wtf16::from_utf8(&format!(
-                "{}:1",
-                prepared.id.to_utf8().unwrap_or_default()
-            ))),
-        ),
+        ("id", Value::String(event_id)),
         ("type", string("notes.changed")),
         ("commandId", Value::String(prepared.id.clone())),
         ("commandType", string("setNotes")),
-        ("at", Value::String(prepared.at.clone())),
+        ("at", Value::String(prepared.at_iso.clone())),
         (
             "phase",
             Value::String(before.string("phase").unwrap_or_default()),
@@ -648,22 +707,25 @@ fn future_of(state: &State) -> Value {
             ])
         })
         .collect();
-    let active: Vec<Value> = effects
+    let active_effects: Vec<&Value> = effects
         .iter()
         .filter(|effect| {
             let fields = entries(effect).unwrap_or(&[]);
             !matches!(field(fields, "active"), Some(Value::Bool(false)))
         })
-        .map(active_effect_value)
         .collect();
-    let delayed: Vec<Value> = effects
+    let active: Vec<Value> = active_effects
+        .iter()
+        .map(|effect| active_effect_value(effect))
+        .collect();
+    let delayed: Vec<Value> = active_effects
         .iter()
         .filter(|effect| {
             let fields = entries(effect).unwrap_or(&[]);
             matches!(field(fields, "expires"), Some(value) if !matches!(value, Value::Null))
                 || matches!(field(fields, "resolve"), Some(value) if !matches!(value, Value::Null))
         })
-        .map(delayed_effect_value)
+        .map(|effect| delayed_effect_value(effect))
         .collect();
     let pending_inheritance = queue
         .iter()
@@ -766,11 +828,152 @@ fn supported_version(version: &Wtf16) -> bool {
     SUPPORTED_RULESET_VERSIONS.contains(&version.as_str())
 }
 
-fn valid_timestamp(value: &Wtf16) -> bool {
-    value
-        .to_utf8()
-        .ok()
-        .is_some_and(|text| text.len() >= 20 && text.is_char_boundary(4) && text.contains('T'))
+fn is_blank(value: &Wtf16) -> bool {
+    value.to_utf8().is_ok_and(|text| text.trim().is_empty())
+}
+
+/// Accepts the ISO forms TypeScript treats as dates and returns canonical UTC.
+fn normalize_timestamp(value: &Wtf16) -> Option<Wtf16> {
+    let text = value.to_utf8().ok()?;
+    let bytes = text.as_bytes();
+    if bytes.len() < 10 {
+        return None;
+    }
+    let year = digits(bytes, 0, 4)?;
+    if bytes.get(4) != Some(&b'-') || bytes.get(7) != Some(&b'-') {
+        return None;
+    }
+    let month = digits(bytes, 5, 2)?;
+    let day = digits(bytes, 8, 2)?;
+    if !(1..=12).contains(&month) || day == 0 || day > days_in_month(year, month) {
+        return None;
+    }
+    let mut index = 10;
+    let (mut hour, mut minute, mut second, mut millis) = (0i64, 0i64, 0i64, 0i64);
+    let mut offset_minutes = 0i64;
+    if index < bytes.len() {
+        if !matches!(bytes[index], b'T' | b't' | b' ') {
+            return None;
+        }
+        index += 1;
+        hour = digits(bytes, index, 2)?;
+        index += 2;
+        if bytes.get(index) != Some(&b':') {
+            return None;
+        }
+        index += 1;
+        minute = digits(bytes, index, 2)?;
+        index += 2;
+        if bytes.get(index) == Some(&b':') {
+            index += 1;
+            second = digits(bytes, index, 2)?;
+            index += 2;
+            if bytes.get(index) == Some(&b'.') {
+                index += 1;
+                let start = index;
+                while matches!(bytes.get(index), Some(b'0'..=b'9')) {
+                    index += 1;
+                }
+                if index == start {
+                    return None;
+                }
+                let fraction = &text[start..index];
+                let padded = format!("{fraction:0<3}");
+                millis = padded[..3].parse().ok()?;
+            }
+        }
+        match bytes.get(index) {
+            Some(b'Z' | b'z') => index += 1,
+            Some(b'+' | b'-') => {
+                let sign = if bytes[index] == b'+' { 1 } else { -1 };
+                index += 1;
+                let offset_hour = digits(bytes, index, 2)?;
+                index += 2;
+                if bytes.get(index) == Some(&b':') {
+                    index += 1;
+                }
+                let offset_minute = digits(bytes, index, 2)?;
+                index += 2;
+                if offset_hour > 23 || offset_minute > 59 {
+                    return None;
+                }
+                offset_minutes = sign * (offset_hour * 60 + offset_minute);
+            }
+            _ => return None,
+        }
+    }
+    if index != bytes.len() || hour > 23 || minute > 59 || second > 59 {
+        return None;
+    }
+    let days = days_from_civil(year, month, day);
+    let epoch_ms = days * 86_400_000 + hour * 3_600_000 + minute * 60_000 + second * 1000 + millis
+        - offset_minutes * 60_000;
+    Some(Wtf16::from_utf8(&format_utc(epoch_ms)))
+}
+
+fn digits(bytes: &[u8], start: usize, length: usize) -> Option<i64> {
+    let slice = bytes.get(start..start + length)?;
+    if !slice.iter().all(u8::is_ascii_digit) {
+        return None;
+    }
+    Some(
+        slice
+            .iter()
+            .fold(0i64, |value, byte| value * 10 + i64::from(byte - b'0')),
+    )
+}
+
+fn days_in_month(year: i64, month: i64) -> i64 {
+    match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 => 29,
+        2 => 28,
+        _ => 0,
+    }
+}
+
+// Howard Hinnant's civil-date conversion, using days since 1970-01-01.
+fn days_from_civil(year: i64, month: i64, day: i64) -> i64 {
+    let year = if month <= 2 { year - 1 } else { year };
+    let era = if year >= 0 { year } else { year - 399 } / 400;
+    let year_of_era = year - era * 400;
+    let month_index = (month + 9) % 12;
+    let day_of_year = (153 * month_index + 2) / 5 + day - 1;
+    let day_of_era = year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
+    era * 146_097 + day_of_era - 719_468
+}
+
+fn format_utc(epoch_ms: i64) -> String {
+    let days = epoch_ms.div_euclid(86_400_000);
+    let millis_of_day = epoch_ms.rem_euclid(86_400_000);
+    let (year, month, day) = civil_from_days(days);
+    let hour = millis_of_day / 3_600_000;
+    let minute = (millis_of_day % 3_600_000) / 60_000;
+    let second = (millis_of_day % 60_000) / 1000;
+    let millis = millis_of_day % 1000;
+    format!("{year:04}-{month:02}-{day:02}T{hour:02}:{minute:02}:{second:02}.{millis:03}Z")
+}
+
+fn civil_from_days(days: i64) -> (i64, i64, i64) {
+    let days = days + 719_468;
+    let era = if days >= 0 { days } else { days - 146_096 } / 146_097;
+    let day_of_era = days - era * 146_097;
+    let year_of_era =
+        (day_of_era - day_of_era / 1460 + day_of_era / 36_524 - day_of_era / 146_096) / 365;
+    let mut year = year_of_era + era * 400;
+    let day_of_year = day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100);
+    let month_index = (5 * day_of_year + 2) / 153;
+    let day = day_of_year - (153 * month_index + 2) / 5 + 1;
+    let month = if month_index < 10 {
+        month_index + 3
+    } else {
+        month_index - 9
+    };
+    if month <= 2 {
+        year += 1;
+    }
+    (year, month, day)
 }
 
 fn identity_of(fingerprint: &Wtf16) -> String {
@@ -800,20 +1003,352 @@ fn conflict(prepared: &PreparedCommand) -> Value {
     ])
 }
 
-fn rejected_plain(reason: &str, code: &str) -> Value {
+fn unsupported(prepared: &PreparedCommand, errors: Vec<String>) -> Value {
     object(vec![
         ("status", string("rejected")),
-        ("id", Value::Null),
-        ("type", Value::Null),
-        ("reason", Value::String(Wtf16::from_utf8(reason))),
-        ("errorCode", string(code)),
+        ("id", Value::String(prepared.id.clone())),
+        ("type", string("setNotes")),
+        (
+            "reason",
+            string("Phase 2 does not support this state surface."),
+        ),
+        ("errorCode", string("unsupported-state")),
+        (
+            "errors",
+            Value::Array(
+                errors
+                    .into_iter()
+                    .map(|error| Value::String(Wtf16::from_utf8(&error)))
+                    .collect(),
+            ),
+        ),
     ])
 }
 
-fn journal_error(message: &str, entry_id: Option<Wtf16>) -> Value {
+fn unsupported_state(state: &State) -> Option<Vec<String>> {
+    match state.get("effects") {
+        None => {}
+        Some(Value::Array(effects)) => {
+            let unsupported = effects.iter().any(|effect| {
+                let fields = entries(effect).unwrap_or(&[]);
+                matches!(
+                    text(field(fields, "kind"))
+                        .and_then(|kind| kind.to_utf8().ok())
+                        .as_deref(),
+                    Some("poison" | "drunk" | "pukka-death")
+                )
+            });
+            if unsupported {
+                return Some(vec![
+                    "state.effects: impairing and Pukka effects are unsupported for Phase 2"
+                        .to_string(),
+                ]);
+            }
+        }
+        Some(_) => {
+            return Some(vec!["state.effects: unsupported for Phase 2".to_string()]);
+        }
+    }
+    let errors = check_invariants(state);
+    (!errors.is_empty()).then_some(errors)
+}
+
+fn check_invariants(state: &State) -> Vec<String> {
+    let mut errors = Vec::new();
+    let players = state.get("players").and_then(entries).unwrap_or(&[]);
+    let order = string_array(state.get("order"));
+    let script_roles = state
+        .get("script")
+        .and_then(entries)
+        .and_then(|script| field(script, "roles"))
+        .map(|roles| string_array(Some(roles)))
+        .unwrap_or_default();
+    if !matches!(
+        state
+            .string("phase")
+            .and_then(|phase| phase.to_utf8().ok())
+            .as_deref(),
+        Some("setup" | "deal" | "seat" | "night" | "day" | "over")
+    ) {
+        errors.push(format!(
+            "Неизвестная фаза: {}",
+            state
+                .string("phase")
+                .and_then(|phase| phase.to_utf8().ok())
+                .unwrap_or_default()
+        ));
+    }
+    if order.iter().collect::<std::collections::HashSet<_>>().len() != order.len() {
+        errors.push("Порядок мест содержит повторы.".to_string());
+    }
+    for id in &order {
+        if !player_exists(players, id) {
+            errors.push("Место без игрока.".to_string());
+        }
+    }
+    if players.len() != order.len() {
+        errors.push("Игроки не совпадают с порядком мест.".to_string());
+    }
+    for (name, player) in players {
+        let fields = entries(player).unwrap_or(&[]);
+        if text(field(fields, "id")).as_ref() != Some(name) {
+            errors.push(format!(
+                "Некорректный игрок: {}",
+                name.to_utf8().unwrap_or_default()
+            ));
+        }
+        if let Some(role) = text(field(fields, "roleId"))
+            && !script_roles.contains(&role)
+        {
+            errors.push(format!(
+                "Роль вне сценария: {}",
+                name.to_utf8().unwrap_or_default()
+            ));
+        }
+        if let Some(shown) = text(field(fields, "shownRoleId"))
+            && !script_roles.contains(&shown)
+        {
+            errors.push(format!(
+                "Показанная роль неизвестна: {}",
+                name.to_utf8().unwrap_or_default()
+            ));
+        }
+        if let Some(master) = text(field(fields, "butlerMasterId"))
+            && !player_exists(players, &master)
+        {
+            errors.push(format!(
+                "Мастер Дворецкого не найден: {}",
+                name.to_utf8().unwrap_or_default()
+            ));
+        }
+    }
+    let mut seen_effects = std::collections::HashSet::new();
+    for effect in array(state.get("effects")) {
+        let fields = entries(&effect).unwrap_or(&[]);
+        let Some(effect_id) = text(field(fields, "id")) else {
+            errors.push("Эффект без id.".to_string());
+            continue;
+        };
+        if !seen_effects.insert(effect_id.clone()) {
+            errors.push(format!(
+                "Повтор эффекта: {}",
+                effect_id.to_utf8().unwrap_or_default()
+            ));
+        }
+        if let Some(source) = text(field(fields, "sourceId"))
+            && !player_exists(players, &source)
+        {
+            errors.push(format!(
+                "Источник эффекта не найден: {}",
+                effect_id.to_utf8().unwrap_or_default()
+            ));
+        }
+        if let Some(target) = text(field(fields, "targetId"))
+            && !player_exists(players, &target)
+        {
+            errors.push(format!(
+                "Цель эффекта не найдена: {}",
+                effect_id.to_utf8().unwrap_or_default()
+            ));
+        }
+    }
+    for death in array(state.get("deaths")) {
+        if !death_player_exists(players, &death) {
+            errors.push("Смерть без игрока.".to_string());
+        }
+    }
+    for execution in array(state.get("executions")) {
+        if !death_player_exists(players, &execution) {
+            errors.push("Казнь без игрока.".to_string());
+        }
+    }
+    if let Some(day) = state.get("day").and_then(entries) {
+        for nomination in array(field(day, "nominations")) {
+            let fields = entries(&nomination).unwrap_or(&[]);
+            let nominator = text(field(fields, "nominatorId"));
+            let nominee = text(field(fields, "nomineeId"));
+            if nominator.is_none_or(|id| !player_exists(players, &id))
+                || nominee.is_none_or(|id| !player_exists(players, &id))
+            {
+                errors.push("Номинация ссылается на отсутствующего игрока.".to_string());
+            }
+        }
+        for death in array(field(day, "morning")) {
+            if !death_player_exists(players, &death) {
+                errors.push("Утренняя смерть без игрока.".to_string());
+            }
+        }
+        if let Some(execution) =
+            field(day, "execution").filter(|value| !matches!(value, Value::Null))
+            && !death_player_exists(players, execution)
+        {
+            errors.push("Казнь без игрока.".to_string());
+        }
+        if let Some(active) = text(field(day, "activeNominationId")) {
+            let found = array(field(day, "nominations")).iter().any(|nomination| {
+                text(field(entries(nomination).unwrap_or(&[]), "id")).as_ref() == Some(&active)
+            });
+            if !found {
+                errors.push("Активная номинация не найдена.".to_string());
+            }
+        }
+    }
+    if let Some(setup) = state.get("setup").and_then(entries) {
+        for key in [
+            "grandmotherId",
+            "evilTwinGoodPlayerId",
+            "evilTwinPlayerId",
+            "herringId",
+        ] {
+            if let Some(id) = text(field(setup, key))
+                && !player_exists(players, &id)
+            {
+                errors.push("Ссылка настройки не найдена.".to_string());
+                break;
+            }
+        }
+    }
+    if let Some(mastermind) = state.get("mastermind").and_then(entries)
+        && let Some(id) = text(field(mastermind, "playerId"))
+        && !player_exists(players, &id)
+    {
+        errors.push("Кукловод не найден.".to_string());
+    }
+    let queue = state
+        .get("night")
+        .and_then(entries)
+        .and_then(|night| field(night, "queue"))
+        .map(|queue| array(Some(queue)))
+        .unwrap_or_default();
+    let mut keys = std::collections::HashSet::new();
+    for step in &queue {
+        let fields = entries(step).unwrap_or(&[]);
+        let Some(step_key) = text(field(fields, "key")) else {
+            errors.push("Ночной шаг без ключа.".to_string());
+            continue;
+        };
+        if !keys.insert(step_key.clone()) {
+            errors.push(format!(
+                "Повтор ночного шага: {}",
+                step_key.to_utf8().unwrap_or_default()
+            ));
+        }
+        if let Some(actor) = text(field(fields, "actorId"))
+            && !player_exists(players, &actor)
+        {
+            errors.push(format!(
+                "Ночной актёр не найден: {}",
+                actor.to_utf8().unwrap_or_default()
+            ));
+        }
+    }
+    if state
+        .get("winner")
+        .is_some_and(|winner| !matches!(winner, Value::Null))
+        && state
+            .string("phase")
+            .and_then(|phase| phase.to_utf8().ok())
+            .as_deref()
+            != Some("over")
+    {
+        errors.push("Победитель объявлен вне фазы завершения.".to_string());
+    }
+    if state
+        .get("winner")
+        .is_some_and(|winner| !matches!(winner, Value::Null))
+        && queue.iter().any(|step| {
+            field(entries(step).unwrap_or(&[]), "pending")
+                .and_then(entries)
+                .and_then(|pending| text(field(pending, "kind")))
+                == Some(Wtf16::from_utf8("demon-inheritance"))
+        })
+    {
+        errors.push("Победитель объявлен до выбора наследника Демона.".to_string());
+    }
+    errors
+}
+
+fn array(value: Option<&Value>) -> Vec<Value> {
+    match value {
+        Some(Value::Array(values)) => values.clone(),
+        _ => Vec::new(),
+    }
+}
+
+fn string_array(value: Option<&Value>) -> Vec<Wtf16> {
+    array(value)
+        .into_iter()
+        .filter_map(|value| match value {
+            Value::String(text) => Some(text),
+            _ => None,
+        })
+        .collect()
+}
+
+fn player_exists(players: &[(Wtf16, Value)], id: &Wtf16) -> bool {
+    players.iter().any(|(name, _)| name == id)
+}
+
+fn death_player_exists(players: &[(Wtf16, Value)], death: &Value) -> bool {
+    text(field(entries(death).unwrap_or(&[]), "playerId"))
+        .is_some_and(|id| player_exists(players, &id))
+}
+
+/// Returns the exact `prepareCommand` result as JSON.
+pub fn prepare_response(command_json: &str, inputs_json: &str) -> String {
+    let inputs = match Inputs::parse(inputs_json) {
+        Ok(inputs) => inputs,
+        Err(error) => return error.to_failure_json(),
+    };
+    let command = match Value::parse(command_json) {
+        Ok(command) => command,
+        Err(error) => return error.to_failure_json(),
+    };
+    match prepare(&command, &inputs) {
+        Ok(prepared) => object(vec![
+            ("ok", Value::Bool(true)),
+            (
+                "command",
+                object(vec![
+                    ("id", Value::String(prepared.id)),
+                    ("type", string("setNotes")),
+                    ("payload", prepared.payload),
+                    ("at", Value::String(prepared.at)),
+                    ("rulesetVersion", Value::String(prepared.ruleset_version)),
+                    ("fingerprint", Value::String(prepared.fingerprint)),
+                ]),
+            ),
+        ])
+        .to_wire(),
+        Err(failure) => failure.to_value().to_wire(),
+    }
+}
+
+/// Parses and re-serializes a state without applying a command.
+pub fn state_roundtrip(state_json: &str) -> String {
+    match State::parse(state_json) {
+        Ok(state) => state.to_json(),
+        Err(error) => error.to_failure_json(),
+    }
+}
+
+fn command_rejection(command: &Value, failure: &PrepareFailure) -> Value {
+    let fields = entries(command).unwrap_or(&[]);
+    let id = field(fields, "id").cloned().unwrap_or(Value::Null);
+    let type_name = field(fields, "type").cloned().unwrap_or(Value::Null);
+    object(vec![
+        ("status", string("rejected")),
+        ("id", id),
+        ("type", type_name),
+        ("reason", Value::String(Wtf16::from_utf8(&failure.reason))),
+        ("errorCode", string(failure.error_code)),
+    ])
+}
+
+fn journal_error(error_code: &str, message: &str, entry_id: Option<Wtf16>) -> Value {
     object(vec![
         ("ok", Value::Bool(false)),
-        ("errorCode", string("journal-dependency")),
+        ("errorCode", string(error_code)),
         ("error", Value::String(Wtf16::from_utf8(message))),
         ("entryId", entry_id.map_or(Value::Null, Value::String)),
         ("errors", Value::Null),
@@ -968,12 +1503,7 @@ mod tests {
         apply(&mut state, &command, &inputs);
         let mut replayed = state.clone();
         let replay_result = replay(&mut replayed);
-        assert_eq!(
-            result_field_bool(&replay_result, "ok"),
-            Some(true),
-            "{}",
-            replay_result.to_wire()
-        );
+        assert_eq!(result_field_bool(&replay_result, "ok"), Some(true));
         assert_eq!(replayed.notes().to_utf8().unwrap(), "new");
     }
 

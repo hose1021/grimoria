@@ -40,12 +40,73 @@ identity SHALL reproduce the TypeScript algorithms exactly.
 - **WHEN** the command type is outside the slice
 - **THEN** it fails explicitly instead of reporting success
 
+### Requirement: Unsupported state semantics fail closed
+
+The slice SHALL accept only state whose effects are absent or contain no
+`poison`, `drunk` or `pukka-death` effect, and whose state invariants pass.
+Impairing or Pukka effects and invariant failures SHALL return
+`unsupported-state` before mutation. The slice SHALL NOT implement character
+mechanics or fabricate an allowed result for unsupported semantics.
+
+**Source**: Issue #535
+**Tests**: `crates/grimoria-domain/src/command.rs`, `scripts/set-notes-differential.ts`
+
+#### Scenario: Impairing effect
+
+- **WHEN** the state contains a poison effect
+- **THEN** apply rejects with `unsupported-state` and leaves the state unchanged
+
+### Requirement: Timestamps use an explicit host boundary
+
+Preparation SHALL keep the supplied `at` in the prepare result and compute a
+canonical UTC timestamp for execution. ISO dates with milliseconds and numeric
+offsets SHALL normalize to `YYYY-MM-DDTHH:MM:SS.sssZ`. An invalid host clock
+SHALL reject with the TypeScript host-clock error, and an invalid command
+timestamp with the command-timestamp error.
+
+**Source**: Issue #535
+**Tests**: `crates/grimoria-domain/src/command.rs`, `fixtures/conformance/set-notes-cases.json`
+
+#### Scenario: Offset input
+
+- **WHEN** the command timestamp carries a numeric offset
+- **THEN** the result and journal use the same canonical UTC time as TypeScript
+
+### Requirement: Prepare and command results are distinct
+
+`prepare` SHALL return only the `PrepareResult` shape, while validate, preview
+and apply SHALL return `CommandResult`. Preparation SHALL keep TypeScript's
+validation order and reject whitespace-only ids, null payloads and unknown
+payload fields with the exact codes and reasons.
+
+**Source**: Issue #535
+**Tests**: `scripts/set-notes-differential.ts`
+
+#### Scenario: Whitespace id
+
+- **WHEN** the command id is whitespace only
+- **THEN** prepare returns `command-missing-id` with the empty-id reason
+
+### Requirement: Replay fails closed
+
+Replay SHALL reject a missing journal, missing base or non-object base with
+`journal-invalid`, and an unsupported or already-applied entry with
+`journal-dependency`. Failure SHALL leave the input state unchanged.
+
+**Source**: Issue #535
+**Tests**: `crates/grimoria-domain/src/command.rs`, `scripts/set-notes-differential.ts`
+
+#### Scenario: Malformed base
+
+- **WHEN** the journal base is not an object
+- **THEN** replay returns `journal-invalid` and does not replace the state
+
 ### Requirement: setNotes matches TypeScript
 
 Validate, preview and apply SHALL match TypeScript for complete command results,
-state, events, applied identity, journal entry, coalescing and idempotency.
-Rejection SHALL leave state unchanged; a reused id with different content SHALL
-return `command-id-conflict`.
+rejections, unchanged state, events, applied identity, journal entry,
+coalescing and idempotency. A reused id with different content SHALL return
+`command-id-conflict`. Event ids SHALL keep lone-surrogate command units.
 
 **Source**: Issue #535
 **Tests**: `scripts/set-notes-differential.ts`, `fixtures/conformance/set-notes-cases.json`
@@ -77,8 +138,11 @@ already-applied entries.
 ### Requirement: Differential gate detects divergence
 
 The committed differential harness SHALL execute the real TypeScript engine and
-the compiled WASM on identical inputs. It SHALL compare complete outputs and
-SHALL fail when `--inject-divergence` changes one field.
+the compiled WASM on identical inputs. It SHALL compare complete outputs,
+replay events, every runtime ruleset, sequential coalescing and the legacy v4
+round-trip. It SHALL fail when `--inject-divergence` changes one field.
+Diagnostics SHALL contain field paths and digests only, never state bodies,
+notes, role names or secrets.
 
 **Source**: Issue #535
 **Tests**: `scripts/set-notes-differential.ts`

@@ -81,6 +81,96 @@
       "id": "host-supplied-inputs",
       "command": { "type": "setNotes", "payload": { "notes": "host" } },
       "inputs": { "timestamp": "2026-11-28T00:08:00.000Z", "seed": "seed-host", "id": "slice-host" }
+    },
+    {
+      "id": "timestamp-offset",
+      "command": {
+        "id": "slice-offset",
+        "type": "setNotes",
+        "payload": { "notes": "offset" },
+        "at": "2026-11-28T04:30:00.123+04:00"
+      },
+      "inputs": { "timestamp": "2026-11-28T04:30:00.123+04:00", "seed": "seed-offset", "id": "slice-offset" }
+    },
+    {
+      "id": "timestamp-millis",
+      "command": {
+        "id": "slice-millis",
+        "type": "setNotes",
+        "payload": { "notes": "millis" },
+        "at": "2026-11-28T00:30:00.5Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:30:00.5Z", "seed": "seed-millis", "id": "slice-millis" }
+    },
+    {
+      "id": "timestamp-malformed",
+      "command": {
+        "id": "slice-bad-date",
+        "type": "setNotes",
+        "payload": { "notes": "bad" },
+        "at": "2026-11-28T25:00:00Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T25:00:00Z", "seed": "seed-bad-date", "id": "slice-bad-date" }
+    },
+    {
+      "id": "host-invalid-timestamp",
+      "command": { "type": "setNotes", "payload": { "notes": "bad host" } },
+      "inputs": { "timestamp": "not-a-date", "seed": "seed-bad-host", "id": "slice-bad-host" }
+    },
+    {
+      "id": "host-offset-inputs",
+      "command": { "type": "setNotes", "payload": { "notes": "host offset" } },
+      "inputs": { "timestamp": "2026-11-28T04:30:00.123+04:00", "seed": "seed-host-offset", "id": "slice-host-offset" }
+    },
+    {
+      "id": "whitespace-id",
+      "command": {
+        "id": "   ",
+        "type": "setNotes",
+        "payload": { "notes": "x" },
+        "at": "2026-11-28T00:10:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:10:00.000Z", "seed": "seed-blank", "id": "fallback" }
+    },
+    {
+      "id": "null-payload",
+      "command": {
+        "id": "slice-null-payload",
+        "type": "setNotes",
+        "payload": null,
+        "at": "2026-11-28T00:11:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:11:00.000Z", "seed": "seed-null-payload", "id": "slice-null-payload" }
+    },
+    {
+      "id": "payload-before-id",
+      "command": {
+        "id": " ",
+        "type": "setNotes",
+        "payload": { "unknown": true },
+        "at": "2026-11-28T00:12:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:12:00.000Z", "seed": "seed-precedence", "id": "fallback" }
+    },
+    {
+      "id": "unknown-type-null-payload",
+      "command": {
+        "id": "slice-unknown-type",
+        "type": "notACommand",
+        "payload": null,
+        "at": "2026-11-28T00:13:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:13:00.000Z", "seed": "seed-unknown-type", "id": "slice-unknown-type" }
+    },
+    {
+      "id": "lone-surrogate-command-id",
+      "command": {
+        "id": "slice\ud800",
+        "type": "setNotes",
+        "payload": { "notes": "surrogate id" },
+        "at": "2026-11-28T00:09:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:09:00.000Z", "seed": "seed-surrogate-id", "id": "slice\ud800" }
     }
   ]
 }

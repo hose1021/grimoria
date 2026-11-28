@@ -9,7 +9,7 @@
 ## Context
 
 The TypeScript engine owns all 72 roles, 172 rule IDs, 47 commands, 108 core
-error codes, 14 historical rulesets and the `pg.game.v4` state contract. A Rust
+error codes, 15 historical rulesets and the `pg.game.v4` state contract. A Rust
 core compiled to WebAssembly is the intended replacement after a separately
 approved migration. The browser UI, storage, localization, PWA and import/export
 orchestration stay TypeScript.
@@ -148,15 +148,21 @@ computes the legacy fingerprint and identity.
 `setNotes` validate, preview, apply and replay match the TypeScript result,
 state, events, applied identity, journal coalescing, idempotency and conflict
 behavior. Rejections do not mutate state. Unsupported commands fail explicitly.
-Replay is limited to `setNotes` entries and fails with `journal-dependency`
-otherwise.
+The slice accepts only states without impairing or Pukka effects whose
+invariants pass; other semantics return `unsupported-state`. Supplied timestamps
+stay in the prepare result and normalize to canonical UTC for execution.
+Replay is limited to `setNotes` entries; a malformed base is `journal-invalid`
+and an unsupported entry is `journal-dependency`.
 
 `fixtures/conformance/set-notes-cases.json` and
 `scripts/set-notes-differential.ts` run the real TypeScript engine and the
 generated Node WASM bindings over the committed legacy state. The comparison
-covers Unicode, lone surrogates, numeric ids, absent/null payloads, malformed
-and invalid commands, duplicate ids, preview isolation and replay. The
-`--inject-divergence` mode proves the comparator detects a changed field.
+covers prepare/validate/preview/apply, complete rejections and unchanged state,
+Unicode, lone-surrogate ids, numeric ids, offsets, milliseconds, absent/null
+payloads, malformed and invalid commands, duplicate ids, sequential coalescing,
+preview isolation, replay state and events, every runtime ruleset and the
+legacy v4 round-trip. Mismatch diagnostics contain field paths and digests only.
+The `--inject-divergence` mode proves the comparator detects a changed field.
 
 ## Oracle versioning
 

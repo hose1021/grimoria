@@ -38,6 +38,18 @@ pub fn wire_legacy_canonical_bytes(input: &str) -> Result<String, String> {
         .map_err(failure)
 }
 
+/// Returns the exact `prepareCommand` result for a `setNotes` envelope.
+#[wasm_bindgen]
+pub fn set_notes_prepare(command_json: &str, inputs_json: &str) -> String {
+    grimoria_domain::command::prepare_response(command_json, inputs_json)
+}
+
+/// Parses and re-serializes a state without executing a command.
+#[wasm_bindgen]
+pub fn state_roundtrip(state_json: &str) -> String {
+    grimoria_domain::command::state_roundtrip(state_json)
+}
+
 /// Prepares, validates and returns a `setNotes` command result.
 #[wasm_bindgen]
 pub fn set_notes_validate(state_json: &str, command_json: &str, inputs_json: &str) -> String {

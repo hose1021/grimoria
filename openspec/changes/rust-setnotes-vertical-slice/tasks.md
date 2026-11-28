@@ -29,16 +29,28 @@
 - [x] 5.2 WASM tests, differential, `npm run verify`, strict OpenSpec.
 - [x] 5.3 Mutation probes and immutable baseline parity.
 
+## 6. Review hardening
+
+- [x] 6.1 Restrict the supported state surface, reject impairing/Pukka effects and invariant failures, and keep TypeScript post-command steps inert for supported states.
+- [x] 6.2 Fail replay closed with `journal-invalid` versus `journal-dependency` and preserve the input state.
+- [x] 6.3 Normalize timestamps through the host boundary, keeping the supplied prepare value and canonical UTC execution value.
+- [x] 6.4 Separate `PrepareResult` and `CommandResult`, preserving precedence, whitespace ids and null payloads.
+- [x] 6.5 Build event ids from UTF-16 units and cover lone-surrogate ids.
+- [x] 6.6 Compare prepare/validate/preview/apply rejections, unchanged state, idempotent state, sequential coalescing, replay events, every runtime ruleset, unknown fields and the legacy v4 round-trip.
+- [x] 6.7 Exclude inactive effects from delayed projections and add effect fixtures.
+- [x] 6.8 Replace raw diagnostics with paths and SHA-256 digests and add a privacy regression.
+- [x] 6.9 Correct the runtime ruleset inventory to 15 including `tb-bmr-snv-2026-11-17.4`.
+
 ## Evidence
 
-- RED: the slice, lossless state, host inputs and WASM entry points did not
-  exist; the first differential run found future effect projections and replay
-  journal placement different from TypeScript.
+- RED: the first expanded differential found unsupported state states accepted,
+  replay error text/class differences, host-timestamp reason differences and
+  future projections that included inactive effects.
 - GREEN: `cargo test --workspace` 35/35; `cargo test -p grimoria-wasm
   --target wasm32-unknown-unknown` 4/4.
 - `node scripts/set-notes-differential.ts --module ... --inject-divergence`
-  passes 9 cases and detects the changed field.
-- `npm run verify` pass (193 explicit Node checks, 1904 manifest tests);
+  passes 41 checks and detects the changed field.
+- `npm run verify` pass (194 explicit Node checks, 1905 manifest tests);
   `openspec validate --changes --strict` 10/10.
 - `cargo fmt --all --check` pass; `cargo clippy --workspace --all-targets -- -D
   warnings` clean; full locked `cargo metadata` graph check pass.

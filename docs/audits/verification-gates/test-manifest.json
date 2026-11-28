@@ -1312,6 +1312,11 @@
       "name": "an existing 404.html is served for an unknown path"
     },
     {
+      "key": "scripts/set-notes-diagnostics.test.ts::a mismatch report carries paths and digests but no values",
+      "file": "scripts/set-notes-diagnostics.test.ts",
+      "name": "a mismatch report carries paths and digests but no values"
+    },
+    {
       "key": "scripts/verification/findings.test.ts::F-001 the UI does not offer survives from a broad role list",
       "file": "scripts/verification/findings.test.ts",
       "name": "F-001 the UI does not offer survives from a broad role list"
