@@ -7,6 +7,11 @@
       "name": "a dangling archived test reference needs a reviewed correction"
     },
     {
+      "key": "scripts/archive-index.test.ts::a delta requirement body must match the baseline at the transition",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a delta requirement body must match the baseline at the transition"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a disappeared historical record stops the index build",
       "file": "scripts/archive-index.test.ts",
       "name": "a disappeared historical record stops the index build"
