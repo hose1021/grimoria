@@ -49,7 +49,7 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           printf '%s' "$PR_BODY" > "$RUNNER_TEMP/pr-body.md"
-          git diff --no-renames --name-only "$BASE_SHA"...HEAD > "$RUNNER_TEMP/changed-files.txt"
+          git -c core.quotePath=false diff --no-renames --name-only "$BASE_SHA"...HEAD > "$RUNNER_TEMP/changed-files.txt"
           node scripts/openspec-check.ts --pr-body "$RUNNER_TEMP/pr-body.md" --changed-files "$RUNNER_TEMP/changed-files.txt"
           node scripts/check-risk-tier.ts "$RUNNER_TEMP/pr-body.md" "$RUNNER_TEMP/changed-files.txt"
           node scripts/check-risk-artifacts.ts "$RUNNER_TEMP/pr-body.md" . --changed-files "$RUNNER_TEMP/changed-files.txt"

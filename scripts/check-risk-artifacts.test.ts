@@ -189,6 +189,32 @@ test("an archived package cannot satisfy a behavior change", () => {
   }
 });
 
+test("an archived change resolves by its exact name or date prefix only", () => {
+  const root = archiveFixture({ index: true, baseline: true });
+  try {
+    const bodyFor = (name: string) => `Issue: #1\nRisk: R3\nOpenSpec change: ${name}\n`;
+    assert.ok(
+      riskArtifactFailures(bodyFor("change"), root, { changedFiles: archiveChanged }).length,
+      "a suffix must not resolve a different archive",
+    );
+    mkdirSync(join(root, "openspec", "changes", "archive", "2025-01-01-sample-change"), {
+      recursive: true,
+    });
+    assert.ok(
+      riskArtifactFailures(bodyFor("sample-change"), root, { changedFiles: archiveChanged }).length,
+      "two archives with the same base name are ambiguous",
+    );
+    assert.deepEqual(
+      riskArtifactFailures(bodyFor("2026-01-01-sample-change"), root, {
+        changedFiles: archiveChanged,
+      }),
+      [],
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a storage change needs the state-and-storage delta spec", () => {
   const root = fixture({ specs: "workflow" });
   const body =

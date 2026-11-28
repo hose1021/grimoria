@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Classifies a change by the files it touches and rejects a silent downgrade.
 // Risk is decided by the diff, never by the label the author chose.
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export type Tier = "R0" | "R1" | "R2" | "R3";
@@ -84,38 +84,74 @@ export function classify(paths: readonly string[]): Tier {
   return highest;
 }
 
-function evidenceFailures(tier: Tier, body: string): string[] {
+export interface RiskEvidenceContext {
+  exists?: (path: string) => boolean;
+  knownRule?: (id: string) => boolean;
+}
+
+function sectionText(body: string, heading: RegExp): string | null {
   const lines = body.split("\n");
-  const start = lines.findIndex((line) => /^Evidence:\s*$/.test(line));
-  let chunk = "";
-  if (start >= 0) {
-    for (let index = start + 1; index < lines.length; index += 1) {
-      if (lines[index]!.startsWith("## ")) break;
-      chunk += lines[index] + "\n";
-    }
+  const start = lines.findIndex((line) => heading.test(line));
+  if (start < 0) return null;
+  const out: string[] = [];
+  for (let index = start + 1; index < lines.length; index += 1) {
+    if (lines[index]!.startsWith("## ")) break;
+    out.push(lines[index]!);
   }
+  return out.join("\n");
+}
+
+function evidenceChunk(body: string): string {
+  return sectionText(body, /^Evidence:\s*$/) ?? sectionText(body, /^## Verification\b/) ?? "";
+}
+
+function citedTestFiles(text: string): string[] {
+  return [...new Set([...text.matchAll(/[\w./-]+\.test\.ts/g)].map((match) => match[0]))];
+}
+
+function ruleIds(text: string): string[] {
+  return [
+    ...new Set(
+      [...text.matchAll(/\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d\d\b/g)].map((match) => match[0]),
+    ),
+  ];
+}
+
+function missingTestFiles(tier: Tier, text: string, context: RiskEvidenceContext): string[] {
+  if (!context.exists) return [];
+  return citedTestFiles(text)
+    .filter((file) => !context.exists!(file))
+    .map((file) => `${tier} cites a test file that does not exist: ${file}`);
+}
+
+function evidenceFailures(tier: Tier, body: string, context: RiskEvidenceContext): string[] {
+  const chunk = evidenceChunk(body);
   const substantive = /^\s*[-*]\s+\S/m.test(chunk);
   if (tier === "R0") {
-    if (!substantive && !/^## Verification\b/m.test(body))
-      return ["R0 needs at least one Evidence bullet or a Verification section"];
-    return [];
+    if (!substantive) return ["R0 needs at least one substantive Evidence or Verification bullet"];
+    return missingTestFiles(tier, chunk, context);
   }
   if (!substantive) return [`${tier} needs at least one concrete Evidence bullet`];
   if (tier === "R1") {
+    const failures: string[] = [];
     if (!/\.test\.ts|npm (?:run )?\S+|node --test|browser-check/i.test(chunk))
-      return ["R1 needs regression or characterization evidence naming a test or command"];
-    return [];
+      failures.push("R1 needs regression or characterization evidence naming a test or command");
+    failures.push(...missingTestFiles(tier, chunk, context));
+    return failures;
   }
   if (tier === "R2") {
     const failures: string[] = [];
-    if (!/\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d\d\b/.test(body))
-      failures.push("R2 needs a stable rule identifier");
+    const ids = ruleIds(body);
+    if (!ids.length) failures.push("R2 needs a stable rule identifier");
+    else if (context.knownRule && !ids.some((id) => context.knownRule!(id)))
+      failures.push(`R2 names no rule the registry holds (${ids.join(", ")})`);
     if (!/\.test\.ts/.test(body)) failures.push("R2 needs the asserting test file");
 
     if (!/https:\/\/wiki\.bloodontheclocktower\.com\/[^\s)\]]*[?&]oldid=\d+\b/i.test(body))
       failures.push("R2 needs the official source link with its pinned revision");
     if (!/^\s*[-*]\s*RED:[ \t]*\S/im.test(body)) failures.push("R2 needs RED evidence");
     if (!/^\s*[-*]\s*GREEN:[ \t]*\S/im.test(body)) failures.push("R2 needs GREEN evidence");
+    failures.push(...missingTestFiles(tier, body, context));
     return failures;
   }
   return [];
@@ -124,6 +160,7 @@ function evidenceFailures(tier: Tier, body: string): string[] {
 export function checkRisk(
   body: string,
   paths: readonly string[],
+  context: RiskEvidenceContext = {},
 ): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   const computed = classify(paths);
@@ -134,11 +171,29 @@ export function checkRisk(
     errors.push(`declared ${declared} is lower than the diff's ${computed}`);
   if (!/^Evidence:/m.test(body) && !/^## Verification\b/m.test(body))
     errors.push("PR body has no Evidence line or Verification section");
-  errors.push(...evidenceFailures(computed, body));
+  errors.push(...evidenceFailures(computed, body, context));
   if (declared && ORDER.indexOf(declared) > ORDER.indexOf(computed))
-    for (const error of evidenceFailures(declared, body))
+    for (const error of evidenceFailures(declared, body, context))
       if (!errors.includes(error)) errors.push(error);
   return { ok: errors.length === 0, errors };
+}
+
+function registryRuleIds(dir: string): Set<string> {
+  const ids = new Set<string>();
+  const walk = (path: string): void => {
+    for (const entry of readdirSync(path)) {
+      const child = join(path, entry);
+      if (statSync(child).isDirectory()) walk(child);
+      else if (entry.endsWith(".json")) {
+        const parsed = JSON.parse(readFileSync(child, "utf8")) as {
+          rules?: Array<{ id?: unknown }>;
+        };
+        for (const rule of parsed.rules ?? []) if (typeof rule.id === "string") ids.add(rule.id);
+      }
+    }
+  };
+  walk(dir);
+  return ids;
 }
 
 function main(): void {
@@ -149,12 +204,18 @@ function main(): void {
     process.exitCode = 2;
     return;
   }
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+  const known = registryRuleIds(join(root, "rules"));
   const result = checkRisk(
     readFileSync(bodyPath, "utf8"),
     readFileSync(filesPath, "utf8")
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean),
+    {
+      exists: (path) => existsSync(join(root, path)),
+      knownRule: (id) => known.has(id),
+    },
   );
   if (!result.ok) {
     for (const error of result.errors) console.error(error);

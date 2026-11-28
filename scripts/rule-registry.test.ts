@@ -9,12 +9,14 @@ import {
   citationParityFailures,
   correctionUniquenessFailures,
   legacyCitations,
+  legacyLevels,
   levelParityFailures,
   crossReferences,
   loadContext,
   parity,
   validateRegistry,
 } from "./rule-registry.ts";
+import { citationsOf, matrixLevelRows } from "./rule-traceability.ts";
 import {
   matrixSyncFailures,
   registryCitations,
@@ -478,6 +480,39 @@ test("a level accepted on the target branch cannot drop", () => {
       failure.includes("dropped a rule"),
     ),
   );
+  assert.ok(
+    levelParityFailures(
+      new Map([["BMR-SAILOR-01", "Verified"]]),
+      new Map([["BMR-SAILOR-01", "unsupported"]]),
+    ).some((failure) => failure.includes("unknown level")),
+    "a corrupted accepted level fails closed",
+  );
+});
+
+test("legacy levels and citations read every matrix row", () => {
+  const matrix = [
+    '| `BMR-X-01` Foo | text | r1 | `src/foo_bar.test.ts` "a test (BMR-X-01)" | Verified |',
+  ].join("\n");
+  assert.equal(legacyLevels(matrix).get("BMR-X-01"), "Verified", "an unknown level is not dropped");
+  assert.deepEqual(matrixLevelRows(matrix), [{ id: "BMR-X-01", level: "Verified" }]);
+  assert.deepEqual(citationsOf('`src/foo_bar.test.ts` "a test (BMR-X-01)"'), [
+    { file: "src/foo_bar.test.ts", name: "a test (BMR-X-01)" },
+  ]);
+});
+
+test("a citation name the matrix cannot hold is reported instead of written", () => {
+  const citations = new Map([
+    ["SYS-TEST-01", [{ file: "src/x.test.ts", name: 'says "no" (SYS-TEST-01)' }]],
+  ]);
+  const requirements = new Map([["SYS-TEST-01", "text"]]);
+  const matrix =
+    '| `SYS-TEST-01` text | text | r1 | `src/x.test.ts` "t (SYS-TEST-01)" | verified |';
+  assert.ok(
+    matrixSyncFailures(matrix, requirements, citations).some((failure) =>
+      failure.includes("cannot be written"),
+    ),
+  );
+  assert.throws(() => syncMatrix(matrix, requirements, citations), /cannot contain/);
 });
 
 test("citation corrections must be unique per source citation", () => {

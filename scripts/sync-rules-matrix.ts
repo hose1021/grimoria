@@ -34,7 +34,21 @@ function citationKey(citation: { file: string; name: string }): string {
   return citation.file + "\0" + citation.name;
 }
 
+/**
+ * A matrix cell is `file` "name"; a name holding a quote, a pipe or a newline
+ * cannot be written and read back. Fail instead of writing a matrix that the
+ * next check rejects.
+ */
+function unrepresentable(citation: { file: string; name: string }): boolean {
+  return /["|`\n]/.test(citation.name) || /[|`\n]/.test(citation.file);
+}
+
 function formatCitations(citations: Array<{ file: string; name: string }>): string {
+  const bad = citations.filter(unrepresentable);
+  if (bad.length)
+    throw new Error(
+      `a matrix citation cannot contain a quote, a pipe or a newline: ${bad[0]!.name}`,
+    );
   return citations.map((citation) => `\`${citation.file}\` "${citation.name}"`).join("; ");
 }
 
@@ -88,6 +102,11 @@ export function matrixSyncFailures(
         failures.push(`${id}: matrix text "${actual}" != registry "${expected}"`);
       const expectedCitations = citations.get(id);
       if (expectedCitations !== undefined) {
+        const bad = expectedCitations.filter(unrepresentable);
+        if (bad.length)
+          failures.push(
+            `${id}: the citation name cannot be written in the matrix (${bad[0]!.name})`,
+          );
         const rowCell = id.startsWith("SYS-") ? cells[cells.length - 2] : cells[cells.length - 2];
         const actualKeys = [...(rowCell ?? "").matchAll(/`([^`]+)`\s+"([^"]+)"/g)]
           .map((match) => match[1] + "\0" + match[2])

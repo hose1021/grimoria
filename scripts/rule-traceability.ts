@@ -4,7 +4,7 @@
 // whose name carries the row's identifier?
 // Pure functions so the rules can be tested without the repository.
 
-const CITATION = /`([a-z0-9./-]+\.test\.ts)`\s+"([^"]+)"/g;
+const CITATION = /`([^`]+\.test\.ts)`\s+"([^"]+)"/g;
 const IDENTIFIER = /\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d{2}\b/g;
 const LEVELS: Record<string, true> = {
   verified: true,
@@ -109,6 +109,33 @@ export function matrixRuleRows(matrixRows: string[][]): MatrixRuleRow[] {
       role: role ? role[1] : null,
       citations: citationsOf(cells[cells.length - 2]),
     });
+  }
+  return rows;
+}
+
+/**
+ * Every matrix row that carries exactly one identifier, with its raw level
+ * cell. Unlike `matrixRuleRows` this does not drop an unknown level: the level
+ * comparison against the target branch must fail closed on a corrupted row.
+ */
+export function matrixLevelRows(matrix: string): Array<{ id: string; level: string }> {
+  const cellsOf = (line: string): string[] | null => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return null;
+    return trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((cell) => cell.trim());
+  };
+  const rows: Array<{ id: string; level: string }> = [];
+  for (const cells of matrix
+    .split("\n")
+    .map(cellsOf)
+    .filter((entry) => entry !== null)) {
+    if (cells.length < 3) continue;
+    const ids = identifiersIn(cells[0] ?? "");
+    if (ids.length !== 1) continue;
+    rows.push({ id: ids[0]!, level: cells[cells.length - 1] ?? "" });
   }
   return rows;
 }

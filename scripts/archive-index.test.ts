@@ -6,6 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  anchorFailures,
   appendBaseline,
   applyCorrections,
   archiveOriginFailures,
@@ -21,7 +22,9 @@ import {
   entriesFrom,
   historicalFailures,
   provenanceFailures,
+  readCorrections,
   refArchiveFailures,
+  repinFailures,
   testReferenceFailures,
   mergeEntries,
   type ArchiveEntry,
@@ -394,7 +397,7 @@ test("archive origins survive squash integration into a legacy target", () => {
     for (const tracked of git(["ls-files"]).split("\n").filter(Boolean))
       git(["rm", "-q", "--cached", tracked]);
     write("README.md", "# main\n");
-    git(["add", "."]);
+    git(["add", "README.md"]);
     git(["commit", "-qm", "legacy main"]);
 
     // A fresh clone keeps only the integrated history.
@@ -648,8 +651,191 @@ test("a new archive is appended to the baseline and an accepted hash is never re
     { name: "2026-12-01-b", treeHash: "c".repeat(64) },
   ]);
   assert.deepEqual(appendBaseline(baseline, []), baseline);
+  assert.deepEqual(repinFailures(baseline, [rewritten], []), ["2026-11-01-a"]);
+  assert.deepEqual(repinFailures(baseline, [], []), [], "an empty index protects nothing");
+  assert.deepEqual(
+    repinFailures(
+      baseline,
+      [rewritten],
+      [
+        {
+          name: "2026-11-01-a",
+          fromHash: "a".repeat(64),
+          toHash: "b".repeat(64),
+          reason: "reviewed",
+        },
+      ],
+    ),
+    [],
+    "a reviewed correction allows the new hash",
+  );
+  assert.deepEqual(
+    repinFailures(baseline, [rewritten, added], []),
+    ["2026-11-01-a", "2026-12-01-b"],
+    "a changed hash and a name with no baseline record are both refused",
+  );
 });
 
+test("the original anchor cannot gain, lose or change a record", () => {
+  const anchor = [
+    { name: "2026-11-01-a", treeHash: "a".repeat(64) },
+    { name: "2026-11-02-b", treeHash: "b".repeat(64) },
+  ];
+  assert.deepEqual(anchorFailures(anchor, anchor), []);
+  assert.ok(
+    anchorFailures(anchor, [{ name: "2026-11-01-a", treeHash: "a".repeat(64) }]).some((failure) =>
+      failure.includes("2026-11-02-b"),
+    ),
+  );
+  assert.ok(
+    anchorFailures(anchor, [{ ...anchor[0]!, treeHash: "c".repeat(64) }, anchor[1]!]).some(
+      (failure) => failure.includes("changed"),
+    ),
+  );
+  assert.ok(
+    anchorFailures(anchor, [...anchor, { name: "2026-12-01-new", treeHash: "d".repeat(64) }]).some(
+      (failure) => failure.includes("gained a record"),
+    ),
+  );
+});
+
+test("malformed archive corrections and index files fail closed", () => {
+  const dir = mkdtempSync(join(tmpdir(), "archive-corrections-"));
+  try {
+    assert.deepEqual(readCorrections(join(dir, "missing.json")), []);
+    writeFileSync(join(dir, "bad.json"), "not json");
+    assert.equal(readCorrections(join(dir, "bad.json")), null);
+    writeFileSync(join(dir, "shape.json"), JSON.stringify({ corrections: [{ name: "x" }] }));
+    assert.equal(readCorrections(join(dir, "shape.json")), null);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("an indented checklist and evidence line still count", () => {
+  const entry = { ...row("2026-12-01-b"), tests: [] };
+  const read = (text: string) => () => text;
+  assert.deepEqual(
+    archiveReadinessFailures(
+      [entry],
+      [],
+      read("- [x] 1\n  - [ ] 2 open\n\n- RED: r\n- GREEN: g\n"),
+    ).filter((failure) => failure.includes("open task")),
+    ["2026-12-01-b: archived change has 1 open task(s)"],
+    "an indented open task is still open",
+  );
+  assert.deepEqual(
+    archiveReadinessFailures([entry], [], read("- [x] 1\n  - RED: r\n  - GREEN: g\n")),
+    [],
+    "indented evidence counts",
+  );
+});
+
+test("the archive CLI refuses a bypassed anchor, a re-pin and a malformed index", () => {
+  const root = mkdtempSync(join(tmpdir(), "archive-cli-"));
+  const git = (args: string[]): string =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  const write = (file: string, content: string): void => {
+    mkdirSync(join(root, file, ".."), { recursive: true });
+    writeFileSync(join(root, file), content);
+  };
+  const run = (args: string[] = []) =>
+    spawnSync(process.execPath, ["scripts/archive-index.ts", ...args], {
+      cwd: root,
+      encoding: "utf8",
+    });
+  const complete = "# Tasks\n\n- [x] 1.1 Done.\n\n## Evidence\n\n- RED: one\n- GREEN: two\n";
+  const archive = (name: string, tasks: string | null): void => {
+    const path = `openspec/changes/archive/${name}`;
+    write(`${path}/proposal.md`, "Issue: #1\n");
+    write(
+      `${path}/specs/game/sample/spec.md`,
+      "### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
+    );
+    if (tasks !== null) write(`${path}/tasks.md`, tasks);
+  };
+  const emptyBaseline = JSON.stringify({ schemaVersion: 1, entries: [] });
+  try {
+    mkdirSync(join(root, "scripts"), { recursive: true });
+    writeFileSync(
+      join(root, "scripts", "archive-index.ts"),
+      readFileSync(fileURLToPath(new URL("./archive-index.ts", import.meta.url))),
+    );
+    git(["init", "-q", "-b", "base"]);
+    git(["config", "user.email", "test@example.com"]);
+    git(["config", "user.name", "Test"]);
+    write("src/sample.test.ts", "import test from 'node:test';\ntest('sample', () => {});\n");
+    write("docs/audits/openspec-archive-baseline.json", emptyBaseline);
+    write("fixtures/conformance/openspec-archive-baseline.json", emptyBaseline);
+    write("fixtures/conformance/archive-corrections.json", JSON.stringify({ corrections: [] }));
+    write(
+      "fixtures/conformance/archive-test-corrections.json",
+      JSON.stringify({ corrections: [] }),
+    );
+    archive("2026-01-01-one", complete);
+    git(["add", "."]);
+    git(["commit", "-qm", "base"]);
+    const base = git(["rev-parse", "HEAD"]);
+    const built = run();
+    assert.equal(built.status, 0, built.stderr);
+    assert.equal(run(["--check", "--against", base]).status, 0);
+
+    // A new archive without tasks.md is not exempt just because it is indexed.
+    archive("2026-02-01-two", null);
+    git(["add", "."]);
+    git(["commit", "-qm", "incomplete archive"]);
+    const buildTwo = run();
+    assert.equal(buildTwo.status, 0, buildTwo.stderr);
+    const noTasks = run(["--check", "--against", base]);
+    assert.equal(noTasks.status, 1);
+    assert.match(noTasks.stderr, /2026-02-01-two: archived change has no tasks\.md/);
+
+    // A third, complete archive is indexed but not anchored.
+    archive("2026-03-01-three", complete);
+    git(["add", "."]);
+    git(["commit", "-qm", "complete archive"]);
+    const buildThree = run();
+    assert.equal(buildThree.status, 0, buildThree.stderr);
+
+    // Adding the name to the anchor fixture does not exempt it either.
+    const anchorPath = "fixtures/conformance/openspec-archive-baseline.json";
+    const anchor = JSON.parse(readFileSync(join(root, anchorPath), "utf8")) as {
+      entries: Array<{ name: string; treeHash: string }>;
+    };
+    const index = JSON.parse(
+      readFileSync(join(root, "docs/audits/openspec-archive-index.json"), "utf8"),
+    ) as { entries: Array<{ name: string; treeHash: string }> };
+    const three = index.entries.find((entry) => entry.name === "2026-03-01-three")!;
+    write(anchorPath, JSON.stringify({ schemaVersion: 1, entries: [...anchor.entries, three] }));
+    const grown = run(["--check", "--against", base]);
+    assert.equal(grown.status, 1);
+    assert.match(grown.stderr, /gained a record/);
+
+    // Deleting the baseline record does not let the build re-pin a changed tree.
+    const baselinePath = "docs/audits/openspec-archive-baseline.json";
+    const baseline = JSON.parse(readFileSync(join(root, baselinePath), "utf8")) as {
+      entries: Array<{ name: string; treeHash: string }>;
+    };
+    write(
+      baselinePath,
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: baseline.entries.filter((entry) => entry.name !== "2026-03-01-three"),
+      }),
+    );
+    const repin = run();
+    assert.equal(repin.status, 1);
+    assert.match(repin.stderr, /refusing to rewrite accepted archive records/);
+
+    // A corrupted index is not silently rebuilt with new origins.
+    write("docs/audits/openspec-archive-index.json", "not json\n");
+    const malformed = run();
+    assert.equal(malformed.status, 1);
+    assert.match(malformed.stderr, /malformed/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 test("the archive check fails closed on an invalid target ref", () => {
   const result = spawnSync(
     process.execPath,

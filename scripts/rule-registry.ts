@@ -3,7 +3,7 @@
 // The supported JSON Schema subset is checked by hand below; a record passes
 // only when every field, identifier, role and test reference resolves.
 import { execFileSync } from "node:child_process";
-import { matrixRuleRows, parseRuleDoc } from "./rule-traceability.ts";
+import { matrixLevelRows, matrixRuleRows, parseRuleDoc } from "./rule-traceability.ts";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -308,7 +308,7 @@ export function parity(legacy: RegistryRule[], registry: RegistryRule[]): string
 
 export function legacyLevels(matrix: string): Map<string, string> {
   const out = new Map<string, string>();
-  for (const row of matrixRows(matrix)) if (row.id !== null) out.set(row.id, row.level);
+  for (const row of matrixLevelRows(matrix)) out.set(row.id, row.level);
   return out;
 }
 
@@ -322,7 +322,8 @@ const LEVEL_RANK: Record<string, number> = {
 /**
  * A level accepted on the target branch cannot fall. A raise is allowed, and a
  * rule may not disappear: the registry is the reviewed classification, and a
- * silent downgrade would weaken the acceptance evidence.
+ * silent downgrade would weaken the acceptance evidence. An unknown accepted
+ * level is a corrupted record, so it fails instead of ranking below every value.
  */
 export function levelParityFailures(
   accepted: ReadonlyMap<string, string>,
@@ -330,6 +331,10 @@ export function levelParityFailures(
 ): string[] {
   const failures: string[] = [];
   for (const [id, level] of accepted) {
+    if (!Object.hasOwn(LEVEL_RANK, level)) {
+      failures.push(`${id}: the target branch holds an unknown level ${JSON.stringify(level)}`);
+      continue;
+    }
     const now = current.get(id);
     if (now === undefined) failures.push(`${id}: the registry dropped a rule the target accepted`);
     else if ((LEVEL_RANK[now] ?? -1) < (LEVEL_RANK[level] ?? -1))

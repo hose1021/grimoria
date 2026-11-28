@@ -62,6 +62,11 @@
       "name": "an explicit correction replaces a baseline hash and needs a reason"
     },
     {
+      "key": "scripts/archive-index.test.ts::an indented checklist and evidence line still count",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an indented checklist and evidence line still count"
+    },
+    {
       "key": "scripts/archive-index.test.ts::archive corrections are unique and target the current tree",
       "file": "scripts/archive-index.test.ts",
       "name": "archive corrections are unique and target the current tree"
@@ -92,6 +97,11 @@
       "name": "binary bytes without a NUL stay unchanged and index metadata is validated"
     },
     {
+      "key": "scripts/archive-index.test.ts::malformed archive corrections and index files fail closed",
+      "file": "scripts/archive-index.test.ts",
+      "name": "malformed archive corrections and index files fail closed"
+    },
+    {
       "key": "scripts/archive-index.test.ts::provenance survives a squash with missing origin commits",
       "file": "scripts/archive-index.test.ts",
       "name": "provenance survives a squash with missing origin commits"
@@ -100,6 +110,11 @@
       "key": "scripts/archive-index.test.ts::the archive check fails closed on an invalid target ref",
       "file": "scripts/archive-index.test.ts",
       "name": "the archive check fails closed on an invalid target ref"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the archive CLI refuses a bypassed anchor, a re-pin and a malformed index",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the archive CLI refuses a bypassed anchor, a re-pin and a malformed index"
     },
     {
       "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
@@ -120,6 +135,11 @@
       "key": "scripts/archive-index.test.ts::the committed archive index carries an origin and issue reference",
       "file": "scripts/archive-index.test.ts",
       "name": "the committed archive index carries an origin and issue reference"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the original anchor cannot gain, lose or change a record",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the original anchor cannot gain, lose or change a record"
     },
     {
       "key": "scripts/archive-index.test.ts::the original baseline catches a coordinated archive deletion",
@@ -277,6 +297,11 @@
       "name": "an archive-only transition keeps the package and its evidence"
     },
     {
+      "key": "scripts/check-risk-artifacts.test.ts::an archived change resolves by its exact name or date prefix only",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an archived change resolves by its exact name or date prefix only"
+    },
+    {
       "key": "scripts/check-risk-artifacts.test.ts::an archived package cannot satisfy a behavior change",
       "file": "scripts/check-risk-artifacts.test.ts",
       "name": "an archived package cannot satisfy a behavior change"
@@ -302,14 +327,19 @@
       "name": "a declared tier below the diff, a missing issue, risk or evidence fails"
     },
     {
+      "key": "scripts/check-risk-tier.test.ts::a Verification section is the evidence when no Evidence line exists",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a Verification section is the evidence when no Evidence line exists"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::cited evidence must resolve to a real test file and a registry rule",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "cited evidence must resolve to a real test file and a registry rule"
+    },
+    {
       "key": "scripts/check-risk-tier.test.ts::each tier needs the evidence its risk implies",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "each tier needs the evidence its risk implies"
-    },
-    {
-      "key": "scripts/check-risk-tier.test.ts::elevating a documentation change to R2 requires gameplay evidence",
-      "file": "scripts/check-risk-tier.test.ts",
-      "name": "elevating a documentation change to R2 requires gameplay evidence"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::public seat and secret screens require privacy review",
@@ -897,6 +927,11 @@
       "name": "the Tinker, the Po and the Shabaloth resolve on the night-step capability, not in the step completion"
     },
     {
+      "key": "scripts/rule-registry.test.ts::a citation name the matrix cannot hold is reported instead of written",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "a citation name the matrix cannot hold is reported instead of written"
+    },
+    {
       "key": "scripts/rule-registry.test.ts::a duplicate citation inside one rule is rejected",
       "file": "scripts/rule-registry.test.ts",
       "name": "a duplicate citation inside one rule is rejected"
@@ -955,6 +990,11 @@
       "key": "scripts/rule-registry.test.ts::legacy citations come from the matrix and the old role documents",
       "file": "scripts/rule-registry.test.ts",
       "name": "legacy citations come from the matrix and the old role documents"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::legacy levels and citations read every matrix row",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "legacy levels and citations read every matrix row"
     },
     {
       "key": "scripts/rule-registry.test.ts::parity reports exactly the rules whose normalized rows differ",

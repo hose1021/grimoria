@@ -447,11 +447,11 @@ export function archiveReadinessFailures(
       failures.push(`${entry.name}: archived change has no tasks.md`);
       continue;
     }
-    const boxes = [...tasks.matchAll(/^- \[([ xX])\]/gm)].map((match) => match[1]);
+    const boxes = [...tasks.matchAll(/^\s*- \[([ xX])\]/gm)].map((match) => match[1]);
     const open = boxes.filter((box) => box === " ").length;
     if (boxes.length === 0) failures.push(`${entry.name}: archived change has no checklist`);
     else if (open > 0) failures.push(`${entry.name}: archived change has ${open} open task(s)`);
-    if (!/^- RED:/m.test(tasks) || !/^- GREEN:/m.test(tasks))
+    if (!/^\s*- RED:/m.test(tasks) || !/^\s*- GREEN:/m.test(tasks))
       failures.push(`${entry.name}: archived change has no RED/GREEN evidence`);
   }
   return failures;
@@ -528,7 +528,64 @@ export function historicalFailures(
   return failures;
 }
 
-function refBaseline(root: string, ref: string): BaselineEntry[] | "absent" | null {
+const BASELINE_FILE = "docs/audits/openspec-archive-baseline.json";
+const ANCHOR_FILE = "fixtures/conformance/openspec-archive-baseline.json";
+const CORRECTIONS_FILE = "fixtures/conformance/archive-corrections.json";
+
+/**
+ * The original anchor is immutable: the target branch's copy must keep exactly
+ * its names and hashes. A new record belongs to the current baseline, never to
+ * the anchor, so a new archive cannot exempt itself from the readiness gate.
+ */
+export function anchorFailures(
+  accepted: readonly BaselineEntry[],
+  current: readonly BaselineEntry[],
+): string[] {
+  const failures: string[] = [];
+  const byName = new Map(current.map((entry) => [entry.name, entry.treeHash]));
+  for (const entry of accepted) {
+    const hash = byName.get(entry.name);
+    if (hash === undefined) failures.push(`${entry.name}: the original anchor lost a record`);
+    else if (hash !== entry.treeHash)
+      failures.push(`${entry.name}: the original anchor changed its record`);
+  }
+  const names = new Set(accepted.map((entry) => entry.name));
+  for (const entry of current)
+    if (!names.has(entry.name))
+      failures.push(`${entry.name}: the original anchor gained a record the target does not hold`);
+  return failures;
+}
+
+export function readCorrections(path: string): ArchiveCorrection[] | null {
+  if (!existsSync(path)) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const corrections = (parsed as { corrections?: unknown }).corrections;
+  if (!Array.isArray(corrections)) return null;
+  for (const correction of corrections) {
+    if (typeof correction !== "object" || correction === null) return null;
+    const value = correction as ArchiveCorrection;
+    if (
+      typeof value.name !== "string" ||
+      typeof value.fromHash !== "string" ||
+      typeof value.toHash !== "string" ||
+      typeof value.reason !== "string"
+    )
+      return null;
+  }
+  return corrections as ArchiveCorrection[];
+}
+
+function refBaseline(
+  root: string,
+  ref: string,
+  path: string = BASELINE_FILE,
+): BaselineEntry[] | "absent" | null {
   try {
     execFileSync("git", ["rev-parse", "--verify", ref], { cwd: root, stdio: "ignore" });
   } catch {
@@ -536,21 +593,19 @@ function refBaseline(root: string, ref: string): BaselineEntry[] | "absent" | nu
   }
   let listing: string;
   try {
-    listing = execFileSync(
-      "git",
-      ["ls-tree", ref, "--", "docs/audits/openspec-archive-baseline.json"],
-      { cwd: root, encoding: "utf8" },
-    );
+    listing = execFileSync("git", ["ls-tree", ref, "--", path], {
+      cwd: root,
+      encoding: "utf8",
+    });
   } catch {
     return null;
   }
   if (!listing.trim()) return "absent";
   try {
-    const text = execFileSync(
-      "git",
-      ["show", `${ref}:docs/audits/openspec-archive-baseline.json`],
-      { cwd: root, encoding: "utf8" },
-    );
+    const text = execFileSync("git", ["show", `${ref}:${path}`], {
+      cwd: root,
+      encoding: "utf8",
+    });
     return parseBaseline(text);
   } catch {
     return null;
@@ -571,6 +626,27 @@ export function appendBaseline(
     .filter((entry) => !known.has(entry.name))
     .map((entry) => ({ name: entry.name, treeHash: entry.treeHash }));
   return added.length ? [...baseline, ...added] : [...baseline];
+}
+
+/**
+ * Build mode may append a new archive, never accept a changed one. A dropped
+ * baseline record or a changed hash needs a reviewed correction entry, so the
+ * build refuses before it rewrites the index.
+ */
+export function repinFailures(
+  baseline: readonly BaselineEntry[],
+  existing: readonly ArchiveEntry[],
+  corrections: readonly ArchiveCorrection[],
+): string[] {
+  const corrected = applyCorrections(baseline, corrections);
+  const pinned = new Map(corrected.map((entry) => [entry.name, entry.treeHash]));
+  const failures: string[] = [];
+  for (const entry of existing) {
+    const hash = pinned.get(entry.name);
+    if (hash === undefined) failures.push(entry.name);
+    else if (hash !== entry.treeHash) failures.push(entry.name);
+  }
+  return failures;
 }
 
 function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
@@ -594,15 +670,20 @@ function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const out = join(root, "docs/audits/openspec-archive-index.json");
+  const exists = existsSync(out);
   const existing = readIndex(out);
   if (process.argv.includes("--check")) {
     if (!existing) {
-      console.error("openspec-archive-index.json is missing; run node scripts/archive-index.ts");
+      console.error(
+        exists
+          ? "openspec-archive-index.json is malformed; restore it instead of rebuilding the origins"
+          : "openspec-archive-index.json is missing; run node scripts/archive-index.ts",
+      );
       process.exitCode = 1;
       return;
     }
     verifyFiles(root, existing);
-    const baselinePath = join(root, "docs/audits/openspec-archive-baseline.json");
+    const baselinePath = join(root, BASELINE_FILE);
     if (!existsSync(baselinePath)) {
       console.error("openspec-archive-baseline.json is missing; archived evidence is unpinned");
       process.exitCode = 1;
@@ -614,11 +695,12 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
-    const correctionsPath = join(root, "fixtures/conformance/archive-corrections.json");
-    const corrections = existsSync(correctionsPath)
-      ? (JSON.parse(readFileSync(correctionsPath, "utf8")) as { corrections: ArchiveCorrection[] })
-          .corrections
-      : [];
+    const corrections = readCorrections(join(root, CORRECTIONS_FILE));
+    if (corrections === null) {
+      console.error("archive-corrections.json is malformed");
+      process.exitCode = 1;
+      return;
+    }
     const correctedBaseline = applyCorrections(baseline, corrections);
     const refIndex = process.argv.indexOf("--against");
     const ref = refIndex >= 0 ? process.argv[refIndex + 1] : process.env.ARCHIVE_BASELINE_REF;
@@ -652,18 +734,34 @@ function main(): void {
       return;
     }
     if (ref) {
+      const targetAnchor = refBaseline(root, ref, ANCHOR_FILE);
+      if (targetAnchor === null) {
+        console.error(`cannot read the original archive anchor at ${ref}; fetch the target branch`);
+        process.exitCode = 1;
+        return;
+      }
+      if (targetAnchor !== "absent") {
+        const anchorDiff = anchorFailures(
+          applyCorrections(targetAnchor, corrections),
+          applyCorrections(anchor, corrections),
+        );
+        if (anchorDiff.length) {
+          console.error(`the original anchor gained or changed a record: ${anchorDiff.join("; ")}`);
+          process.exitCode = 1;
+          return;
+        }
+      }
+    }
+    if (ref) {
       const accepted = refBaseline(root, ref);
       if (accepted === null) {
         console.error(`cannot read the archive baseline at ${ref}; fetch the target branch`);
         process.exitCode = 1;
         return;
       }
-      if (accepted !== "absent" && accepted.length === 0) {
-        console.error(`the archive baseline at ${ref} is unreadable`);
-        process.exitCode = 1;
-        return;
-      }
-      let removed: string[] = [];
+      // An empty accepted baseline is a valid "no archive yet" state; only a
+      // missing or malformed file is unreadable.
+      let removed: string[];
       if (accepted === "absent") {
         const tree = refArchiveEntries(root, ref);
         if (tree === null) {
@@ -728,6 +826,13 @@ function main(): void {
     console.log(`Archive index is current: ${existing.length} change(s).`);
     return;
   }
+  if (exists && !existing) {
+    console.error(
+      "openspec-archive-index.json is malformed; restore it instead of rebuilding the origins",
+    );
+    process.exitCode = 1;
+    return;
+  }
   const fresh = build(root);
   const mergedRaw = existing ? mergeEntries(existing, fresh) : fresh;
   const merged = mergedRaw.map((entry) => {
@@ -736,12 +841,28 @@ function main(): void {
     return { ...entry, commit: prior.commit, date: prior.date };
   });
   verifyFiles(root, merged);
-  const baselinePath = join(root, "docs/audits/openspec-archive-baseline.json");
+  const baselinePath = join(root, BASELINE_FILE);
   const baseline = readBaseline(baselinePath);
   if (baseline === null) {
     console.error("openspec-archive-baseline.json is missing or malformed; refusing to accept");
     process.exitCode = 1;
     return;
+  }
+  if (existing) {
+    const corrections = readCorrections(join(root, CORRECTIONS_FILE));
+    if (corrections === null) {
+      console.error("archive-corrections.json is malformed; refusing to accept");
+      process.exitCode = 1;
+      return;
+    }
+    const rewritten = repinFailures(baseline, existing, corrections);
+    if (rewritten.length) {
+      console.error(
+        `refusing to rewrite accepted archive records: ${rewritten.join("; ")}; record a reviewed correction in ${CORRECTIONS_FILE}`,
+      );
+      process.exitCode = 1;
+      return;
+    }
   }
   // Accept a new archive by appending its record. An existing record is never
   // rewritten: a changed tree needs a reviewed correction entry.

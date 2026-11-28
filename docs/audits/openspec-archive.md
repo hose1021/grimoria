@@ -49,8 +49,14 @@ in the integrated tree, pinned by `treeHash`, the index and the baseline fixture
 - A recorded origin is validated as the first add of the change path; when a
   squash removed that commit object, the index committed with that add keeps the
   accepted origin. A target branch keeps the origin it accepted.
-- `archive:index` appends a new archive to the current baseline. It never
-  rewrites an accepted record; a changed tree needs a correction entry.
+- An origin introduced by the same commit that adds the archive is the only
+  record the repository holds; no earlier one is observable. Review covers that
+  record, and a later rewrite still fails.
+- The original anchor fixture is immutable: the target branch's copy must keep
+  exactly its names and hashes. A new archive is pinned by the current baseline,
+  never by the anchor, so it cannot exempt itself from the readiness gate.
+- `archive:index` appends a new archive to the current baseline. It refuses to
+  rewrite an accepted record, so a changed tree needs a correction entry.
 - An archived delta spec may name a test file that was renamed or never existed.
   A reviewed record in `fixtures/conformance/archive-test-corrections.json` maps
   it to the current asserting file; an unresolved reference fails the gate.

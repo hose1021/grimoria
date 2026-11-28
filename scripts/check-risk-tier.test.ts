@@ -106,6 +106,42 @@ test("public seat and secret screens require privacy review", () => {
   }
 });
 
-test("elevating a documentation change to R2 requires gameplay evidence", () => {
-  assert.equal(checkRisk(body("R2"), ["docs/example.md"]).ok, false);
+test("a Verification section is the evidence when no Evidence line exists", () => {
+  const r1 = "Issue: #519\nRisk: R1\n## Verification\n- `npm test` passes.\n";
+  assert.equal(checkRisk(r1, ["src/ui/shell.tsx"]).ok, true);
+  const r0 = "Issue: #519\nRisk: R0\n## Verification\n";
+  assert.equal(
+    checkRisk(r0, ["docs/x.md"]).ok,
+    false,
+    "an empty Verification section is no evidence",
+  );
+});
+
+test("cited evidence must resolve to a real test file and a registry rule", () => {
+  const context = {
+    exists: (path: string) => path === "src/core/roles/sailor/role.test.ts",
+    knownRule: (id: string) => id === "BMR-SAILOR-01",
+  };
+  const r2 =
+    "Issue: #519\nRisk: R2\nEvidence:\n- BMR-SAILOR-01 [Sailor r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768) covered by src/core/roles/sailor/role.test.ts\n- RED: failed.\n- GREEN: passes.\n";
+  const paths = ["src/core/roles/sailor/role.ts"];
+  assert.equal(checkRisk(r2, paths, context).ok, true);
+  assert.ok(
+    checkRisk(
+      r2.replace("src/core/roles/sailor/role.test.ts", "src/none.test.ts"),
+      paths,
+      context,
+    ).errors.some((error) => error.includes("does not exist")),
+  );
+  assert.ok(
+    checkRisk(r2.replace("BMR-SAILOR-01", "TB-FAKE-99"), paths, context).errors.some((error) =>
+      error.includes("no rule the registry holds"),
+    ),
+  );
+  const r1 = "Issue: #519\nRisk: R1\nEvidence:\n- src/none.test.ts\n";
+  assert.ok(
+    checkRisk(r1, ["src/ui/shell.tsx"], context).errors.some((error) =>
+      error.includes("does not exist"),
+    ),
+  );
 });

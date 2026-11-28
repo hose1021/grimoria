@@ -49,6 +49,17 @@ satisfied.
 - **WHEN** the bytes of an accepted tree change
 - **THEN** the archive gate fails with the new hash mismatch
 
+#### Scenario: Anchor growth
+
+- **WHEN** a record is added to the original anchor that the target branch does
+  not hold
+- **THEN** the archive gate fails instead of exempting the new archive
+
+#### Scenario: Deleted baseline record
+
+- **WHEN** a baseline record is deleted and the index is rebuilt
+- **THEN** the build refuses to re-pin the tree without a reviewed correction
+
 ### Requirement: Archive provenance survives squash integration
 
 A new archive SHALL keep the origin recorded by the index committed with its
@@ -128,6 +139,31 @@ raise SHALL pass.
 
 - **WHEN** a rule the target holds as `host-choice` becomes `verified`
 - **THEN** the check passes
+
+#### Scenario: Unknown level
+
+- **WHEN** the target matrix carries a level outside the supported vocabulary
+- **THEN** the check fails closed instead of dropping the row
+
+### Requirement: Cited evidence resolves
+
+A pull request's evidence SHALL name a test file that exists, and an R2 change
+SHALL name a rule identifier the registry holds. An archived change SHALL
+resolve by its exact name or date prefix, and a citation name the matrix cannot
+represent SHALL fail instead of producing an unreadable row.
+
+**Source**: Issue #519
+**Tests**: `scripts/check-risk-tier.test.ts`, `scripts/check-risk-artifacts.test.ts`, `scripts/rule-registry.test.ts`
+
+#### Scenario: Missing evidence file
+
+- **WHEN** the body cites a test file that does not exist
+- **THEN** the risk check fails and names the file
+
+#### Scenario: Ambiguous archive name
+
+- **WHEN** a base name matches no archive or more than one archive
+- **THEN** the artifact check fails
 
 ### Requirement: Pull request metadata is revalidated
 

@@ -27,12 +27,18 @@ function resolveChange(root: string, name: string): Resolved | null {
   if (isDir(active)) return { dir: active, archived: false };
   const archiveRoot = join(root, "openspec", "changes", "archive");
   if (!isDir(archiveRoot)) return null;
+  const dated = /^\d{4}-\d{2}-\d{2}-(.+)$/;
+  const matches: string[] = [];
   for (const entry of readdirSync(archiveRoot)) {
-    if (entry !== name && !entry.endsWith(`-${name}`)) continue;
-    const dir = join(archiveRoot, entry);
-    if (isDir(dir)) return { dir, archived: true };
+    const base = dated.exec(entry)?.[1];
+    if (entry !== name && base !== name) continue;
+    if (isDir(join(archiveRoot, entry))) matches.push(entry);
   }
-  return null;
+  // A base name must name one archive exactly: a suffix match would let a
+  // missing package resolve to a different change, and two candidates are
+  // ambiguous.
+  if (matches.length !== 1) return null;
+  return { dir: join(archiveRoot, matches[0]!), archived: true };
 }
 
 function archiveEvidenceFailures(root: string, dir: string): string[] {

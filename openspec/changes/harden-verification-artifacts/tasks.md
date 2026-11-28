@@ -27,6 +27,10 @@
       equal the archived delta specs.
 - [x] 2.6 Require an archive outside the accepted anchor to be complete, with no
       open checklist item and a RED/GREEN record; the anchor stays untouched.
+- [x] 2.7 Compare the working anchor with the target's anchor, so a new record
+      cannot exempt itself; refuse a build that would re-pin a dropped or
+      changed record, and refuse to rebuild a malformed index. The CLI test
+      runs the real script against a temporary repository.
 
 ## 3. Risk and artifacts
 
@@ -42,6 +46,10 @@
       changes, and exempt only the repository's own `dev` or `main` branch.
 - [x] 3.6 Fail when a rule level accepted on the target branch drops or the rule
       disappears; a raise passes. The 172 levels are equal at `ffbce394`.
+- [x] 3.7 Resolve the evidence a body cites (test file, registry rule), resolve
+      an archived change by its exact name, fail closed on an unknown accepted
+      level, widen the citation path parser, and refuse an unrepresentable
+      matrix citation; tests for each.
 
 ## 4. Verification
 
@@ -69,3 +77,12 @@
   and two corrections for one rule dropped all but the last.
 - GREEN: the lifecycle test passes release 1, release 2 and both back-merges,
   and the two-correction parity test passes with both targets present.
+- RED: an archive with no `tasks.md` passed once its name was appended to the
+  anchor, and a deleted baseline record let the build re-pin a changed tree.
+- GREEN: the real-CLI test fails the anchor growth, the re-pin and a malformed
+  index, and reports the missing `tasks.md`.
+- RED: a body citing `TB-FAKE-99` and a missing test file passed R2, and an
+  empty `## Verification` passed R0.
+- GREEN: the risk check names the unknown rule and the missing file and rejects
+  the empty section; an unrepresentable matrix citation is reported instead of
+  written.
