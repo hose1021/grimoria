@@ -114,6 +114,34 @@ test("the read-model query surface matches the console projection", () => {
   assert.equal(boundary.inventory.readModelQueries, queries.length);
 });
 
+function rulesetValues(): string[] {
+  const text = readFileSync(resolve(ROOT, "src/core/engine/command-versions.ts"), "utf8");
+  return [...text.matchAll(/export const \w*RULESET_VERSION\s*=\s*\x22([^\x22]+)\x22/g)].map(
+    (match) => match[1]!,
+  );
+}
+
+test("the boundary records exact error-code and ruleset identities", () => {
+  const codes = errorCodes().sort();
+  const versions = rulesetValues();
+  assert.deepEqual(boundary.surface.errorCodes, codes);
+  assert.deepEqual(boundary.surface.rulesetVersions, versions);
+  const layered = boundary.errorLayers
+    .filter((layer: { count: number | null }) => typeof layer.count === "number")
+    .flatMap((layer: { codes: string[] }) => layer.codes);
+  assert.equal(new Set(layered).size, layered.length, "an error belongs to one layer only");
+  assert.deepEqual([...layered].sort(), codes);
+  assert.deepEqual(boundary.baseline, {
+    tag: "v0.14.0",
+    main: "de6a17a8997f1dfa22ebbc50a36b4bd57640ad7c",
+    rules: 172,
+    roles: 72,
+    commands: 47,
+    errorCodes: 108,
+    rulesetVersions: 14,
+  });
+});
+
 test("the error layers cover all 108 core codes", () => {
   const total = boundary.errorLayers
     .filter((layer: { count: number | null }) => typeof layer.count === "number")

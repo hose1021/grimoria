@@ -23,13 +23,24 @@
 - [x] 4.1 Add native Rust and wasm32 CI jobs without removing existing jobs.
 - [x] 4.2 Run `npm run verify`, strict OpenSpec and the new Node suites.
 
+## 5. Phase 0 review hardening
+
+- [x] 5.1 Separate benchmark warm-up and measured workloads; assert command identities and record environment, fixture hash and state metadata.
+- [x] 5.2 Reconcile ADR 0006 budgets with the corrected baseline measurements.
+- [x] 5.3 Replace manifest regex parsing with `cargo metadata` and cover renamed, target, dev, build, optional and workspace-inherited dependencies.
+- [x] 5.4 Record exact error-code and ruleset identities and assign every core error code to one layer.
+
 ## Evidence
 
-- RED: no workspace or graph check existed; an extra `grimoria-domain → grimoria-wire`
-  edge and a cycle were accepted by nothing.
-- GREEN: `node scripts/check-cargo-graph.ts` passes on the five-crate matrix and
-  its four tests reject an extra edge, a cycle and a non-workspace dependency.
+- RED: the benchmark warmed on measured identities; the graph test accepted an
+  extra edge through a renamed, target, dev, build, optional or workspace
+  declaration; the boundary named no exact error or ruleset identity.
+- GREEN: `node --test scripts/engine-benchmark.test.ts` 6/6 passes; the
+  corrected baseline records disjoint warm-up and measured identities.
+- `node scripts/check-cargo-graph.ts` passes on the five-crate matrix, and
+  `node --test scripts/check-cargo-graph.test.ts` 16/16 rejects an extra edge, a
+  cycle, an external package and an unauthorized edge in every dependency form.
 - `cargo test --workspace` 4/4; wasm32 build for the four libraries.
 - `PLAYWRIGHT_MODULE=… node --expose-gc scripts/engine-benchmark.ts --write
   docs/audits/engine-baseline.json` produced the committed baseline.
-- `node --test scripts/engine-boundary.test.ts` 6/6.
+- `node --test scripts/engine-boundary.test.ts` 7/7.

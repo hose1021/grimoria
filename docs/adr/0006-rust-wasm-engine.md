@@ -133,27 +133,47 @@ grimoria-wire       -> grimoria-domain
 grimoria-domain     -> (no workspace crate)
 ```
 
-`scripts/check-cargo-graph.ts` parses the manifests, rejects extra edges,
-non-workspace dependencies and cycles, and runs in `npm run verify` and CI.
-`rust-toolchain.toml` pins Rust 1.98.1 and `wasm32-unknown-unknown`;
-`Cargo.lock` is committed. No `rand`, `chrono`, `getrandom`, storage or network
-crates in the domain.
+`scripts/check-cargo-graph.ts` reads Cargo metadata (`--no-deps --locked
+--offline`) and rejects extra or missing workspace packages, external
+dependencies, an unauthorized edge and a dependency cycle. It checks the
+resolved edges, so target-specific, dev, build, optional, renamed and
+workspace-inherited declarations cannot hide a dependency. It runs in `npm run
+verify` and CI. `rust-toolchain.toml` pins Rust 1.98.1 and
+`wasm32-unknown-unknown`; `Cargo.lock` is committed. No `rand`, `chrono`,
+`getrandom`, storage or network crates in the domain.
 
 ## Benchmark methodology and budgets
 
-`scripts/engine-benchmark.ts` (Node 26, fixed iterations and warm-up) records
-command latency, replay of the 18-entry legacy journal and a synthetic
-1,000-entry `setNotes` journal, JSON.stringify/parse overhead, export/import,
-clone, optional retained memory (`--expose-gc`), built JS bundle gzip/brotli and
-optional Playwright startup. The committed baseline is
+`scripts/engine-benchmark.ts` (Node 26, fixed iterations and warm-up) measures
+apply, preview and idempotent-reuse paths on separate workloads. Warm-up and
+measured command identities and states are disjoint; every measured apply is
+asserted `allowed` with `idempotent: false`; reuse is asserted `allowed` with
+`idempotent: true`. It also records replay of the 18-entry legacy journal and a
+synthetic 1,000-entry `setNotes` journal, JSON.stringify/parse overhead,
+export/import, clone, optional retained memory (`--expose-gc`), built JS bundle
+gzip/brotli and optional Playwright startup. The run records CPU, Node, rustc
+and cargo versions, the fixture SHA-256, state size (160,153 B), player count
+and schema version. The committed baseline is
 `docs/audits/engine-baseline.json`.
 
-Budgets after the same harness: apply p95 ≤ 1.50 ms; preview ≤ 0.15 ms; export
-≤ 0.70 ms; import ≤ 1.50 ms; 18-entry replay ≤ 6 ms; 1,000-entry replay p95
-≤ 1,200 ms (≤ 1.2 ms/entry); startup ready p95 ≤ 250 ms; first paint ≤ 100 ms;
-WASM engine ≤ 250 KB brotli and initial JS+WASM ≤ 550 KB brotli; retained state
-memory ≤ 1.5× the TypeScript baseline (`13.86 MB` per 100 imported states on
-the Phase 0 run) and WASM linear memory ≤ 16 MB for 15 players.
+Corrected Phase 0 baseline (Apple M4 Pro, Node v26.8.2, Rust 1.98.1; medians /
+p95 in ms):
+
+| Metric | Baseline | Budget |
+| --- | ---: | ---: |
+| apply setNotes | 0.514 / 0.836 | ≤ 1.50 p95 |
+| preview setNotes | 0.070 / 0.077 | ≤ 0.15 p95 |
+| idempotent reuse | 0.004 / 0.004 | ≤ 0.02 p95 |
+| JSON.stringify state | 0.148 / 0.157 | ≤ 0.30 p95 |
+| export / import | 0.327 / 0.743 | ≤ 0.70 / 1.50 p95 |
+| 18-entry replay | 4.55 / 4.94 | ≤ 6.0 p95 |
+| 1,000-entry replay | 868 / 926 | ≤ 1,200 p95; ≤ 1.2 ms/entry |
+| startup ready / first paint | 115 / 153; 80 | ≤ 250 p95 / ≤ 100 |
+| JS bundle | 285 KB brotli | WASM ≤ 250 KB; total ≤ 550 KB |
+| retained memory | 13.87 MB / 100 states | ≤ 1.5× baseline; WASM ≤ 16 MB |
+
+A divergence outside a budget blocks cutover. Idempotent reuse is measured
+separately and is not part of the apply latency.
 
 ## Consequences
 

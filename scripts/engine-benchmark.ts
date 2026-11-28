@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // Reproducible TypeScript engine baseline. No threshold assertions live here.
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { cpus } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
 import { gzipSync, brotliCompressSync } from "node:zlib";
@@ -15,10 +18,21 @@ import type { Playwright } from "./playwright.ts";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const FIXTURE = join(ROOT, "src/core/engine/fixtures/legacy-setup-zero-game.json");
 
+export const APPLY_MEASURED_PREFIX = "bench-apply-measured-";
+export const APPLY_WARMUP_PREFIX = "bench-apply-warmup-";
+export const PREVIEW_MEASURED_PREFIX = "bench-preview-measured-";
+export const PREVIEW_WARMUP_PREFIX = "bench-preview-warmup-";
+const IDEMPOTENT_PREFIX = "bench-idempotent-";
+
 type Sample = { median: number; p95: number; mean: number };
 
-function sample(run: (index: number) => void, iterations: number, warmup = 20): Sample {
-  for (let index = 0; index < warmup; index += 1) run(index);
+function sample(
+  run: (index: number) => void,
+  iterations: number,
+  warmup = 20,
+  warmupRun: (index: number) => void = run,
+): Sample {
+  for (let index = 0; index < warmup; index += 1) warmupRun(index);
   const times: number[] = [];
   for (let index = 0; index < iterations; index += 1) {
     const start = performance.now();
@@ -31,6 +45,46 @@ function sample(run: (index: number) => void, iterations: number, warmup = 20): 
     p95: times[Math.floor(times.length * 0.95)]!,
     mean: times.reduce((sum, value) => sum + value, 0) / times.length,
   };
+}
+
+export function setNotesCommand(prefix: string, index: number) {
+  return {
+    id: `${prefix}${index}`,
+    type: "setNotes",
+    payload: { notes: `note-${index}` },
+    at: "2026-11-28T00:00:00.000Z",
+  };
+}
+
+function workload(prefix: string, count: number) {
+  const state = createGame(7);
+  return {
+    state,
+    commands: Array.from({ length: count }, (_, index) => setNotesCommand(prefix, index)),
+  };
+}
+
+export function applyWorkload(count = 500) {
+  return workload(APPLY_MEASURED_PREFIX, count);
+}
+
+export function previewWorkload(count = 500) {
+  return workload(PREVIEW_MEASURED_PREFIX, count);
+}
+
+export function idempotentWorkload() {
+  const state = createGame(7);
+  return { state, command: setNotesCommand(IDEMPOTENT_PREFIX, 0) };
+}
+
+function assertAllowed(
+  result: { status?: string; idempotent?: boolean },
+  idempotent = false,
+): void {
+  if (result.status !== "allowed")
+    throw new Error(`benchmark command was not allowed: ${JSON.stringify(result)}`);
+  if ((result.idempotent === true) !== idempotent)
+    throw new Error(`benchmark command idempotency ${String(result.idempotent)} !== ${idempotent}`);
 }
 
 export function buildLargeJournal(size: number) {
@@ -118,28 +172,57 @@ async function startupMetrics(): Promise<Record<string, number> | null> {
   };
 }
 
+function toolVersion(command: string): string | null {
+  try {
+    return execFileSync(command, ["--version"], { encoding: "utf8" }).trim();
+  } catch {
+    return null;
+  }
+}
+
 async function main(): Promise<void> {
-  const state = createGame(7);
-  const command = (index: number) => ({
-    id: `apply-${index}`,
-    type: "setNotes",
-    payload: { notes: `note-${index}` },
-    at: "2026-11-28T00:00:00.000Z",
-  });
-  const apply = sample((index) => applyCommand(state, command(index)), 500);
-  const preview = sample((index) => previewCommand(state, command(index)), 500);
+  const applyMeasured = applyWorkload();
+  const applyWarmup = workload(APPLY_WARMUP_PREFIX, 20);
+  const apply = sample(
+    (index) => assertAllowed(applyCommand(applyMeasured.state, applyMeasured.commands[index]!)),
+    applyMeasured.commands.length,
+    20,
+    (index) => assertAllowed(applyCommand(applyWarmup.state, applyWarmup.commands[index]!)),
+  );
+
+  const previewMeasured = previewWorkload();
+  const previewWarmup = workload(PREVIEW_WARMUP_PREFIX, 20);
+  const preview = sample(
+    (index) =>
+      assertAllowed(previewCommand(previewMeasured.state, previewMeasured.commands[index]!)),
+    previewMeasured.commands.length,
+    20,
+    (index) => assertAllowed(previewCommand(previewWarmup.state, previewWarmup.commands[index]!)),
+  );
+
+  const idempotent = idempotentWorkload();
+  assertAllowed(applyCommand(idempotent.state, idempotent.command));
+  const reuse = sample(
+    () => assertAllowed(applyCommand(idempotent.state, idempotent.command), true),
+    300,
+    10,
+  );
+
+  const state = applyMeasured.state;
   const serialization = sample(() => JSON.stringify(state), 300);
   const parsing = sample(() => JSON.parse(JSON.stringify(state)), 300);
   const exported = exportGame(state);
   const exportLatency = sample(() => exportGame(state), 300);
   const importLatency = sample(() => importGame(exported), 300);
   const cloneLatency = sample(() => clone(state), 300);
-  const fixture = JSON.parse(readFileSync(FIXTURE, "utf8"));
+  const fixtureText = readFileSync(FIXTURE, "utf8");
+  const fixture = JSON.parse(fixtureText);
   const smallReplay = sample(() => replay(fixture.journal), 200);
   const large = buildLargeJournal(1000);
   const largeResult = replay(large);
   if (!largeResult.ok) throw new Error(`large journal replay failed: ${largeResult.errorCode}`);
   const largeReplay = sample(() => replay(large), 10, 2);
+
   // Heap deltas need an explicit collection to be comparable between runs.
   const collect = (globalThis as { gc?: () => void }).gc;
   let memory: { heapDelta100RetainedImports: number } | null = null;
@@ -152,24 +235,41 @@ async function main(): Promise<void> {
     retained.length = 0;
     collect();
   }
+
   const result = {
-    methodologyVersion: 1,
+    methodologyVersion: 2,
     measuredAt: new Date().toISOString(),
     environment: {
       node: process.version,
       platform: process.platform,
       arch: process.arch,
+      cpu: cpus()[0]?.model ?? null,
+      rustc: toolVersion("rustc"),
+      cargo: toolVersion("cargo"),
       iterations: {
-        apply: 500,
-        preview: 500,
+        apply: applyMeasured.commands.length,
+        preview: previewMeasured.commands.length,
+        idempotency: 300,
         serialization: 300,
         replaySmall: 200,
         replayLarge: 10,
       },
+      workloads: {
+        apply: APPLY_MEASURED_PREFIX,
+        applyWarmup: APPLY_WARMUP_PREFIX,
+        preview: PREVIEW_MEASURED_PREFIX,
+        previewWarmup: PREVIEW_WARMUP_PREFIX,
+      },
+    },
+    fixture: {
+      path: "src/core/engine/fixtures/legacy-setup-zero-game.json",
+      sha256: createHash("sha256").update(fixtureText).digest("hex"),
+      journalEntries: fixture.journal.entries.length,
     },
     metrics: {
       applySetNotes: apply,
       previewSetNotes: preview,
+      idempotentSetNotes: reuse,
       jsonStringifyState: serialization,
       jsonRoundTripState: parsing,
       exportGame: exportLatency,
@@ -184,6 +284,8 @@ async function main(): Promise<void> {
       },
       memory,
       stateBytes: Buffer.byteLength(exported),
+      statePlayers: Object.keys(state.players).length,
+      schemaVersion: state.v,
     },
     bundle: await bundleMetrics(),
     startup: await startupMetrics(),

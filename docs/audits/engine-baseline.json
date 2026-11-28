@@ -1,73 +1,95 @@
 {
-  "methodologyVersion": 1,
-  "measuredAt": "2026-11-28T12:54:27.050Z",
+  "methodologyVersion": 2,
+  "measuredAt": "2026-11-28T13:12:25.844Z",
   "environment": {
     "node": "v26.8.2",
     "platform": "darwin",
     "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
     "iterations": {
       "apply": 500,
       "preview": 500,
+      "idempotency": 300,
       "serialization": 300,
       "replaySmall": 200,
       "replayLarge": 10
+    },
+    "workloads": {
+      "apply": "bench-apply-measured-",
+      "applyWarmup": "bench-apply-warmup-",
+      "preview": "bench-preview-measured-",
+      "previewWarmup": "bench-preview-warmup-"
     }
+  },
+  "fixture": {
+    "path": "src/core/engine/fixtures/legacy-setup-zero-game.json",
+    "sha256": "4dd66c2a31b95f92b495e0a4220e71faa9483ce5c51d781c8914da1419a20fb4",
+    "journalEntries": 18
   },
   "metrics": {
     "applySetNotes": {
-      "median": 0.5127079999999751,
-      "p95": 0.8187079999999582,
-      "mean": 0.49290516600000184
+      "median": 0.5142500000000041,
+      "p95": 0.8360420000000204,
+      "mean": 0.5069462820000008
     },
     "previewSetNotes": {
-      "median": 0.00458400000002257,
-      "p95": 0.00570799999997007,
-      "mean": 0.004751849999999422
+      "median": 0.069500000000005,
+      "p95": 0.07670799999999645,
+      "mean": 0.07109368000000041
+    },
+    "idempotentSetNotes": {
+      "median": 0.0040840000000343935,
+      "p95": 0.004291999999963991,
+      "mean": 0.0041926333333331435
     },
     "jsonStringifyState": {
-      "median": 0.147625000000005,
-      "p95": 0.15895899999998164,
-      "mean": 0.1492754066666665
+      "median": 0.14800000000002456,
+      "p95": 0.15658400000006623,
+      "mean": 0.14975621000000067
     },
     "jsonRoundTripState": {
-      "median": 0.3847919999999476,
-      "p95": 0.4252079999999978,
-      "mean": 0.39146912999999967
+      "median": 0.39945799999998144,
+      "p95": 0.4243330000000469,
+      "mean": 0.40473484666666537
     },
     "exportGame": {
-      "median": 0.33462499999996,
-      "p95": 0.3620409999999765,
-      "mean": 0.33876429333333286
+      "median": 0.32749999999998636,
+      "p95": 0.38083400000004985,
+      "mean": 0.33513698333333386
     },
     "importGame": {
-      "median": 0.7313750000000709,
-      "p95": 0.9036669999999276,
-      "mean": 0.7574540299999978
+      "median": 0.7428750000000264,
+      "p95": 0.8663749999999482,
+      "mean": 0.7545770599999977
     },
     "cloneState": {
-      "median": 0.39179200000012315,
-      "p95": 0.4731249999999818,
-      "mean": 0.40366807000000526
+      "median": 0.4024580000000242,
+      "p95": 0.441332999999986,
+      "mean": 0.4111871866666638
     },
     "replayLegacyJournal": {
-      "median": 4.744666999999936,
-      "p95": 5.470583999999917,
-      "mean": 4.803595829999993
+      "median": 4.5150000000001,
+      "p95": 4.717750000000251,
+      "mean": 4.515245035000003
     },
     "replayLargeJournal": {
-      "median": 875.6268749999999,
-      "p95": 961.8115420000004,
-      "mean": 886.9316128000003
+      "median": 868.2171250000001,
+      "p95": 926.2978340000009,
+      "mean": 873.3426001
     },
     "replayLargeJournalPerEntry": {
-      "median": 0.8756268749999999,
-      "p95": 0.9618115420000004,
-      "mean": 0.8869316128000002
+      "median": 0.8682171250000001,
+      "p95": 0.9262978340000009,
+      "mean": 0.8733426001
     },
     "memory": {
-      "heapDelta100RetainedImports": 13864656
+      "heapDelta100RetainedImports": 13869440
     },
-    "stateBytes": 152638
+    "stateBytes": 160153,
+    "statePlayers": 7,
+    "schemaVersion": 4
   },
   "bundle": {
     "chunks": 22,
@@ -77,8 +99,8 @@
   },
   "startup": {
     "samples": 5,
-    "readyMedian": 124.04225000000224,
-    "readyP95": 176.74645799999962,
-    "firstPaintMedian": 92
+    "readyMedian": 114.95166700000118,
+    "readyP95": 153.11154200000055,
+    "firstPaintMedian": 80
   }
 }

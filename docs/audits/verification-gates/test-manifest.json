@@ -277,24 +277,34 @@
       "name": "the same identifier declared by two roles fails"
     },
     {
-      "key": "scripts/check-cargo-graph.test.ts::a cycle fails",
+      "key": "scripts/check-cargo-graph.test.ts::a dependency cycle fails",
       "file": "scripts/check-cargo-graph.test.ts",
-      "name": "a cycle fails"
+      "name": "a dependency cycle fails"
     },
     {
-      "key": "scripts/check-cargo-graph.test.ts::a dependency outside the workspace fails",
+      "key": "scripts/check-cargo-graph.test.ts::a missing member fails",
       "file": "scripts/check-cargo-graph.test.ts",
-      "name": "a dependency outside the workspace fails"
+      "name": "a missing member fails"
     },
     {
-      "key": "scripts/check-cargo-graph.test.ts::an extra edge fails",
+      "key": "scripts/check-cargo-graph.test.ts::allowed dev and build dependencies are accepted",
       "file": "scripts/check-cargo-graph.test.ts",
-      "name": "an extra edge fails"
+      "name": "allowed dev and build dependencies are accepted"
     },
     {
-      "key": "scripts/check-cargo-graph.test.ts::the approved workspace graph passes",
+      "key": "scripts/check-cargo-graph.test.ts::an external dependency fails",
       "file": "scripts/check-cargo-graph.test.ts",
-      "name": "the approved workspace graph passes"
+      "name": "an external dependency fails"
+    },
+    {
+      "key": "scripts/check-cargo-graph.test.ts::an extra member fails",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "an extra member fails"
+    },
+    {
+      "key": "scripts/check-cargo-graph.test.ts::the canonical five-crate workspace passes",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "the canonical five-crate workspace passes"
     },
     {
       "key": "scripts/check-official.test.ts::a covered pin passes",
@@ -760,6 +770,41 @@
       "key": "scripts/documentation-inventory.test.ts::reports an empty tree and rejects malformed input instead of undercounting",
       "file": "scripts/documentation-inventory.test.ts",
       "name": "reports an empty tree and rejects malformed input instead of undercounting"
+    },
+    {
+      "key": "scripts/engine-benchmark.test.ts::apply and preview workloads use disjoint command identities",
+      "file": "scripts/engine-benchmark.test.ts",
+      "name": "apply and preview workloads use disjoint command identities"
+    },
+    {
+      "key": "scripts/engine-benchmark.test.ts::every measured apply is the first, non-idempotent execution",
+      "file": "scripts/engine-benchmark.test.ts",
+      "name": "every measured apply is the first, non-idempotent execution"
+    },
+    {
+      "key": "scripts/engine-benchmark.test.ts::idempotency is measured on a repeated command identity",
+      "file": "scripts/engine-benchmark.test.ts",
+      "name": "idempotency is measured on a repeated command identity"
+    },
+    {
+      "key": "scripts/engine-benchmark.test.ts::preview commands are allowed and do not mutate the preview state",
+      "file": "scripts/engine-benchmark.test.ts",
+      "name": "preview commands are allowed and do not mutate the preview state"
+    },
+    {
+      "key": "scripts/engine-benchmark.test.ts::setNotes commands carry the requested prefix and index",
+      "file": "scripts/engine-benchmark.test.ts",
+      "name": "setNotes commands carry the requested prefix and index"
+    },
+    {
+      "key": "scripts/engine-benchmark.test.ts::the large journal workload has unique identities and replays",
+      "file": "scripts/engine-benchmark.test.ts",
+      "name": "the large journal workload has unique identities and replays"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the boundary records exact error-code and ruleset identities",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the boundary records exact error-code and ruleset identities"
     },
     {
       "key": "scripts/engine-boundary.test.ts::the boundary records its invariants and the conformance pilot status",
