@@ -640,6 +640,93 @@ test("archive origins survive repeated feature, squash, release and back-merge c
   }
 });
 
+test("a multi-archive squash keeps the integrated check green", () => {
+  const root = mkdtempSync(join(tmpdir(), "archive-batch-"));
+  const git = (args: string[]): string =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  const write = (file: string, content: string): void => {
+    mkdirSync(join(root, file, ".."), { recursive: true });
+    writeFileSync(join(root, file), content);
+  };
+  const indexPath = "docs/audits/openspec-archive-index.json";
+  const readEntries = (): ArchiveEntry[] =>
+    parseIndex(readFileSync(join(root, indexPath), "utf8"))!;
+  const names = ["2026-03-01-one", "2026-03-02-two", "2026-03-03-three"];
+  try {
+    git(["init", "-q", "-b", "dev"]);
+    git(["config", "user.email", "test@example.com"]);
+    git(["config", "user.name", "Test"]);
+    write(
+      indexPath,
+      JSON.stringify({ schemaVersion: 2, canonicalization: "text-lf-binary-raw-v1", entries: [] }),
+    );
+    git(["add", "."]);
+    git(["commit", "-qm", "dev base"]);
+    git(["branch", "main"]);
+
+    git(["checkout", "-q", "-b", "feat/batch"]);
+    const origins: Array<{ name: string; commit: string; date: string; path: string }> = [];
+    const rows: unknown[] = [];
+    for (const name of names) {
+      const path = `openspec/changes/archive/${name}`;
+      write(`${path}/proposal.md`, "Issue: #1\n");
+      write(
+        `${path}/specs/game/sample/spec.md`,
+        "### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
+      );
+      git(["add", "."]);
+      git(["commit", "-qm", `archive ${name}`]);
+      origins.push({
+        name,
+        commit: git(["rev-parse", "HEAD"]),
+        date: git(["log", "-1", "--format=%cs"]),
+        path,
+      });
+      rows.push({ ...origins.at(-1), treeHash: "a".repeat(64), issue: "#1", tests: [] });
+    }
+    write(
+      indexPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        canonicalization: "text-lf-binary-raw-v1",
+        entries: rows,
+      }),
+    );
+    git(["add", "."]);
+    git(["commit", "-qm", "record origins"]);
+
+    git(["checkout", "-q", "dev"]);
+    git(["merge", "-q", "--squash", "feat/batch"]);
+    git(["commit", "-qm", "integrate batch"]);
+    git(["branch", "-D", "feat/batch"]);
+    for (const origin of origins)
+      assert.throws(() => git(["merge-base", "--is-ancestor", origin.commit, "dev"]));
+
+    // The integrated check has no target ref to fall back on.
+    const unrecorded = archiveOriginFailures(root, readEntries());
+    assert.equal(unrecorded.length, names.length, "every squashed origin must be reviewed");
+    for (const name of names)
+      assert.ok(unrecorded.some((failure) => failure.startsWith(`${name}:`)));
+
+    write(
+      "fixtures/conformance/archive-origins.json",
+      JSON.stringify({
+        origins: origins.map((origin) => ({
+          ...origin,
+          reason: "squash-integrated into dev; the feature commit is gone",
+        })),
+      }),
+    );
+    git(["add", "."]);
+    git(["commit", "-qm", "accept the batch origins"]);
+
+    assert.deepEqual(archiveOriginFailures(root, readEntries()), []);
+    assert.deepEqual(archiveOriginFailures(root, readEntries(), "main"), []);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a same-commit origin is self-attested and fails", () => {
   const root = mkdtempSync(join(tmpdir(), "archive-self-"));
   const git = (args: string[]): string =>
