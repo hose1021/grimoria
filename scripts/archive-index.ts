@@ -383,12 +383,19 @@ function main(): void {
         correctionFailures.push(`${correction.name}: correction target is not the current tree`);
     }
     const correctedBaseline = applyCorrections(baseline, corrections);
+    const shallow =
+      execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
+        cwd: root,
+        encoding: "utf8",
+      }).trim() === "true";
     const changed = [
       ...existing.flatMap((entry) => provenanceFailures(entry)),
-      ...originFailures(
-        existing.filter((entry) => commitResolvable(root, entry.commit)),
-        (entry) => firstAdd(root, entry),
-      ),
+      ...(shallow
+        ? []
+        : originFailures(
+            existing.filter((entry) => commitResolvable(root, entry.commit)),
+            (entry) => firstAdd(root, entry),
+          )),
       ...baselineFailures(correctedBaseline, existing),
       ...baselineCoverageFailures(correctedBaseline, existing),
       ...correctionFailures,
