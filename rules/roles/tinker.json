@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-TINKER-01",
+      "roleId": "tinker",
+      "edition": "bmr",
+      "level": "host-choice",
+      "revision": "r1782",
+      "requirement": "You might die at any time.",
+      "assertingTests": [
+        {
+          "file": "src/application/store/create-game-store.test.ts",
+          "name": "a game whose older ruleset let a drunk Tinker die on their step refuses that death now, and undo replays its journal (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tinker's step changes nothing, and the host's death on it is an ability death (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Tinker does not die on their night step, as by day (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a journal recorded while the Tinker's step took any death replays and undoes as written (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "only the Tinker dies on the Tinker's step (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/roles/tinker/role.test.ts",
+          "name": "the Tinker's step resolves to nothing, healthy or impaired: the host marks the death (BMR-TINKER-01)"
+        }
+      ]
+    }
+  ]
+}

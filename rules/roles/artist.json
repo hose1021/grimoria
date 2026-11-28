@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-ARTIST-01",
+      "roleId": "artist",
+      "edition": "snv",
+      "level": "host-choice",
+      "revision": "r3156",
+      "requirement": "Once per game, during the day, privately ask the Storyteller any yes/no question.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Philosopher who borrowed the Artist can ask the private question (SNV-ARTIST-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Artist command rejects an empty question, an invalid answer and a player without the character (SNV-ARTIST-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)"
+        }
+      ]
+    }
+  ]
+}

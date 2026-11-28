@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-DRUNK-01",
+      "roleId": "drunk",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3165",
+      "requirement": "You do not know you are the Drunk. You think you are a Townsfolk character, but you are not.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01)"
+        }
+      ]
+    }
+  ]
+}

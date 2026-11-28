@@ -1,0 +1,9 @@
+{
+  "aliases": [
+    {
+      "identifier": "SNV-VIGORMORTIS-06",
+      "ruleId": "SNV-VIGORMORTIS-02",
+      "reason": "A retained Vigormortis test from the earlier audit carries its old identifier; the registry models the ability as SNV-VIGORMORTIS-02 and the test identity is preserved."
+    }
+  ]
+}

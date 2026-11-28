@@ -6,6 +6,19 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-28
+
+### Changed
+
+- Make the JSON registry the only rule metadata: remove 72 per-role `rule.md` dossiers and the legacy exporter, and check matrix labels against the registry (#519).
+- Remove `TEAM.md` and `docs/workflow.md`; the unique delivery rules return to `AGENTS.md`, and durable architecture decisions move to `docs/adr/0005-runtime-boundaries.md` (#519).
+- Add a read-only documentation inventory for comparing committed revisions, align OpenSpec worktree guidance with the branch policy, and remove stale live-status counts from the verification guide (#519).
+- Prioritise the saved session on the home screen, link whole scenario rows to their character sheets, show setup stages on host screens and filter the Storyteller reference by scenario, translated name or character ID. The seating surface follows the oval and night progress shows the exact completed count (#517).
+
+### Fixed
+
+- Restore the archive gate after a squash integration: record the reviewed origin of the 39 archives merged in #526 and check the immutable anchor without assuming the target tree already equals it (#519).
+
 ## [0.13.0] - 2026-11-27
 
 ### Changed
@@ -334,7 +347,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Add the public and player projections that omit secret roles, bluffs and notes from shared views
 
-[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/hose1021/grimoria/releases/tag/v0.14.0
 [0.13.0]: https://github.com/hose1021/grimoria/releases/tag/v0.13.0
 [0.12.0]: https://github.com/hose1021/grimoria/releases/tag/v0.12.0
 [0.6.0]: https://github.com/hose1021/grimoria/compare/v0.5.0...v0.6.0

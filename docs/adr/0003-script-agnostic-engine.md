@@ -185,4 +185,4 @@ traveller-only additions are still rejected at import.
 - Official jinx snapshot: `docs/official/jinxes.json`, committed 2026-11-11.
 
 Each role's exact revision and asserting tests are in
-`src/core/roles/<role>/rule.md` and `docs/rules-matrix.md`.
+`rules/roles/<role>.json` and `docs/rules-matrix.md`.

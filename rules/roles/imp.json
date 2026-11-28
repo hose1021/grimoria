@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-IMP-01",
+      "roleId": "imp",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3116",
+      "requirement": "Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Imp self-kill passes the role and the new Demon does not act again (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Imp's attack kills the chosen player and writes the attack's own step record and log line (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "Monk protection stops the Imp; a poisoned Monk does not (TB-MONK-01)"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "the Soldier is safe from the Imp while sober and dies while poisoned (TB-SOLDIER-01)"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "Mayor redirect to a dead player kills nobody and the Mayor lives (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "a poisoned Imp cannot kill itself and no new Demon is created (TB-IMP-01, TB-POISONER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Imp attack on a working Mayor waits for the host's redirect and changes nothing (TB-IMP-01, TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a redirected Imp attack kills the host's choice and journals the redirect before the attack line (TB-IMP-01, TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Imp self-kill passes the role to the only living Minion inside the attack step and queues the new Demon's wake (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Imp self-kill with several living Minions holds the win check until the host names the heir (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Imp attack previews, applies and replays with the command clock and ids (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Imp attack on a working Mayor is a host choice on the command path and the answer completes it (TB-IMP-01, TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/roles/imp/role.test.ts",
+          "name": "the Imp attacks the chosen player under its own log title (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/roles/imp/role.test.ts",
+          "name": "an impaired Imp returns the same attack: the shared attack path stops it (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the new Demon's wake is queued as soon as the host names the heir, before the next step (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "when the Imp's step was the night's last, the night does not end before the named heir is woken (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a named heir an older ruleset left unwoken is woken on the next night by a command sent now (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/application/store/create-game-store.test.ts",
+          "name": "a game saved the day after an Imp self-kill by an older ruleset does not wake the new Demon again, and undo replays its journal (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
+        }
+      ]
+    }
+  ]
+}

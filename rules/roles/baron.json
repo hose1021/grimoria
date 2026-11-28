@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-BARON-01",
+      "roleId": "baron",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r2961",
+      "requirement": "There are extra Outsiders in play. [+2 Outsiders]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
+        }
+      ]
+    }
+  ]
+}

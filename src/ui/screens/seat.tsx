@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { GameSnapshot } from "../../application/store/create-game-store.ts";
+import { SetupNavigation } from "../components/setup-shell.tsx";
 import { ArcaneAppBar } from "../components/arcane/index.ts";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
@@ -243,6 +244,7 @@ function SeatEditor({ snapshot }: { snapshot: GameSnapshot }) {
     return (
       <div className="flex h-dvh min-h-0 flex-col" data-seat-locked>
         <ArcaneAppBar current="seat" />
+
         <main className="grid flex-1 place-items-center overflow-y-auto px-5 py-10 text-center">
           <div className="seat-empty mx-auto grid max-w-[460px] place-items-center gap-2">
             <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.16em] text-table-secondary">
@@ -269,6 +271,7 @@ function SeatEditor({ snapshot }: { snapshot: GameSnapshot }) {
     return (
       <div className="flex h-dvh min-h-0 flex-col">
         <ArcaneAppBar current="seat" />
+        <SetupNavigation step="seat" />
         <main className="grid flex-1 place-items-center overflow-y-auto px-5 py-10 text-center">
           <div className="seat-empty mx-auto grid max-w-[460px] place-items-center gap-2">
             <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.16em] text-table-secondary">
@@ -296,6 +299,7 @@ function SeatEditor({ snapshot }: { snapshot: GameSnapshot }) {
     <>
       <div className="flex h-dvh min-h-0 flex-col" data-console="seat">
         <ArcaneAppBar current="seat" />
+        <SetupNavigation step="seat" />
         <main
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-2 pt-2"
           data-seat-stage

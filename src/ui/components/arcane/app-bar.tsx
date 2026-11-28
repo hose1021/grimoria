@@ -40,13 +40,16 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
       : state.phase === "day"
         ? `${t("day")} ${state.day.number}`
         : "";
+  const currentLabel =
+    APP_BAR_NAV.flatMap((group) => group.items).find((item) => item.id === current)?.label ??
+    current;
   const brand = (
     <>
       <img className="brand-mark" src={ports.assets.url("favicon.svg")} alt="" />
       <span className={APP_BAR_NAME}>
         <b className={APP_BAR_TITLE}>Grimoria</b>
         <small className={APP_BAR_SUBTITLE}>
-          {t("caseFile")}
+          {t(currentLabel)}
           {state.script ? ` · ${state.script.name}` : ""}
         </small>
       </span>

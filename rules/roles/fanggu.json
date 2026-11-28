@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-FANGGU-01",
+      "roleId": "fanggu",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2974",
+      "requirement": "Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the four Sects & Violets Demons have a step from the second night, choosing one player (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Outsider the Fang Gu jumps into wakes as the Fang Gu from the next night (SNV-FANGGU-01)"
+        },
+        {
+          "file": "src/core/roles/fanggu/role.test.ts",
+          "name": "the Fang Gu's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-FANGGU-01, SNV-FANGGU-04)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-FANGGU-02",
+      "roleId": "fanggu",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2974",
+      "requirement": "Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Fang Gu jump can happen only once per game (SNV-FANGGU-02)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-FANGGU-03",
+      "roleId": "fanggu",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2974",
+      "requirement": "Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-FANGGU-04",
+      "roleId": "fanggu",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2974",
+      "requirement": "Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider]",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a drunk Sects and Violets Demon kills nobody (SNV-FANGGU-04)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Sects & Violets Demon's step completes without a failure note, and its outcome refuses the death (SNV-FANGGU-04)"
+        },
+        {
+          "file": "src/core/roles/fanggu/role.test.ts",
+          "name": "the Fang Gu's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-FANGGU-01, SNV-FANGGU-04)"
+        }
+      ]
+    }
+  ]
+}

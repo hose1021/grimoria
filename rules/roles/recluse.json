@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-RECLUSE-01",
+      "roleId": "recluse",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3007",
+      "requirement": "You might register as evil & as a Minion or Demon, even if dead.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        }
+      ]
+    },
+    {
+      "id": "TB-RECLUSE-02",
+      "roleId": "recluse",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3007",
+      "requirement": "You might register as evil & as a Minion or Demon, even if dead.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2263 @@
+{
+  "schemaVersion": 2,
+  "canonicalization": "text-lf-binary-raw-v1",
+  "entries": [
+    {
+      "name": "2026-11-11-adopt-issue-driven-workflow",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-issue-driven-workflow",
+      "treeHash": "41be6dc396d61b3404fc24d46ef419803de5a583ad51adc4a35ed3b412009d8f",
+      "issue": "#19",
+      "tests": [
+        "scripts/openspec-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-adopt-layered-architecture-foundation",
+      "commit": "e269ff8bb13926a6015e7ccef5cc9a657f3632d2",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-layered-architecture-foundation",
+      "treeHash": "d72122a7a7f27e97f0c7753480e18e6b73db7a56faf7fec2968a5b6bcfe1b254",
+      "issue": "#52",
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/model/scripts.test.ts",
+        "src/core/model/types.test-d.ts",
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-adopt-oxlint-oxfmt",
+      "commit": "38d8dc9fcb7ac78b5d19e4d1fb5b53d5868c45a9",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-oxlint-oxfmt",
+      "treeHash": "1dc28bbff4b102c0d2e12b0eea8478d851596363897cd3d7ee5d17f0177dede8",
+      "issue": "#74",
+      "tests": [
+        "scripts/check-toolchain.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-adopt-react-ui-shell",
+      "commit": "a638fd3c2d8401deff6ce6d1e70a34248010ae90",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-react-ui-shell",
+      "treeHash": "9fa13067a7eafc4502875fb13be4e7f7fdd873cb3d0fb3f08bb5c0f963d19cec",
+      "issue": "#69",
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-adopt-strict-typescript-checkjs",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-strict-typescript-checkjs",
+      "treeHash": "fd7d36498fba54b63b894f2fdfc55b0ad361997ba74396db892666d4a44e5fe0",
+      "issue": "#50",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/model/types.test-d.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-bmr-goon-lunatic-tinker",
+      "commit": "48ad67f2fd2e62381a5879c1dc4090bf5074bbd9",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-11-bmr-goon-lunatic-tinker",
+      "treeHash": "d54e065656714e2fe645f10c53e08a22c8a1f263fc5439f69ab1fa2b6c141ce3",
+      "issue": "#37",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-custom-scripts-jinxes",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-custom-scripts-jinxes",
+      "treeHash": "13b53cd082e5878b79ee8f0142acf049bfd2f4d1321325ee1bf6b1ea8ee56fd1",
+      "issue": "#44",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/model/scripts.test.ts",
+        "src/core/model/support.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-event-priorities-cascades",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-event-priorities-cascades",
+      "treeHash": "d5cda03153cdb1a8cca1b6a94c5dd63563a7fb20bcdf24f227f94178aa1118e3",
+      "issue": "#29",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-fix-bmr-repeat-target-restrictions",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-fix-bmr-repeat-target-restrictions",
+      "treeHash": "adb7b5308c1402358fc96131971b7e7ae199b74fc0e58bd16dfd8a6739d7ed9c",
+      "issue": "#35",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-fix-pukka-self-target-and-poison-cycles",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-fix-pukka-self-target-and-poison-cycles",
+      "treeHash": "29b5d45bec121318b1ccdfbaecbf9b2a34d254bbec6fb3f28b15df2ba5bdf181",
+      "issue": "#19",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-migrate-player-screen",
+      "commit": "012e70443c744ab144bae53d1d622599dcf5d279",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-migrate-player-screen",
+      "treeHash": "a23a666723a63b919ac0bdb3bd68e8ed70814f1477d93515c3ab71e372621009",
+      "issue": "#77",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-migrate-setup-screens",
+      "commit": "877e761caa25157b66e49200dbba071d16be0383",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-migrate-setup-screens",
+      "treeHash": "7db66b61621af662b2f942fd0c55eeed49b853b1ab4bb44a7a14544d93e38e00",
+      "issue": "#82",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-migrate-storyteller-console",
+      "commit": "bdae76ea15bd0f09994331e31b34661e91288990",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-migrate-storyteller-console",
+      "treeHash": "e99a220a85541c3bdbfa4156bac1a1c3caeccac8e59550a046d990627f46232b",
+      "issue": "#85",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-rebrand-grimoria",
+      "commit": "e8bd0305178ab0d8e34066b2cf1bdcd397777a0b",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-rebrand-grimoria",
+      "treeHash": "67d03b20c7d58d8db27816dfa203d76150e28809465b94051d35acae11c51c3a",
+      "issue": "#54",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/infrastructure/library/bag-library.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-remove-player-cover-step",
+      "commit": "d1603d1bfb8c046621ef608c7f368ed9efd837da",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-remove-player-cover-step",
+      "treeHash": "49c7d7110a366d05aeccc2cde7ec528b9c79b4f569027de306fdeb8df5a4d696",
+      "issue": "#61",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-remove-player-handoff-done-screen",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-remove-player-handoff-done-screen",
+      "treeHash": "6bc6cf02e94f238b6aaeed75bc55bbff322c1e3c9d6e91988aecf7fa303afbe3",
+      "issue": "#48",
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/openspec-check.ts",
+        "src/infrastructure/offline/offline-worker.test.ts",
+        "src/ui/i18n/strings.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-save-recovery-and-versioning",
+      "commit": "02f12c81875642c642189899c4fca18e155e2033",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-save-recovery-and-versioning",
+      "treeHash": "1f1b8f93bc9ba8a6a8fd0ac853e6745e6269f5396842e2e04927fd587a3d5b93",
+      "issue": "#31",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/ui/screens/table/step-draft.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-screen-projections",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-screen-projections",
+      "treeHash": "d101c15052760bb34940aa6eeef16f4712acea6c4f36c81ce8ed720052b2509e",
+      "issue": "#33",
+      "tests": [
+        "src/application/read-models/table.test.ts",
+        "src/ui/screens/structure.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-setup-masks-and-modifiers",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-setup-masks-and-modifiers",
+      "treeHash": "893b553dc92412f13efa65a8127dce7dbf8e59e70c769266665b9cc6c1ced4a8",
+      "issue": "#43",
+      "tests": [
+        "src/core/engine/manual.test.ts",
+        "src/core/engine/setup.test.ts",
+        "src/core/model/scripts.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-snakecharmer-dead-seat",
+      "commit": "dc340eebec4837cd52142b30344805f83a3ab38e",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-snakecharmer-dead-seat",
+      "treeHash": "0435f28feb8ae7f3d00a2be627d9105d66bb6a1420a0afe7ea2e701e66f24ff6",
+      "issue": "#104",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-state-invariants",
+      "commit": "02f12c81875642c642189899c4fca18e155e2033",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-state-invariants",
+      "treeHash": "be8af134a20374fa4e99f721fa8b4d0b28db05bbb240d116c73dbef8cd3393c0",
+      "issue": "#32",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/invariants.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-storyteller-step-preview",
+      "commit": "48c0fd2b430b7b4130044cdab8f0220d819c3a9f",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-storyteller-step-preview",
+      "treeHash": "34dbfc55b40deef3a360718c85b164efefa99d36588caba0660272e3f4315030",
+      "issue": "#45",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/ui/i18n/strings.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-sv-character-replacements",
+      "commit": "0e3ed96b781e19e10da1bf241668d626e3b5d64a",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-sv-character-replacements",
+      "treeHash": "c2cac8fe7875616d5bc6f2d5dad17ea47f56cbbee9d95aca7dc60db3c12eeb1a",
+      "issue": "#38",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-type-engine-core",
+      "commit": "45194b2292babdedf8076fc8fc2b3dccee355fdd",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-type-engine-core",
+      "treeHash": "79f5635c26cbce54ad2b0658cfb2a0b7f5b849683c4e31b8a635891f525ab381",
+      "issue": "#59",
+      "tests": [
+        "scripts/check-types-policy.test.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/model/types.test-d.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-unified-domain-model",
+      "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-unified-domain-model",
+      "treeHash": "18d105095b2a1ab3ce4de842b711caeba0023ee61c08283c413a2f3289b6afd4",
+      "issue": "#28",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/model/scripts.test.ts",
+        "src/core/model/state.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-verify-bmr-unverified-roles",
+      "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-verify-bmr-unverified-roles",
+      "treeHash": "4a34524d53d881b212078cf971ae9235b1002b916a68dbae524ae5053114601e",
+      "issue": "#36",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-11-verify-tb-mechanics",
+      "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-verify-tb-mechanics",
+      "treeHash": "070bb15cfaeb001cb350463e729e12e598326f0f187a2f8184dc3af20e3c98f5",
+      "issue": "#34",
+      "tests": [
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-acceptance-docs",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-acceptance-docs",
+      "treeHash": "2530d89bd34ce19cdac524a9ea759e7784a900ab7fdbde2db3b3b0ad1db9b643",
+      "issue": "#46",
+      "tests": [
+        "src/core/model/support.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-acceptance-pipeline",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-acceptance-pipeline",
+      "treeHash": "9f8db6debd3c8877ec5187128c1a8d0c9eb391b65b8eba8be23f0be49f60040f",
+      "issue": "#46",
+      "tests": [
+        "src/core/engine/acceptance.test.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-acceptance-ui-360",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-acceptance-ui-360",
+      "treeHash": "03fde384412a8505718b55e8189b6fb92e7a6edca5f33229dae425302d1e7795",
+      "issue": "#46",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-event-log-replay",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-event-log-replay",
+      "treeHash": "f97e3d323c6b63ca8e04e0c48ac9adcb1407d90e0a65c3c2a3f501a57c161b8d",
+      "issue": "#30",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/invariants.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-host-choice-controls",
+      "commit": "5366749b70d2e8a2076a14d3bcc845b94dd5c798",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-host-choice-controls",
+      "treeHash": "7370812db6a6f33bfcb7bad8d6c4bcb8cb452854ca741a1ed7df610d24565f07",
+      "issue": "#42",
+      "tests": [
+        "src/core/engine/host-choice.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-madness-review",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-12-madness-review",
+      "treeHash": "f05f25baf4edc29b32d5bce7796b830b87fe82440f9490a1b5b619135885da53",
+      "issue": "#19",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-migrate-styles-to-tailwind",
+      "commit": "00a75c6a07ad6ccce1562401efb7d70d746cd731",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-migrate-styles-to-tailwind",
+      "treeHash": "83f0583341c2ee598c4b4a9e3b442f1369a24206ab3cea0f63283c37f950b12d",
+      "issue": "#137",
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-sv-madness",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-sv-madness",
+      "treeHash": "31c06861af06e8c4785988c1ca0937cd75517e250b5c4a2adeffc34913ce0a35",
+      "issue": "#40",
+      "tests": [
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/player-projection.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-12-sv-vigormortis-vortox-info",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-sv-vigormortis-vortox-info",
+      "treeHash": "b20b92bc677f92416d87ed968ff12893583fb6e37a355f32d62c8048a0616297",
+      "issue": "#41",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-arcane-instrument-ui",
+      "commit": "2cf49cd8d61b975b4981718ac38128979541787c",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-arcane-instrument-ui",
+      "treeHash": "f472092aa15a266724851d60a858acdb0327fe09b8ef6cc96b16e25e942e6ea7",
+      "issue": "#137",
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-fast-update-on-open",
+      "commit": "12c4bbab3bd0e9015e05d9b6bb3be045bb52e2f8",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-fast-update-on-open",
+      "treeHash": "08393ea30082b8a839b99dd9a89332dab5aa5eb21fb01ece00164634d96daba6",
+      "issue": "#156",
+      "tests": [
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-mobile-burger-menu",
+      "commit": "d634bdfa821dfdb030206f1d2448739bee5c76f5",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-mobile-burger-menu",
+      "treeHash": "23aeb6ba61c5afcc093250fbacffa2d55893bd909d1533e9a6c77ade0e122a7a",
+      "issue": "#141",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-remove-handback-cover",
+      "commit": "60aea46b6afe5697a6b27a17c94f8ec32aad1d64",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-remove-handback-cover",
+      "treeHash": "4c9f5458c738521a7962ab59608af6737eaae38337d5221ff952fd160156f890",
+      "issue": "#142",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-remove-hide-screen-overlay",
+      "commit": "3322485ede5e2fbe530c07866af9b8e044f1f25d",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-remove-hide-screen-overlay",
+      "treeHash": "4b7c2c850bf6b2eb0622d45c7b7de3f2d9757887b72bd0a6a5519849c774823e",
+      "issue": "#150",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-remove-sheet-duplicate-nav",
+      "commit": "4b32907d597412705414ee82716cfef05bcfb09f",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-remove-sheet-duplicate-nav",
+      "treeHash": "46f47fd25a02960ad0b64cf9e604b6b4b2331122d815b4b50918f6cd10b97ee7",
+      "issue": "#151",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-role-sheet-readability",
+      "commit": "22210eee9200238260d2107210ca62d67d67fffc",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-role-sheet-readability",
+      "treeHash": "997cc60c9ded067972e0d00bfb556cbfada3d3b28c5831caf352b8e132a78700",
+      "issue": "#143",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-13-seat-bottom-actions",
+      "commit": "c795d6a0c024061261eb637a49693f1bbcaae856",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-seat-bottom-actions",
+      "treeHash": "2bbe780318a525514455d4f3bdabe45c60cfd4e8b30c340f177dd8b20f41f180",
+      "issue": "#154",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-finish-velvet-table-gaps",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-finish-velvet-table-gaps",
+      "treeHash": "3ceade0cbca3b96fccf6f2ba4e130aac0881b30f7372106fbe970a457545d37e",
+      "issue": "#170",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/ui/i18n/strings.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-velvet-assistant-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-assistant-audit-fixes",
+      "treeHash": "123132d93afcdb0983d5f314e5f41453d59a982b9d1701a67c781089241cf2f7",
+      "issue": "#171",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/ui/i18n/strings.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-velvet-bmr-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-bmr-audit-fixes",
+      "treeHash": "76764d07167be730303e6eed392847b393bd3aca50e5409850fbe801f8200cdc",
+      "issue": "#171",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-velvet-rules-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-rules-audit-fixes",
+      "treeHash": "aa6a7de16fd20e8ddcb0dca8a9b49ccad24e3b018bbe49eedc8db908bf4d7715",
+      "issue": "#171",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/host-choice.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-velvet-setup-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-setup-audit-fixes",
+      "treeHash": "01d2a141331a511dfc25ed0de6e0b8f8f8c4a3764962c58319a5c14681e950b5",
+      "issue": "#171",
+      "tests": [
+        "src/core/engine/acceptance.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/setup.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/model/presets.test.ts",
+        "src/core/model/rules.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-velvet-setup-ui-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-setup-ui-audit-fixes",
+      "treeHash": "b5346c463de95401f858e2a2d1807865eb6d68ae4e8e8d6de7792f43fdd03223",
+      "issue": "#171",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
+        "src/ui/screens/seat-projection.test.ts",
+        "src/ui/screens/secrets-options.test.ts",
+        "src/ui/screens/setup-messages.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-velvet-snv-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-snv-audit-fixes",
+      "treeHash": "d6a9f89684baaa033eb519cde488eb69f0043404be4504f1b8634394ec0c95a6",
+      "issue": "#171",
+      "tests": [
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/setup.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-14-velvet-table-console",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-table-console",
+      "treeHash": "171f0c940092e09176ddf5584febc331b7f66f90aa5b6bda259f27b208716a79",
+      "issue": "#164",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-15-artist-savant-workflows",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-artist-savant-workflows",
+      "treeHash": "3dcb71a712d38f79681cbf43b94a0cd498a06b5b96faa8d658d102f56957c65c",
+      "issue": "#200",
+      "tests": [
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/seat-projection.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-15-mathematician-abnormal-count",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-mathematician-abnormal-count",
+      "treeHash": "2e3deed7ee68817f38f70bb925f9081f52c8a00cf50ec3b9c7abc2b85e4f8914",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-15-pukka-capability",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-pukka-capability",
+      "treeHash": "af38ab7c153e16363420ae032b543c2b8f9f7e2ac0259f9cf216a3339e6246cb",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/roles/gambler/role.test.ts",
+        "src/core/roles/pukka/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-15-role-capability-contract",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-role-capability-contract",
+      "treeHash": "4547935e753d1d730e62ed040ce09a0f4a5e2402bd9085f9cedbd0f041aedbe0",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/gambler/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-15-role-modules",
+      "commit": "26d94a6691e7338a3c7fe583b414205cbe8327ea",
+      "date": "2026-11-15",
+      "path": "openspec/changes/archive/2026-11-15-role-modules",
+      "treeHash": "747d3b167a8aad50a27075e1a5dc0a1b6612e8fd0bfa097a542d37737423047e",
+      "issue": "#177",
+      "tests": [
+        "scripts/check-acceptance.test.ts",
+        "scripts/rules-for.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/registry.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-16-intent-effect-coordinator",
+      "commit": "c4fd33792021f8b82235ccef8bb767106824b5dd",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-16-intent-effect-coordinator",
+      "treeHash": "0aa68504e9aedf9acfbd0a082874213f6579910d89cd3405c22728c9dede51b3",
+      "issue": "#212",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/coordinator.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/architecture.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-16-lifecycle-phase-guards",
+      "commit": "2feba3072aab8823fd8791b94736940d6be77682",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-16-lifecycle-phase-guards",
+      "treeHash": "2d554faf6901e3c91f0b05f55695cf405d9f1051cda560a7cd7fff46fe779d1f",
+      "issue": "#215",
+      "tests": [
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/lifecycle.test.ts",
+        "src/core/engine/manual.test.ts",
+        "src/core/model/state.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-adjudication-capability",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-adjudication-capability",
+      "treeHash": "535b78e59ceeab579d72f192b8a59d31358533c041deb5773b04ae765b7475b7",
+      "issue": "#216",
+      "tests": [
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/host-choice.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-badge-and-public-projection",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-badge-and-public-projection",
+      "treeHash": "6582dbaefa7ea996d1adf473d25eb139015cecee6b513b9ec23bac8e20af4993",
+      "issue": "#331",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-advocate-exorcist-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-advocate-exorcist-night-step",
+      "treeHash": "f74fb817a6e44654a187e019eb41a9d28e576ba640ef173e5280bec9d1f0cac9",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/devilsadvocate/role.test.ts",
+        "src/core/roles/exorcist/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-audit-followups",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-audit-followups",
+      "treeHash": "7c5336b5628e1b5d94ca26f7c30b035011ead24b9d23ef85913cdf8cfbb28fae",
+      "issue": "#218",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-execution-and-moonchild-choices",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-execution-and-moonchild-choices",
+      "treeHash": "094884dd7a7ea79974b07e75cfb8236fe24896f72e81e18b1d3be5d788b48b59",
+      "issue": "#218",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-gambler-pukka-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-gambler-pukka-night-step",
+      "treeHash": "b2c16e8e16be2bc706d2d01944131540f3d9ec07c0f7946b0088fec7433ab201",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/gambler/role.test.ts",
+        "src/core/roles/night-step.test.ts",
+        "src/core/roles/pukka/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-goon-self-poisoned-chooser",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-goon-self-poisoned-chooser",
+      "treeHash": "8a874006def021fca7a061a3953bb426dc6ba4d7312af7503989fe51e95f4c9b",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-night-step-resurrection",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-night-step-resurrection",
+      "treeHash": "7d9e28c2b111ae0056689378b3366eb6afb40603d0f54f64023f910e3132d599",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-sailor-innkeeper-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-sailor-innkeeper-night-step",
+      "treeHash": "555868977fcbad5d57cdb1dff9615dfd715a280d433e073aa8cc9bd3edd055e0",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/gambler/role.test.ts",
+        "src/core/roles/innkeeper/role.test.ts",
+        "src/core/roles/night-step.test.ts",
+        "src/core/roles/sailor/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-tinker-night-death",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-night-death",
+      "treeHash": "88c1840d5e4f84f8448e1e0189c900d781def2b2b7022f359c039cbbbf0a2a26",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-bmr-tinker-po-shabaloth-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-po-shabaloth-night-step",
+      "treeHash": "1a95b377800f83583f4d0209e9081a5d6d8ddee0c8e9a7624a36aa5ae1768996",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/po/role.test.ts",
+        "src/core/roles/shabaloth/role.test.ts",
+        "src/core/roles/tinker/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-browser-harness-speedup",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-browser-harness-speedup",
+      "treeHash": "8b1f3c0ea55fc02feadba1d5c01831015f0d2dce7b9265e20e725295c1b86ac7",
+      "issue": "#294",
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/harness.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-cerenovus-night-window",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-cerenovus-night-window",
+      "treeHash": "773b966adbdab582f3f2eae751af9bdff070d05e2ffecd43c3aa5db6fe67337c",
+      "issue": "#220",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-chef-registration-counts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-chef-registration-counts",
+      "treeHash": "c0bb21f45bf9e41fa3dff288b589dbd5773fc22b6cdd9bf56f9377c1048b7727",
+      "issue": "#217",
+      "tests": [
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-command-pipeline-atomicity",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-command-pipeline-atomicity",
+      "treeHash": "f9bec913caa17cae4718d91c093fbc8e55ebb5b77a0286ccd76c163c5b69879a",
+      "issue": "#213",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/entry/store.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-correction-effect-and-shown",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-correction-effect-and-shown",
+      "treeHash": "d6a4d74710090574dbc414a6a6dac301e4c96bbbec5fe03291d5ea06e28e6aff",
+      "issue": "#325",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-day-player-sheet",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-day-player-sheet",
+      "treeHash": "c3f3397f43cbc0929867893b6b4a8eed8643990fe6131050c5ef19a87a788e87",
+      "issue": "#191",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-duplicate-night-targets",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-duplicate-night-targets",
+      "treeHash": "3178b625baf71ca263e8f48861ce7315cf782858899a79b1d0760477b9fff8d1",
+      "issue": "#316",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-engine-contracts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-engine-contracts",
+      "treeHash": "0a10ac910276579ebee977ae3a6153fa9a21857563f912cd9ed51ceabd25b60d",
+      "issue": "#209",
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/commands/prepare.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/invariants.test.ts",
+        "src/core/engine/setup.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/architecture.test.ts",
+        "src/core/roles/gambler/role.test.ts",
+        "src/core/roles/pukka/role.test.ts",
+        "src/core/roles/registry.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-eviltwin-partner-correction",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-eviltwin-partner-correction",
+      "treeHash": "b01c7c63cfe4b2305b394e61859d08a4f67fd514452524dbecef5fb3a81579c1",
+      "issue": "#216",
+      "tests": [
+        "src/core/engine/evil-twin-choice.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/engine/twin-correction.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-execution-capability",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-execution-capability",
+      "treeHash": "319204de7ee6738627bff42652492d07353126aea2e66ef1bd377151fa170c4a",
+      "issue": "#212",
+      "tests": [
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-gambler-resolved-death",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-gambler-resolved-death",
+      "treeHash": "250733a962a6ed104789ca92f24e456ced0e7f29329e11f9e00c7280d356e0c0",
+      "issue": "#218",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-grandmother-death-and-target",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-grandmother-death-and-target",
+      "treeHash": "8e387a78de3e7b68fd00a32e0a53c191d05a140753df1ed17525ea631d2731f0",
+      "issue": "#218",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-installable-manifest-icons",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-installable-manifest-icons",
+      "treeHash": "4dcf7aa4efe8961438ceda510d763be684c7f3c948b08093a0a3af5fe15d5d1f",
+      "issue": "#173",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-klutz-day-control",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-klutz-day-control",
+      "treeHash": "8d1da93bc7ddd04ce8a4f46bd55c8ecd24102b1b77b0cf7e75614e6d055c80d4",
+      "issue": "#319",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-lunatic-default-bluffs",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-lunatic-default-bluffs",
+      "treeHash": "8453c2129c1092ab60a18b0305672a84d62c6879777e2b1e13f33532eaf8ca7a",
+      "issue": "#256",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/setup.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-lunatic-minion-tips",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-lunatic-minion-tips",
+      "treeHash": "15b77a470a32d6a9a25d818d3ad2864e275a8656fa5c031a424efdc5edac1a46",
+      "issue": "#187",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-mandatory-night-step-skip",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-mandatory-night-step-skip",
+      "treeHash": "971b4742295692a394cb3478735ae46c8f0df12d24ca6d0d2fd27dd02f261edf",
+      "issue": "#318",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-mid-game-seat-order-328",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-mid-game-seat-order-328",
+      "treeHash": "37e21ec3ce070846a58ae8107f671b33f4929be4d0e25e1a303a8bdb7add7e60",
+      "issue": "#328",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/lifecycle.test.ts",
+        "src/ui/screens/seat-projection.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-midgame-start-knowing",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-midgame-start-knowing",
+      "treeHash": "c19d69e5e660c5a449cb14e6d1c384029c889715a3a88c39bca69fa454bbc596",
+      "issue": "#314",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-notes-debounced-commit",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-notes-debounced-commit",
+      "treeHash": "fe11b1451cb9d276b0bc8d8f908eb8c1449f2fe784dbcf5c490c80d67085d867",
+      "issue": "#330",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-official-execution-events",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-official-execution-events",
+      "treeHash": "13c62c51bda174e6d69c4eab4de84e70ba110b61ef33df96eedb89c60ee6849a",
+      "issue": "#19",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-official-night-effects",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-official-night-effects",
+      "treeHash": "718491085020f95b1c81fcea61697d349689a2acbf1de77b10456c2234e66104",
+      "issue": "#19",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-official-provenance",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-official-provenance",
+      "treeHash": "788e5fb59f2afef3289379fda3b548141f8206d02895d6b6c83914a778f53d21",
+      "issue": "#178",
+      "tests": [
+        "scripts/check-official.test.ts",
+        "scripts/fetch-official.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-pacifist-survival-control",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-pacifist-survival-control",
+      "treeHash": "ce3aae139fbe1b0fd32af0e4b2bc11b7d81b1e40039a3c177124750967456053",
+      "issue": "#317",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-philosopher-borrowed-day-abilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-philosopher-borrowed-day-abilities",
+      "treeHash": "bcc82f4f3e8848b01bbff8ea532fe017436f30e7f70d489e280e22e67af0f3e2",
+      "issue": "#320",
+      "tests": [
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/moonchild/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-retire-legacy-js",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-retire-legacy-js",
+      "treeHash": "580986c136677856f1cb5801ca254fca4a311e84eca399c718aee7245108c550",
+      "issue": "#132",
+      "tests": [
+        "scripts/check-toolchain.test.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/core/model/types.test-d.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-review-regressions",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-review-regressions",
+      "treeHash": "968ddcbf502be435e9132dc2a7a0e7cc3e707536da74024774f535cebc83cd69",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/model/state.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-ru-empath-neighbour-count",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-ru-empath-neighbour-count",
+      "treeHash": "b3dde305aa4611b156df43b4863a300929f52e46a6c747a3679f22f25f8dcdf9",
+      "issue": "#326",
+      "tests": [
+        "scripts/verification/findings.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-scarletwoman-day-succession",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-scarletwoman-day-succession",
+      "treeHash": "c6b39f3090c5a8255cb0e6e182e5a6512a0d8814098e8228a04d0946eb12d212",
+      "issue": "#217",
+      "tests": [
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-seat-surface-redesign",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-seat-surface-redesign",
+      "treeHash": "be66faef212b9facb328c18bf1295a125d1578b85892accb0515269c5f3ec935",
+      "issue": "#282",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/ui/screens/seat-projection.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-secrets-engine-agreement",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-secrets-engine-agreement",
+      "treeHash": "ca30fe1169b2cd4e5d14d177e2ef30d2f5889d2dec621054bb046709974aead1",
+      "issue": "#324",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/ui/screens/secrets-options.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-setup-zero-librarian-only",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-setup-zero-librarian-only",
+      "treeHash": "c69aeb7546b361428205b50f79f4aa8c0009d8640a5d4667f0de1b60e2201486",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/investigator/role.test.ts",
+        "src/core/roles/librarian/role.test.ts",
+        "src/core/roles/washerwoman/role.test.ts",
+        "src/ui/screens/secrets-options.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-snv-cerenovus-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-cerenovus-night-step",
+      "treeHash": "d255c073f5ea7dda3ef4541b298d4263cfd0e7c50450d843950e8792d8a9d52c",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/cerenovus/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-snv-demon-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-demon-night-step",
+      "treeHash": "47592b53f8353866b52435e10f1697c8e442c925e03dc1f6831854722ef1b6bc",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/fanggu/role.test.ts",
+        "src/core/roles/nodashii/role.test.ts",
+        "src/core/roles/vigormortis/role.test.ts",
+        "src/core/roles/vortox/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-snv-information-night-steps",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-information-night-steps",
+      "treeHash": "c1df7da892f51456ba0f6a36f4523d1f0125f625898fdda0a539f6ac1f228db0",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/clockmaker/role.test.ts",
+        "src/core/roles/dreamer/role.test.ts",
+        "src/core/roles/eviltwin/role.test.ts",
+        "src/core/roles/flowergirl/role.test.ts",
+        "src/core/roles/mathematician/role.test.ts",
+        "src/core/roles/oracle/role.test.ts",
+        "src/core/roles/towncrier/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-snv-snakecharmer-pithag",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-snakecharmer-pithag",
+      "treeHash": "8be3a1525eaf05f53d3a1ae490321f2a8684cf97ca7318d418faf0ddd83532c3",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/pithag/role.test.ts",
+        "src/core/roles/snakecharmer/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-stale-execution-drafts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-stale-execution-drafts",
+      "treeHash": "433bf935c653bc8a525d7de4beda5ab43ba566430b84f0ab0d32431789d96efa",
+      "issue": "#322",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-step-kind-capabilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-step-kind-capabilities",
+      "treeHash": "a79f233b81cb46014e6e1740ff599b282750dceb356361317d5435580392e546",
+      "issue": "#212",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-storyteller-adjudication-216",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-storyteller-adjudication-216",
+      "treeHash": "25a15dc02b57d8a463a5201ae4d444a80779403913620db999d181b3fa7a10af",
+      "issue": "#216",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-sv-ability-holders",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-ability-holders",
+      "treeHash": "f372f9985c1a5a7f1c3e69d6340af87101e03c7b370f3f06e68268db7de423ac",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-sv-barber-death-record",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-barber-death-record",
+      "treeHash": "3098785b06e700be1e44af8928d852261476e2b5e362d3a4308bfed0e946efb7",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-sv-clockmaker-dead-minion",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-clockmaker-dead-minion",
+      "treeHash": "a0d4714bec50a18001959c55294857a24f1ff25961096b6d94b979b6cd3c4961",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-sv-death-time-impairment",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-death-time-impairment",
+      "treeHash": "858b2eb465847fd07d167336777498b8da1d4138debf715de4fbf8f7e8ebf0b1",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-sv-demon-and-false-info",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-demon-and-false-info",
+      "treeHash": "8dc1a471812f061d90c90ba74c725140a3c71d7ec505f0b3a75d7f08995fadc1",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-sv-eviltwin-pairing",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-eviltwin-pairing",
+      "treeHash": "ce386e11d6628ce2d2d828095ba186ae370ce84c1201cde31cbafeccb3480703",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-sv-peak-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-peak-information",
+      "treeHash": "7392099fdc101f2a7df182800bdfd4d47087dcbc55277220260c60dd2ec44b4d",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-table-console-ux",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-console-ux",
+      "treeHash": "8a7a16ffbd52cf5eef74160c16e49979ab0c25952d89ed28ff0ff1a77c9a87e6",
+      "issue": "#311",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-table-controls",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-controls",
+      "treeHash": "0021832aef6934a311b3cdf88a180d66e0501caf595b290ed0fb85518958fd17",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/setup.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-table-dock-trim",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-dock-trim",
+      "treeHash": "129e58788ff2ace3bcecf54b791084d79a0ebb748bba52bd9f8c358a2dea7abd",
+      "issue": "#258",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-table-host-prompts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-host-prompts",
+      "treeHash": "39839d355ed24913640efac802ed4c06f7add584da17df733b38ca14095d17df",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-table-setup-board",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-setup-board",
+      "treeHash": "fbcbb0b615178846f9c91f66c85602912fedc1e71eba93cc00df476198a9b6cf",
+      "issue": "#291",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-table-surface-redesign",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-surface-redesign",
+      "treeHash": "a01ca679f03f6f8adcf445a5fe194b6f5573d93c087a3b1a4cb1095724f07b81",
+      "issue": "#266",
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/application/read-models/table.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-butler-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-butler-night-step",
+      "treeHash": "2e34fc21d9b3d9615dfb51eea8b5c0f4133571ce88d40fc37520c82a2cb9068c",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/butler/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-character-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-character-information",
+      "treeHash": "ef2427c43e3647cf3dfee465c01c906ac475af4d1632f24ef07287a0b35da050",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/night-step.test.ts",
+        "src/core/roles/ravenkeeper/role.test.ts",
+        "src/core/roles/undertaker/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-chef-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-chef-information",
+      "treeHash": "3890cdce3a5d74c7d97929de701a8c128e3148ee05235554e7b756027566fb7a",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/host-choice.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/chef/role.test.ts",
+        "src/core/roles/night-step.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-empath-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-empath-information",
+      "treeHash": "d8c17a7b93654750514e93b943dc15002d7e6518cf578a62bb85be5427fe5e71",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/empath/role.test.ts",
+        "src/core/roles/night-step.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-fortuneteller-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-fortuneteller-information",
+      "treeHash": "566924a3c61d7a472f1e37df9b7586bed0bd503cae18e6ba560c665cb4899ac9",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/fortuneteller/role.test.ts",
+        "src/core/roles/night-step.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-imp-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-imp-night-step",
+      "treeHash": "cff0acb615e42927e157a781520dfe15ef108c9f7b544c3f8691063cccc64f03",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/imp/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-new-demon-wake-once",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-new-demon-wake-once",
+      "treeHash": "027f464a373516f6977ef6b196aba3980242037e2a13d1b46088559086d7b8c5",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/engine.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-night-step-capabilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-night-step-capabilities",
+      "treeHash": "342033bd39a6fdaab41d07841ff297bae41fddde57d6012b0625910c331cb421",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/monk/role.test.ts",
+        "src/core/roles/night-step.test.ts",
+        "src/core/roles/poisoner/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-setup-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-setup-information",
+      "treeHash": "5b732992f7f723fb6a3b6409804ddc19df401c475c6252c70cac81a434cd35d6",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/investigator/role.test.ts",
+        "src/core/roles/librarian/role.test.ts",
+        "src/core/roles/washerwoman/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-tb-spy-grimoire",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-spy-grimoire",
+      "treeHash": "e0e0d131e1b0cd5ae291f2304a53588ed3a3f8a365c5174622da3a889ee8a123",
+      "issue": "#200",
+      "tests": [
+        "scripts/role-ownership.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/spy/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-update-prompt-race",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-update-prompt-race",
+      "treeHash": "9585cac3c16f0c93d5a79c76a434ae853bed9a29bfbbd0812802f5fb55afe1a7",
+      "issue": "#166",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-20-washerwoman-one-draft",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-washerwoman-one-draft",
+      "treeHash": "78143710350c349c36f55a3505161ddb6ba1de5562a9e6e40f951989ae5a1a58",
+      "issue": "#217",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-27-bluff-picker-replacement",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-bluff-picker-replacement",
+      "treeHash": "7c1a790e8e32036c0d6f49f7bc03751b4649fdbf4279235b44a9b434e265eea7",
+      "issue": "#487",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/ui/screens/bluff-selection.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-27-shared-alignment-reveal",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-shared-alignment-reveal",
+      "treeHash": "f781c6018860ed59e14e0e62245e2f38d241b64b264aaf61ff34b965fd1d5b7b",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/ui/screens/player-projection.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-27-snv-gap-coverage",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-snv-gap-coverage",
+      "treeHash": "ff7b32f207fcc30f826be474be9fd9058c967031beed7f4ad044dad4b27788c0",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/moonchild/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-27-stabilize-browser-acceptance",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-stabilize-browser-acceptance",
+      "treeHash": "41092d79bec0be7582644ea8f012c0e4a5787c7e4e5e3d4a31ca59097d8e796e",
+      "issue": "#223",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-bmr-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-bmr-gap-coverage",
+      "treeHash": "295caebf9ab28d274d972539bbb11da86dd0ff76a3d9facf670f376e79b47b5c",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-clockmaker-oracle-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-clockmaker-oracle-information",
+      "treeHash": "a173811d468a1f50c750209e78a6ba30d6701b11712fcf791181ce3687bd498e",
+      "issue": "#211",
+      "tests": [
+        "src/core/engine/cross-role.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/architecture.test.ts",
+        "src/core/roles/clockmaker/role.test.ts",
+        "src/core/roles/oracle/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-death-step-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-death-step-capability",
+      "treeHash": "514851abeb6f430f160b5a5708cb8a2b60391afc4862b576ca12380c2df40e11",
+      "issue": "#211",
+      "tests": [
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/klutz/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-death-step-roles",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-death-step-roles",
+      "treeHash": "75c8b9669ec40b01714921d0ca905dce2430c437ed35c1762b7e2ec31b6f299b",
+      "issue": "#211",
+      "tests": [
+        "src/core/roles/death-step-roles.test.ts",
+        "src/core/roles/sage/role.test.ts",
+        "src/core/roles/sweetheart/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-dreamer-information-capability",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-dreamer-information-capability",
+      "treeHash": "b298d6878216b9ff57f5921e57151f07ed685d67c4fb2d2f619e2af87d20a862",
+      "issue": "#211",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/dreamer/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-drunk-slayer-attempt",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-drunk-slayer-attempt",
+      "treeHash": "d9739bc0d08235f644c24f262cf60d66d8d70055e6e30e03d6fc6f765fb89bed",
+      "issue": "#315",
+      "tests": [
+        "src/core/engine/tb-audit.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-evidence-gate",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-evidence-gate",
+      "treeHash": "3ffec41d90845e7c5c480ecd7d9a3438f016985d07c3ce6d08bfa32dea66551f",
+      "issue": "#221",
+      "tests": [
+        "scripts/check-acceptance.test.ts",
+        "scripts/rule-traceability.test.ts",
+        "scripts/rules-for.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-evil-twin-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-evil-twin-information",
+      "treeHash": "740bdf1dc218fea3bd6b3702d67b2f23e8c22c15c46a7d54e1d8503a935bd5d2",
+      "issue": "#211",
+      "tests": [
+        "src/core/engine/evil-twin-choice.test.ts",
+        "src/core/engine/information-facts.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/eviltwin/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-flowergirl-towncrier-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-flowergirl-towncrier-information",
+      "treeHash": "5e11c582016e43229eba22ded7d5e0b4cb19a017f8a91a0a284d74c010bb0e6b",
+      "issue": "#211",
+      "tests": [
+        "src/core/engine/information-facts.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/flowergirl/role.test.ts",
+        "src/core/roles/towncrier/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-game-chronicle-undo",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-game-chronicle-undo",
+      "treeHash": "f671966d2a8964455452508c322b44675cd97dd01bab8aac8eb522b9aebe3d53",
+      "issue": "#489",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-guard-private-views-and-restores",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-guard-private-views-and-restores",
+      "treeHash": "0ce079461c111dc2afd29434caaa689764a5f3c31850d83df17be99a8b3d099f",
+      "issue": "#156",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/entry/page-restore.test.ts",
+        "src/infrastructure/library/bag-library.test.ts",
+        "src/ui/reference-route.test.ts",
+        "src/ui/screens/table/handoff.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-jinx-residual-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-jinx-residual-contracts",
+      "treeHash": "3128a60bbe8783f15821a96cf579962052ab92be92cb7b1923cc559f38783ec9",
+      "issue": "#475",
+      "tests": [
+        "src/core/engine/jinxes.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-journal-phase-groups",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-journal-phase-groups",
+      "treeHash": "02e3542facc8378a47298b04b5ab3c666cb04c8702e4746421d665d5a5c48cfa",
+      "issue": "#493",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-juggler-wake-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-juggler-wake-capability",
+      "treeHash": "b392a2885375d6bd3d99f238f2a2a916b91b98f604b7ffc9aeeda96e523250b8",
+      "issue": "#211",
+      "tests": [
+        "src/core/roles/juggler/role.test.ts",
+        "src/core/roles/night-step.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-mathematician-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-mathematician-information",
+      "treeHash": "f2e4a01e1dae1852b6d6cf4533b647bf0db2b6d1398622835cae5b574ab4cb2c",
+      "issue": "#211",
+      "tests": [
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
+        "src/core/roles/architecture.test.ts",
+        "src/core/roles/mathematician/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-mixed-regression-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-mixed-regression-contracts",
+      "treeHash": "f9e21445ec69863dc594e04d55c9475b80c856fa17d2a3d11aadf7cbf45dbdd2",
+      "issue": "#220",
+      "tests": [
+        "src/core/engine/mixed.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-mobile-bag-order",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-mobile-bag-order",
+      "treeHash": "c29d78c93ecf338428b9b11511c2a954b0e3e576e8617d7982536c22a3f71afa",
+      "issue": "#467",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-permanent-verification-gates",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-permanent-verification-gates",
+      "treeHash": "9a4440b1559a0a9f96346014952981c926e4a0579d3db61ffca20dffa4bf0316",
+      "issue": "#332",
+      "tests": [
+        "scripts/verification/findings.test.ts",
+        "src/application/read-models/verification.test.ts",
+        "src/core/engine/model-based.test.ts",
+        "src/ui/screens/table/step-context.verification.test.ts",
+        "src/verification/action-reachability.test.ts",
+        "src/verification/architecture.test.ts",
+        "src/verification/contracts.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-pithag-arbitrary-death",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-pithag-arbitrary-death",
+      "treeHash": "077745d9a0bda9b99d425ab35bef4d7b8bff574be503b3f83858e643f9452b1d",
+      "issue": "#219",
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-protect-handoffs-and-recovery",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-protect-handoffs-and-recovery",
+      "treeHash": "7a4d2031cbe19350bc3db39dabeec74a7ee77024485311ab3b886e7cd591d04c",
+      "issue": "#156",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/entry/store.test.ts",
+        "src/infrastructure/adapters.test.ts",
+        "src/infrastructure/catalog/load-locale.test.ts",
+        "src/infrastructure/library/bag-library.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts",
+        "src/infrastructure/routing/history-router.test.ts",
+        "src/ui/screens/player-projection.test.ts",
+        "src/ui/screens/seat-projection.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-protect-library-capacity",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-protect-library-capacity",
+      "treeHash": "7304457aa09fb0d965ee2669ea7376c2411701fb4d5b1fc54c8d7f08e64a0d60",
+      "issue": "#17",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/infrastructure/library/bag-library.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-protect-recovery-and-setup-edits",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-protect-recovery-and-setup-edits",
+      "treeHash": "20728acd1e4ddf74d420bf41f74cbc80d98decde60503b6ee1b84de79a1c4cf3",
+      "issue": "#156",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/entry/notes-lifecycle.test.ts",
+        "src/entry/offline.test.ts",
+        "src/infrastructure/routing/history-router.test.ts",
+        "src/ui/screens/table/copy-backup.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-recover-live-saves-and-offline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-recover-live-saves-and-offline-loading",
+      "treeHash": "1865e6444db0e97bd1231b308b80c1c56e2baafd563d0ee949f81497ab4c0cb1",
+      "issue": "#156",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/entry/offline.test.ts",
+        "src/entry/store.test.ts",
+        "src/infrastructure/adapters.test.ts",
+        "src/infrastructure/catalog/load-locale.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts",
+        "src/ui/i18n/strings.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-recover-saves-and-streamline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-recover-saves-and-streamline-loading",
+      "treeHash": "6459661e8efb4264d4b3a6a1a4a6faf538b5597ac6fc8966b218093d4bdaec39",
+      "issue": "#156",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/entry/offline.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-release-defect-reachability",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-release-defect-reachability",
+      "treeHash": "d7d714a7ac63e133c723728dfc99e4824dadea91bac6e79264b0d2509194fc5c",
+      "issue": "#200",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/roles/tinker/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-remove-player-card-countdown",
+      "commit": "1b09b9500b431940555a591d602cf13eb4236cb6",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-remove-player-card-countdown",
+      "treeHash": "662058d24ef94086cc151e28f309a92493a26cad81a39cc83978596cec3d4865",
+      "issue": "#337",
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-role-choice-log",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-role-choice-log",
+      "treeHash": "e5ccce10ee78ea9395dc21524044f57677b13d118c9431cbbf08a818b86ef25c",
+      "issue": "#491",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-secrets-checksheet",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-secrets-checksheet",
+      "treeHash": "a89abfa85a5798903fc46c686b798aafa971eab0effd106201a865797610fe78",
+      "issue": "#284",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/ui/i18n/strings.test.ts",
+        "src/ui/screens/secrets-options.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-setup-random-swap",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-setup-random-swap",
+      "treeHash": "a5247eab4ff9f432fbd214801a2a9d35aa046675676f97776cbb18e0d3a99b16",
+      "issue": "#17",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/model/bag-swap.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-snv-wake-capabilities",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-snv-wake-capabilities",
+      "treeHash": "bc2cfc7526285e8083d79e019fab6ae6bb9f8c80a69238494e7008dce24108c8",
+      "issue": "#211",
+      "tests": [
+        "src/core/roles/night-step.test.ts",
+        "src/core/roles/philosopher/role.test.ts",
+        "src/core/roles/seamstress/role.test.ts",
+        "src/core/roles/witch/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-storyteller-reference",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-storyteller-reference",
+      "treeHash": "75397680c5e19ae649f4f80241dd18ed2492cf96f80b74cd57f194b54546870b",
+      "issue": "#396",
+      "tests": [
+        "src/ui/screens/reference/reference-data.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-storyteller-workspace",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-storyteller-workspace",
+      "treeHash": "9182eb43df09ab06c4857b40f1bd3b75e42bc10dee5cafe3ff06af0b764ece06",
+      "issue": "#517",
+      "tests": [
+        "src/ui/screens/reference/filter.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-tb-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-tb-gap-coverage",
+      "treeHash": "d78b1cd53397fcb2ebe053b2c1c7e3d977efcf9b39834ccd262e06fc2036b3a5",
+      "issue": "#200",
+      "tests": [
+        "src/core/engine/tb-audit.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-verified-jinx-behaviors",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-verified-jinx-behaviors",
+      "treeHash": "c103fc183ab2399d2ff4b9f8dc666fff53db9e95a9894dcd4f49d5eecc0434f8",
+      "issue": "#475",
+      "tests": [
+        "src/core/engine/jinxes.test.ts",
+        "src/core/engine/snv.test.ts",
+        "src/core/model/script-definition.test.ts",
+        "src/core/model/support.test.ts",
+        "src/core/roles/courtier/role.test.ts",
+        "src/core/roles/godfather/role.test.ts",
+        "src/core/roles/night-step.test.ts",
+        "src/core/roles/ravenkeeper/role.test.ts",
+        "src/core/roles/undertaker/role.test.ts"
+      ]
+    },
+    {
+      "name": "2026-11-28-windows-verification",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-windows-verification",
+      "treeHash": "627b63d0187d3bebac3611567c8db4151165447fc30dcd6df136f70a310f78be",
+      "issue": "#184",
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/entry/offline.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts",
+        "src/ui/screens/structure.test.ts"
+      ]
+    }
+  ]
+}

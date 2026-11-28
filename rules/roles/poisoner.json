@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-POISONER-01",
+      "roleId": "poisoner",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r1737",
+      "requirement": "Each night, choose a player: they are poisoned tonight and tomorrow day.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "poison lasts the night and the next day, then expires (TB-POISONER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Poisoner who becomes the Imp ends the poison it sourced (TB-POISONER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Poisoner's choice records one dated poison, its note and one secret log line (TB-POISONER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a new Poisoner choice ends the poison it sourced before and leaves another source's poison (TB-POISONER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an impaired Poisoner's choice poisons no one and records the shared failure note (TB-POISONER-01)"
+        },
+        {
+          "file": "src/core/roles/poisoner/role.test.ts",
+          "name": "a healthy Poisoner returns one poison for tonight and tomorrow day (TB-POISONER-01)"
+        },
+        {
+          "file": "src/core/roles/poisoner/role.test.ts",
+          "name": "an impaired Poisoner reports a suppressed ability (TB-POISONER-01)"
+        }
+      ]
+    }
+  ]
+}

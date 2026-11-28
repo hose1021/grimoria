@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-MAYOR-01",
+      "roleId": "mayor",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r2995",
+      "requirement": "If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Mayor redirect onto the Imp is not the Imp's self-kill (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Imp attack on a working Mayor waits for the host's redirect and changes nothing (TB-IMP-01, TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a redirected Imp attack kills the host's choice and journals the redirect before the attack line (TB-IMP-01, TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the host may let the Mayor die: the answer is journaled and the death is not a redirect (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Imp attack on a working Mayor is a host choice on the command path and the answer completes it (TB-IMP-01, TB-MAYOR-01)"
+        }
+      ]
+    }
+  ]
+}

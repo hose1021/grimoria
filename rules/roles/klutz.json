@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-KLUTZ-01",
+      "roleId": "klutz",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r1758",
+      "requirement": "When you learn that you died, publicly choose 1 alive player: if they are evil, your team loses.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz public choice resolves the game as soon as the Klutz learns of the death (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a recorded Klutz choice finishes the queued step and a dead target does not strand it (SNV-KLUTZ-01)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-KLUTZ-02",
+      "roleId": "klutz",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r1758",
+      "requirement": "When you learn that you died, publicly choose 1 alive player: if they are evil, your team loses.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Klutz poisoned at death cannot lose even after recovering (SNV-KLUTZ-02)"
+        }
+      ]
+    }
+  ]
+}

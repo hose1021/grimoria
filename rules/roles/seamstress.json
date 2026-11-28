@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-SEAMSTRESS-01",
+      "roleId": "seamstress",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r1999",
+      "requirement": "Once per game, at night, choose 2 players (not yourself): you learn if they are the same alignment.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)"
+        }
+      ]
+    }
+  ]
+}

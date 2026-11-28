@@ -31,18 +31,20 @@ export function RoleCard({
     return (
       <article
         className={cx(
-          "grid grid-cols-[62px_minmax(0,1fr)] items-start gap-2.5 rounded-md border border-edge-2 bg-crypt-2 p-2.5",
+          "grid grid-cols-[56px_minmax(0,1fr)] items-start gap-3 border border-edge bg-crypt p-3",
           className,
         )}
         data-role-card={mode}
       >
-        <img className="size-[62px] object-contain" src={image} alt="" />
+        <img className="size-14 rounded-full bg-label object-contain p-1.5" src={image} alt="" />
         <div className="min-w-0">
-          <span className="text-[7px] uppercase tracking-[.2em] text-brass">{role.teamLabel}</span>
+          <span className="text-[10px] uppercase tracking-[.08em] text-brass">
+            {role.teamLabel}
+          </span>
           <h3 className="m-0 font-role text-base leading-tight text-player-role-text">
             {role.name}
           </h3>
-          <p className="mt-1 text-xs leading-[1.45] text-muted">{role.ability}</p>
+          <p className="mt-1 text-[14px] leading-relaxed text-text">{role.ability}</p>
         </div>
       </article>
     );
@@ -69,7 +71,7 @@ export function RoleCard({
         />
       </div>
       <div className={cx("grid gap-2", compact ? "p-3" : "p-4")}>
-        <span className="text-[8px] uppercase tracking-[.2em] text-brass">{role.teamLabel}</span>
+        <span className="text-[10px] uppercase tracking-[.08em] text-brass">{role.teamLabel}</span>
         <h3
           className={cx(
             "m-0 font-role leading-tight text-player-role-text",
@@ -81,7 +83,7 @@ export function RoleCard({
         <p
           className={cx(
             "m-0 text-text",
-            compact ? "text-[10.5px] leading-snug" : "text-[12px] leading-relaxed",
+            compact ? "text-xs leading-relaxed" : "text-[12px] leading-relaxed",
           )}
         >
           {role.ability}

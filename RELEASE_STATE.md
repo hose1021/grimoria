@@ -1,22 +1,27 @@
 # Release state
 
-Canonical handoff for epic #200, release candidate 0.13.0. Updated 2026-11-27.
+Canonical handoff for epic #200, release candidate 0.14.0. Updated 2026-11-28.
 
-## Current state — 0.13.0 release candidate
+## Current state — 0.14.0 release candidate
 
-- Released `main`: `bb2289a` (0.12.0, PR #505). Owner-only; do not merge, tag or publish automatically.
-- Integration `dev`: `f160a46`, adding the setup Random tab swap (#17), team-coloured picked roles and the 0.12.1-0.12.7 setup and reliability fixes.
-- Release candidate is prepared on `dev`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.13.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
-- Release PR: `dev` to `main`; its CI runs on the exact release head.
-- This is a minor release: it adds the Setup Random tab, which shows the rolled roles by type and swaps or rerolls one for another legal role, and colours picked roles by team. The 72 TB/BMR/S&V roles, storage, journal, privacy and offline contracts are unchanged.
-- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.13.0 release is not 1.0.0 and does not imply unrestricted automatic play.
+- Released `main`: `a8f31dc` (0.13.0, PR #514). Owner-only; do not merge, tag or publish automatically.
+- Integration `dev`: `1915343`, after the OpenSpec reconciliation (#519, PR #526), the documentation inventory (#520), the archive-gate fix (PR #527) and the release-metadata policy (PR #528).
+- The release-metadata policy is operational: a proven metadata-only range is R0 and needs no OpenSpec package.
+- Release candidate is prepared on `release-0.14.0`, based on `dev` `1915343`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.14.0. The candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
+- Release PR: `dev` to `main` after the preparation PR merges; its CI runs on the exact release head.
+- This is a minor release: the JSON rule registry becomes the only rule metadata, the risk-tier workflow and archive gates replace duplicated process documents, and the storyteller workspace is redesigned. The 72 TB/BMR/S&V roles, storage, journal, privacy and offline contracts are unchanged.
+- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.14.0 release is not 1.0.0 and does not imply unrestricted automatic play.
 
 ## Release checklist (owner-controlled)
 
-- [x] Setup Random tab swap, team colouring and the 0.12.1-0.12.7 setup and reliability fixes merged on `dev`.
-- [x] Version files and changelog prepared for 0.13.0; checks pass on the candidate.
+- [x] OpenSpec reconciliation (#526) and the documentation inventory (#520) merged on `dev`.
+- [x] Archive-gate fix PR #527 merged into `dev`.
+- [x] Release-metadata policy PR #528 merged; the semantic R0 exemption is operational.
+- [x] Version files and changelog prepared for 0.14.0; checks pass on the candidate.
+- [ ] Preparation PR #529 merged into `dev`.
+- [ ] `npm run release:preflight -- origin/main` passes before the release PR.
 - [ ] Exact-head release PR CI, specifications, provenance, verification gates, full-game and Playwright browser checks pass.
-- [ ] Owner reviews and merges the 0.13.0 PR into main.
+- [ ] Owner reviews and merges the 0.14.0 PR into main.
 - [ ] Post-merge Pages deployment and production smoke, locale, offline update, privacy, replay and pg.game.v4 verified on final main SHA.
 - [ ] Tag/GitHub Release only by owner action; #223 and then #200 close only with explicit acceptance.
 

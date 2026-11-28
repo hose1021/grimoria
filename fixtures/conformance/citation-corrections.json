@@ -1,0 +1,16 @@
+{
+  "corrections": [
+    {
+      "id": "SNV-ARTIST-01",
+      "from": {
+        "file": "src/core/engine/snv.test.ts",
+        "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
+      },
+      "to": {
+        "file": "src/core/engine/snv.test.ts",
+        "name": "the Artist command rejects an empty question, an invalid answer and a player without the character (SNV-ARTIST-01)"
+      },
+      "reason": "The test was renamed and now also asserts an invalid answer; it is the same assertion site."
+    }
+  ]
+}

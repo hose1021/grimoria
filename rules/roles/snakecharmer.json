@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-SNAKECHARMER-01",
+      "roleId": "snakecharmer",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2905",
+      "requirement": "Each night, choose an alive player: a chosen Demon swaps characters & alignments with you & is then poisoned.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Snake Charmer swaps characters and alignments with the chosen Demon (SNV-SNAKECHARMER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Snake Charmer who becomes the Demon on the first night does not wake as it until the second (SNV-SNAKECHARMER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Snake Charmer has a step on every night choosing one player, and the Pit-Hag from the second night with every character (SNV-SNAKECHARMER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Snake Charmer who chooses a player who is not the Demon, or who is poisoned, changes nothing, and a dead player is refused (SNV-SNAKECHARMER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Philosopher with the Snake Charmer's ability who chooses the Demon becomes the Demon, and the Demon becomes a poisoned Philosopher (SNV-SNAKECHARMER-01, SNV-PHILOSOPHER-01)"
+        },
+        {
+          "file": "src/core/roles/snakecharmer/role.test.ts",
+          "name": "a healthy Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it (SNV-SNAKECHARMER-01)"
+        },
+        {
+          "file": "src/core/roles/snakecharmer/role.test.ts",
+          "name": "a Snake Charmer who chooses a player who is not the Demon, or who is drunk or poisoned, changes nothing (SNV-SNAKECHARMER-01)"
+        }
+      ]
+    }
+  ]
+}

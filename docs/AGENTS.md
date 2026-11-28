@@ -9,8 +9,9 @@ Rules authority is defined in the root AGENTS.md "Rules sources": the pinned wik
 - `official/manifest.json` — provenance for every file in `official/`. `node scripts/check-official.ts` verifies hashes and pin coverage offline.
 - `official/wiki/` — the fetched pinned revisions, gitignored under the licensing gate. `node scripts/fetch-official.ts` fetches them; `--check` reports drift and never rewrites a pin.
 - `reference/` — the generated per-role digest, gitignored under the same gate. Build with `node scripts/build-official-roles.ts`; `--check` fails on a missing, stale or extra file and on an empty or unconverted section.
-- `rules-matrix.md` — the only place that pins a revision, plus the per-role status table. Every supported row carries exactly one rule identifier in its first column: a role identifier for role rows, a `SYS-` identifier for shared rows.
-- `rules-shared.md` — the declaration for every `SYS-` identifier used by a shared matrix row, with the row's level, source and asserting tests.
+- `rules/` — the canonical rule registry (`rules/roles/*.json`, `rules/shared.json`) with identifiers, levels, revisions, requirement text and asserting tests. `scripts/rule-registry.ts` validates it; `scripts/sync-rules-matrix.ts` checks the matrix against it.
+- `rules-matrix.md` — the only place that pins a revision, plus the per-role audit table. The role, level, revision, citation and status columns are authored for the audit; the requirement column is generated from the registry and verified by `npm run rules:matrix`. Every supported row carries exactly one rule identifier in its first column: a role identifier for role rows, a `SYS-` identifier for shared rows.
+- `rules-shared.md` — describes every `SYS-` identifier used by a shared matrix row. The canonical declaration, with its level, source and asserting tests, is `rules/shared.json`.
 - `role-ownership.md` — the generated role-by-role ledger: module declarations, coordinator references and rule identifiers. Build with `node scripts/role-ownership.ts`; `--check` fails on a stale ledger.
 - `evidence/` — before/after screenshots. `improvement-research.md` and `improvement-implementation.md` are dated snapshots, advisory only.
 

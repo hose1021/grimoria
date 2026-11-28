@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-GRANDMOTHER-01",
+      "roleId": "grandmother",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2978",
+      "requirement": "You start knowing a good player & their character. If the Demon kills them, you die too.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Grandmother learns the grandchild's character (ROLE-GRANDMOTHER-001)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Grandmother dies only when the Demon kills the grandchild (ROLE-GRANDMOTHER-004)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Grandmother survives the grandchild's death (BMR20)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-GRANDMOTHER-02",
+      "roleId": "grandmother",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2978",
+      "requirement": "You start knowing a good player & their character. If the Demon kills them, you die too.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the grandchild learns nothing about the Grandmother (ROLE-GRANDMOTHER-002)"
+        }
+      ]
+    }
+  ]
+}

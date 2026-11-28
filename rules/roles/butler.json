@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-BUTLER-01",
+      "roleId": "butler",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3120",
+      "requirement": "Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an illegal Butler vote is counted and only warned about privately (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Butler's choice records the master, one dated effect, its note and one secret log line (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a new Butler choice names the new master and leaves the earlier record to expire (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an impaired Butler's choice is recorded with an effect that never applies (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a choice the Butler made while impaired does not bind them once they are healthy (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Butler cannot choose themself (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an impaired Butler's recorded choice replays to the same inactive record (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Butler choice reports the new master and the effect as command events (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/roles/butler/role.test.ts",
+          "name": "a healthy Butler records the master and is bound through tomorrow's votes (TB-BUTLER-01)"
+        },
+        {
+          "file": "src/core/roles/butler/role.test.ts",
+          "name": "an impaired Butler still records the choice, as a suppressed ability (TB-BUTLER-01)"
+        }
+      ]
+    }
+  ]
+}

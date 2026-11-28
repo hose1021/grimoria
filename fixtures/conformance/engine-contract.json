@@ -1,0 +1,81 @@
+{
+  "fixtureVersion": 1,
+  "id": "engine-contract",
+  "description": "Portable engine contract: deterministic command, rejection, journal replay and the public projection over one committed legacy save.",
+  "savedGame": "src/core/engine/fixtures/legacy-setup-zero-game.json",
+  "cases": {
+    "deterministic": {
+      "command": {
+        "id": "contract-notes",
+        "type": "setNotes",
+        "payload": {
+          "notes": "conformance"
+        },
+        "at": "2026-11-28T00:00:00.000Z"
+      },
+      "expected": {
+        "status": "allowed",
+        "notes": "conformance",
+        "events": ["notes.changed"]
+      }
+    },
+    "rejected": {
+      "command": {
+        "id": "contract-unknown",
+        "type": "doesNotExist",
+        "payload": {}
+      },
+      "expected": {
+        "status": "rejected",
+        "errorCode": "command-unknown"
+      }
+    },
+    "replay": {
+      "command": {
+        "id": "contract-replay",
+        "type": "setNotes",
+        "payload": {
+          "notes": "replayed"
+        },
+        "at": "2026-11-28T00:00:00.000Z"
+      },
+      "expected": {
+        "status": "allowed",
+        "notes": "replayed",
+        "legacyAppliedIdentities": {
+          "zero-1": "ffba141ce8d0ebd1f96622628703c1af",
+          "zero-2": "5c908f368df1e513bbad70388817ba2d",
+          "zero-3": "4ed2d80d92f3653c0b156c8339f2a9f2",
+          "zero-4": "f3d92696bb1c43afc32d500026a0dff9",
+          "zero-5": "97468c93c4be83a25e8c63fd032be34c",
+          "zero-6": "75ec17247aeb51a564671c7ab464ffbb",
+          "zero-7": "66de0611118c44082028d987590e9c7e",
+          "zero-8": "ea07c04a8db16eeb35976b5421a164f5",
+          "zero-9": "d8efa8d72d771faecc4c89815a301f58",
+          "zero-10": "9ed9478b351bf5b6020c66f59dd46dd8",
+          "zero-11": "8eca751dd8ff1d0626e312ef74825518",
+          "zero-12": "b9d10bad6e251c16a67dddebb61b1804",
+          "zero-13": "f34302a2879d00fbad52c8149f0f3ff5",
+          "zero-14": "cd23623a0623de458e8223d441c109ff",
+          "zero-15": "44e61392dca572cfd53dfbec4e6e6fa9",
+          "zero-16": "fd2bf8097586703652fc08f7d10cddcc",
+          "zero-17": "99e71bbb673a1f9edcadea0518884530",
+          "zero-19": "7c9da50a8cc802717a8331689f6ed417"
+        }
+      }
+    },
+    "projection": {
+      "command": {
+        "id": "contract-projection",
+        "type": "setNotes",
+        "payload": {
+          "notes": "secret"
+        }
+      },
+      "expected": {
+        "status": "allowed"
+      },
+      "publicKeys": ["day", "deaths", "living", "night", "phase", "total", "winner"]
+    }
+  }
+}

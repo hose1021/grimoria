@@ -6,7 +6,7 @@
     "officialRules": "docs/audits/verification-gates/official-rules.json",
     "proposals": "docs/audits/verification-gates/proposals/tb-bmr-roles.json",
     "wiki": "docs/official/wiki",
-    "engineRules": "docs/rules-matrix.md, src/core/roles/*/rule.md"
+    "engineRules": "docs/rules-matrix.md, rules/roles/*.json"
   },
   "statusDefinitions": {
     "non-mechanical-exception": "The sentence is a table, social, Storyteller-discretion, announcement or other-edition fact with no engine state to assert; a documented, permanent exception.",

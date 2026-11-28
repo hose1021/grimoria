@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-UNDERTAKER-01",
+      "roleId": "undertaker",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3115",
+      "requirement": "Each night*, you learn which character died by execution today.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Undertaker step is built after an execution death with the character shape (TB-UNDERTAKER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Undertaker reads the execution of the day that just ended (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Undertaker step keeps the executed character as its record and writes one step line (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Undertaker step stores what the host sends and journals it as a registration choice (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an executed Recluse may be shown to the Undertaker as a Minion or the Demon (TB-UNDERTAKER-01, TB-RECLUSE-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an executed Spy may be shown to the Undertaker as a Townsfolk or an Outsider (TB-UNDERTAKER-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an executed Drunk is shown to the Undertaker as the Drunk (TB-UNDERTAKER-01, TB-DRUNK-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an Undertaker step without an execution death on record stores the note that there was none (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Undertaker step previews, applies and replays with the command clock and ids (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/roles/undertaker/role.test.ts",
+          "name": "the Undertaker module declares the character shape and keeps its wake (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/roles/undertaker/role.test.ts",
+          "name": "the Undertaker learns the character that died by execution today (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/roles/undertaker/role.test.ts",
+          "name": "the Undertaker names every character the executed player may register as (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/roles/undertaker/role.test.ts",
+          "name": "the Undertaker reads the character recorded at the death (TB-UNDERTAKER-01)"
+        },
+        {
+          "file": "src/core/roles/undertaker/role.test.ts",
+          "name": "without an execution death the Undertaker has a note and no answer (TB-UNDERTAKER-01)"
+        }
+      ]
+    }
+  ]
+}

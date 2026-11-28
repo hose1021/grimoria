@@ -16,7 +16,7 @@ legacy screen's mount and cleanup; navigating away SHALL dispose the previous
 route's listeners, timers and subscriptions before the next route mounts.
 Unknown paths SHALL keep falling back to the table screen.
 
-**Source**: `docs/architecture.md` "Migration map"; issue #69
+**Source**: `docs/adr/0005-runtime-boundaries.md` "Migration map"; issue #69
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Direct link
@@ -421,7 +421,7 @@ the count stepper SHALL move one player per activation.
 `/table` SHALL render as a native shell screen and SHALL NOT mount through the
 legacy bridge. It SHALL dispose its listeners and timer when the route changes.
 
-**Source**: `SPEC.md` "Screens"; `docs/architecture.md` "Migration map"; issue #85
+**Source**: `SPEC.md` "Screens"; `docs/adr/0005-runtime-boundaries.md` "Migration map"; issue #85
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Direct link
@@ -708,7 +708,7 @@ in the components layer, so a utility can override them. No `host-*`, `tbl-*`,
 `css/bag.css`, `css/seat.css` and `css/setup.css` SHALL be deleted and not
 loaded. Retained legacy class names SHALL be inert browser-check hooks.
 
-**Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/architecture.md` "UI shell"
+**Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/adr/0005-runtime-boundaries.md` "UI shell"
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Phone width
@@ -897,7 +897,7 @@ rule left in the repository. `/bag` and `/secrets` SHALL keep their recorded
 pre-migration computed styles. `/seat` SHALL follow the table surface standard
 declared in `app/table-console` instead of the pre-migration baseline.
 
-**Source**: `AGENTS.md` "Code Conventions"; `docs/architecture.md` "UI shell"; issue #82, issue #137
+**Source**: `AGENTS.md` "Code Conventions"; `docs/adr/0005-runtime-boundaries.md` "UI shell"; issue #82, issue #137
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Narrow layout
@@ -1533,3 +1533,266 @@ the link to the secrets screen.
 
 - **WHEN** a zero is stored for the Librarian
 - **THEN** the Librarian's editor shows the zero control checked, with the note, and no character select
+
+### Requirement: Mobile bag composition order
+
+Below 900 CSS pixels `/bag` SHALL render the player-count header, then the
+scenario picker, then the composition summary, then the preset, manual and random
+pickers. At 900 CSS pixels and above the two-column layout SHALL keep the
+scenario and composition rail in the left column.
+
+**Source**: `SPEC.md` "CSS and accessibility"; issue #467
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Phone order
+
+- **WHEN** `/bag` renders at 390 CSS pixels
+- **THEN** the scenario card starts below the count header, the composition card
+  starts below the scenario card, and the picker tabs start below the composition
+  card
+
+#### Scenario: No horizontal overflow
+
+- **WHEN** `/bag` renders at 390 CSS pixels
+- **THEN** the document does not scroll horizontally
+
+#### Scenario: Desktop order
+
+- **WHEN** `/bag` renders at 1280 CSS pixels
+- **THEN** the scenario and composition rail renders in the left column and the
+  pickers stay in the right column
+
+### Requirement: Session entry and reference lookup
+
+The home screen SHALL put the existing session first after the deal. The reference list SHALL support filtering by localized name or catalog ID within a selected official edition.
+
+**Source**: `SPEC.md` "Screens"; issue #517
+**Tests**: `src/ui/screens/reference/filter.test.ts`, `scripts/browser-check.ts` (storefront-welcome)
+
+#### Scenario: Return during play
+
+- **WHEN** a host returns home during a night
+- **THEN** the first session action opens the saved table
+
+#### Scenario: Find by ID in a translated catalog
+
+- **WHEN** the host selects an edition and searches for a catalog ID in another interface language
+- **THEN** matching characters from that edition appear and clearing the query restores the edition list
+
+### Requirement: Private table displays follow their original context
+
+The table SHALL cover an invalidated private handoff and prevent an unfinished correction from affecting another game or deal.
+
+**Source**: [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), Prepare the Grimoire and Pass Out Character Tokens; SPEC.md, private player card
+**Tests**: `src/ui/screens/table/handoff.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Game, assignment or step changes during a private handoff
+
+- **WHEN** the displayed private content loses its original context
+- **THEN** the player sees a cover with a return control, without seeing the replacement secret or host console
+
+#### Scenario: A correction is open during game replacement
+
+- **WHEN** the host drafted a correction before the current game or deal was replaced
+- **THEN** the stale form cannot change the new game
+
+### Requirement: Reference reading survives failed loads and navigation
+
+The app SHALL expose a return to the character list, retain its search through a character visit, and distinguish incomplete reference data from a confirmed absence of interactions.
+
+**Source**: SPEC.md, character reference; [Goon r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977), Related Jinxes
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Read a character from a filtered list
+
+- **WHEN** the reader opens a character and returns to the index
+- **THEN** the character list is accessible and the reader can resume the same search
+
+#### Scenario: Missing reference dataset
+
+- **WHEN** the character data is pending or fails to load
+- **THEN** the page displays the loading or retry state without reporting invented facts or an empty interaction list
+
+### Requirement: Reading routes keep the requested page
+
+Valid read-only reference, sheet and changelog pages SHALL resume at the same location after browser history restoration. Unrecognized sheet or reference paths SHALL follow the ordinary unknown-route fallback.
+
+**Source**: SPEC.md, routing and public screens
+**Tests**: `scripts/browser-check.ts`, `src/entry/page-restore.test.ts`, `src/ui/reference-route.test.ts`
+
+#### Scenario: Return from an external page
+
+- **WHEN** a reading page resumes from the browser's back-forward cache
+- **THEN** the reader retains the same URL and location, while private and host routes retain the existing handoff behavior
+
+#### Scenario: Invalid nested route
+
+- **WHEN** a path resembles a sheet or reference URL but has an unsupported structure
+- **THEN** the app follows its documented fallback
+
+### Requirement: Private handoff follows the original assignment
+
+The handoff SHALL recheck the revealed player and assignment when rendering a card and before saving a claim.
+
+**Source**: [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), Pass Out Character Tokens
+**Tests**: `src/ui/screens/player-projection.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Open assignment changes
+
+- **WHEN** another window reorders or redeals the selected seat
+- **THEN** the picker covers the changed card and the previous selection cannot claim it
+
+### Requirement: Seating editor follows concurrent changes
+
+The editor SHALL adopt a newly saved order while idle and expose a conflict if an unfinished rearrangement would replace another edit.
+
+**Source**: SPEC.md, seat arrangement
+**Tests**: `src/ui/screens/seat-projection.test.ts`
+
+#### Scenario: Untouched arrangement
+
+- **WHEN** a second window saves a swap
+- **THEN** applying the untouched editor preserves the new order
+
+#### Scenario: Conflicting arrangements
+
+- **WHEN** two windows rearrange the same original order
+- **THEN** the second editor can load the saved arrangement before continuing
+
+### Requirement: Accessible library import and custom script restoration
+
+The library SHALL expose the file chooser to keyboard users and the script picker SHALL apply the selected file’s content.
+
+**Source**: SPEC.md, setup library and custom script picker
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Restoring an edited pool
+
+- **WHEN** the host edits an imported pool and reapplies the original file
+- **THEN** the saved pool matches the roles in the file
+
+#### Scenario: Keyboard library restore
+
+- **WHEN** the focused Import control is activated with the keyboard
+- **THEN** the host can choose a library file
+
+### Requirement: Language selection remains consistent
+
+The shell SHALL boot on its target browser baseline and present the most recently selected successful language across the document, controls and catalogs.
+
+**Source**: SPEC.md, localized screens
+**Tests**: `src/infrastructure/catalog/load-locale.test.ts`
+
+#### Scenario: Older Safari starts
+
+- **WHEN** Promise.withResolvers is unavailable
+- **THEN** the selected catalog still loads
+
+#### Scenario: Competing requests
+
+- **WHEN** a slower language response arrives after the host makes a new selection
+- **THEN** the current catalog, control and language preference keep the newer choice
+
+### Requirement: Release shortcuts reach the selected release
+
+The changelog SHALL support native release fragments from its navigation and when opened directly.
+
+**Source**: SPEC.md, version history
+**Tests**: `src/infrastructure/routing/history-router.test.ts`
+
+#### Scenario: Fragment navigation
+
+- **WHEN** the host activates a release link or opens its Pages URL directly
+- **THEN** the URL retains its fragment and the requested article scrolls into view
+
+### Requirement: Setup undo follows the saved edit
+
+The setup editor SHALL undo only its own applicable saved edit and retain it for retry if persistence fails.
+
+**Source**: SPEC.md, bag editing; [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), Prepare the Grimoire
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Setup changed after an edit
+
+- **WHEN** a different window changes or deals the bag after the host edits it
+- **THEN** the earlier undo cannot roll back the new setup or erase the deal
+
+### Requirement: A confirmed edit of a dealt bag commits as a single change
+
+After confirmation the setup editor SHALL apply the requested edit to the existing bag and clear the dealt roster in a single persisted command.
+
+**Source**: SPEC.md, bag editing; [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), Secretly Choose Characters
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Remove one selected role
+
+- **WHEN** the host confirms removing a role from a dealt bag
+- **THEN** the remaining selection is retained, and a rejected write keeps the original deal intact
+
+### Requirement: Pending script imports respect later choices
+
+The script picker SHALL apply only the latest source the host still has open.
+
+**Source**: SPEC.md, custom script import
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Late read after changing source
+
+- **WHEN** a previous URL, file or clipboard read finishes after a different choice or dismissal
+- **THEN** its result and errors leave the new preview alone
+
+### Requirement: Retain private notes and make copy failures actionable
+
+The table SHALL try to save a pending private note when the browser hides or leaves the page, and SHALL let the host copy an export manually if clipboard access fails.
+
+**Source**: SPEC.md, side panel, notes and backups
+**Tests**: `src/entry/notes-lifecycle.test.ts`, `src/ui/screens/table/copy-backup.test.ts`
+
+#### Scenario: Page suspended during a note edit
+
+- **WHEN** the page becomes hidden or leaves before the typing delay expires
+- **THEN** the pending note is saved once and a failed attempt keeps the draft available for retry
+
+#### Scenario: Clipboard unavailable or denied
+
+- **WHEN** the host presses Copy and the browser cannot write the private backup to the clipboard
+- **THEN** the export dialog selects its full JSON and tells the host how to copy it manually
+
+### Requirement: Language changes and announcements reflect available translations
+
+The app SHALL publish a new language only when its catalog loads successfully. Seat labels and editing announcements SHALL follow the selected language and translated messages SHALL preserve user-supplied values literally.
+
+**Source**: SPEC.md, seat editor and localization. [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), Gather Your Players
+**Tests**: `src/infrastructure/catalog/load-locale.test.ts`, `src/ui/i18n/strings.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: An unusable catalog finishes loading
+
+- **WHEN** a language request completes without a usable catalog
+- **THEN** the previous catalog remains active and the host can retry
+
+#### Scenario: A seat action uses a player name
+
+- **WHEN** the host swaps two seats or changes the language of an open seat editor
+- **THEN** its controls and live announcement follow the selected language and display the player's literal name
+
+### Requirement: Route and language loading
+
+The app SHALL fetch the initial role catalog for the requested locale and load secondary screens on navigation. Home edition links SHALL open the corresponding edition and reference fetches SHALL retry after a failure.
+
+**Source**: `SPEC.md` "Screens"; issue #156
+**Tests**: `src/ui/sheet-route.test.ts`, `src/entry/offline.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Cold localized visit
+
+- **WHEN** a visitor with a supported language opens the home page
+- **THEN** only the selected role catalog is needed to mount the home screen
+
+#### Scenario: Edition link
+
+- **WHEN** a visitor opens an edition link with a different saved sheet filter
+- **THEN** that edition opens and ordinary sheet navigation still supports the saved filter
+
+#### Scenario: Reference retry
+
+- **WHEN** a request fails and a character reference is opened again
+- **THEN** the app retries and can display the text

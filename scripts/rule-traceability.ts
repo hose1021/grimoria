@@ -4,7 +4,7 @@
 // whose name carries the row's identifier?
 // Pure functions so the rules can be tested without the repository.
 
-const CITATION = /`([a-z0-9./-]+\.test\.ts)`\s+"([^"]+)"/g;
+const CITATION = /`([^`]+\.test\.ts)`\s+"([^"]+)"/g;
 const IDENTIFIER = /\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d{2}\b/g;
 const LEVELS: Record<string, true> = {
   verified: true,
@@ -40,6 +40,7 @@ export interface MatrixRuleRow {
   id: string | null;
   ids: string[];
   label: string;
+  text: string;
   level: string;
   revision: string | null;
   role: string | null;
@@ -102,11 +103,39 @@ export function matrixRuleRows(matrixRows: string[][]): MatrixRuleRow[] {
       id: ids.length === 1 ? ids[0] : null,
       ids,
       label: first.slice(0, 80),
+      text: cells[1] ?? "",
       level,
       revision: revision ? "r" + revision[1] : null,
       role: role ? role[1] : null,
       citations: citationsOf(cells[cells.length - 2]),
     });
+  }
+  return rows;
+}
+
+/**
+ * Every matrix row that carries exactly one identifier, with its raw level
+ * cell. Unlike `matrixRuleRows` this does not drop an unknown level: the level
+ * comparison against the target branch must fail closed on a corrupted row.
+ */
+export function matrixLevelRows(matrix: string): Array<{ id: string; level: string }> {
+  const cellsOf = (line: string): string[] | null => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return null;
+    return trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((cell) => cell.trim());
+  };
+  const rows: Array<{ id: string; level: string }> = [];
+  for (const cells of matrix
+    .split("\n")
+    .map(cellsOf)
+    .filter((entry) => entry !== null)) {
+    if (cells.length < 3) continue;
+    const ids = identifiersIn(cells[0] ?? "");
+    if (ids.length !== 1) continue;
+    rows.push({ id: ids[0]!, level: cells[cells.length - 1] ?? "" });
   }
   return rows;
 }
@@ -123,7 +152,9 @@ export function traceabilityFailures({
   docs,
   shared = [],
   editionOf,
+  aliases = new Map(),
 }: {
+  aliases?: ReadonlyMap<string, string>;
   docs: { edition: string | null; role: string; rules: RuleRow[] }[];
   editionOf: (role: string) => string | null;
   matrixRows: string[][];
@@ -146,11 +177,13 @@ export function traceabilityFailures({
   };
 
   for (const doc of docs) {
-    for (const rule of doc.rules) declare(`${doc.role}/rule.md`, rule);
+    for (const rule of doc.rules) declare(`${doc.role}/registry`, rule);
     if (doc.edition !== null) {
       const edition = editionOf(doc.role);
       if (doc.edition !== edition) {
-        failures.push(`${doc.role}/rule.md says edition ${doc.edition}, the model says ${edition}`);
+        failures.push(
+          `${doc.role}/registry says edition ${doc.edition}, the model says ${edition}`,
+        );
       } else if (PREFIX[edition]) {
         for (const rule of doc.rules) {
           if (!rule.id.startsWith(PREFIX[edition] + "-")) {
@@ -162,7 +195,7 @@ export function traceabilityFailures({
     const count = rows.filter((row) => row.role === doc.role).length;
     if (doc.rules.length !== count) {
       failures.push(
-        `${doc.role}/rule.md lists ${doc.rules.length} rules, the matrix has ${count} rows`,
+        `${doc.role}/registry lists ${doc.rules.length} rules, the matrix has ${count} rows`,
       );
     }
   }
@@ -170,7 +203,7 @@ export function traceabilityFailures({
 
   for (const role of new Set(rows.map((row) => row.role))) {
     if (role !== null && !docs.some((doc) => doc.role === role)) {
-      failures.push(`matrix has rows for ${role}, but there is no ${role}/rule.md`);
+      failures.push(`matrix has rows for ${role}, but there is no ${role}/registry`);
     }
   }
 
@@ -204,11 +237,11 @@ export function traceabilityFailures({
         const own = doc?.rules.find((rule) => rule.id === id);
         if (!own) {
           failures.push(
-            `${id} in matrix row "${row.label}" is not declared in ${row.role}/rule.md`,
+            `${id} in matrix row "${row.label}" is not declared in ${row.role}/registry`,
           );
         } else if (own.revision !== row.revision) {
           failures.push(
-            `${id} references matrix row ${row.revision}, but ${row.role}/rule.md names ${own.revision}`,
+            `${id} references matrix row ${row.revision}, but ${row.role}/registry names ${own.revision}`,
           );
         }
         const edition = editionOf(row.role);
@@ -224,7 +257,9 @@ export function traceabilityFailures({
     if (row.level !== "verified") continue;
     for (const citation of row.citations) {
       const found = identifiersIn(citation.name);
-      if (found.length && !found.some((foundId) => declarations.has(foundId))) {
+      const declared = (foundId: string): boolean =>
+        declarations.has(foundId) || declarations.has(aliases.get(foundId) ?? "");
+      if (found.length && !found.some(declared)) {
         failures.push(
           `${row.role ?? "the shared document"} cites "${citation.name}" with an identifier not declared in the rule documents (${found.join(", ")})`,
         );

@@ -1,0 +1,16 @@
+{
+  "fixtureVersion": 1,
+  "id": "legacy-setup-zero-notes",
+  "description": "Portable pilot: a committed legacy v4 save takes one deterministic command without a TypeScript constructor.",
+  "savedGame": "src/core/engine/fixtures/legacy-setup-zero-game.json",
+  "steps": [
+    {
+      "command": {
+        "id": "conformance-set-notes",
+        "type": "setNotes",
+        "payload": { "notes": "conformance" }
+      },
+      "expected": { "status": "allowed", "notes": "conformance" }
+    }
+  ]
+}

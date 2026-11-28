@@ -2,6 +2,186 @@
   "version": 1,
   "tests": [
     {
+      "key": "scripts/archive-index.test.ts::a dangling archived test reference needs a reviewed correction",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a dangling archived test reference needs a reviewed correction"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a delta requirement body must match the baseline at the transition",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a delta requirement body must match the baseline at the transition"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a disappeared historical record stops the index build",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a disappeared historical record stops the index build"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a later archive keeps every historical record",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a later archive keeps every historical record"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a legacy test path needs one reviewed mapping and must be used",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a legacy test path needs one reviewed mapping and must be used"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a malformed baseline cannot silently drop pinned records",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a malformed baseline cannot silently drop pinned records"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a multi-archive squash keeps the integrated check green",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a multi-archive squash keeps the integrated check green"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a new archive cannot use a fabricated origin",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a new archive cannot use a fabricated origin"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a new archive is appended to the baseline and an accepted hash is never rewritten",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a new archive is appended to the baseline and an accepted hash is never rewritten"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a re-archive takes the provenance the history scan derived",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a re-archive takes the provenance the history scan derived"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a recorded origin must be the first add, not a later one",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a recorded origin must be the first add, not a later one"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a same-commit origin is self-attested and fails",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a same-commit origin is self-attested and fails"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a target-branch archive tree cannot lose or rewrite an accepted change",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a target-branch archive tree cannot lose or rewrite an accepted change"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::an archive accepted on the target branch cannot be removed",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an archive accepted on the target branch cannot be removed"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::an archive outside the accepted anchor must be finished and applied",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an archive outside the accepted anchor must be finished and applied"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::an explicit correction replaces a baseline hash and needs a reason",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an explicit correction replaces a baseline hash and needs a reason"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::an indented checklist and evidence line still count",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an indented checklist and evidence line still count"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::an origin record must match the index and carry a reason",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an origin record must match the index and carry a reason"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive corrections are unique and target the current tree",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive corrections are unique and target the current tree"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive hashes canonicalize text and keep binary bytes",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive hashes canonicalize text and keep binary bytes"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive origins survive repeated feature, squash, release and back-merge cycles",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive origins survive repeated feature, squash, release and back-merge cycles"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive origins survive squash integration into a legacy target",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive origins survive squash integration into a legacy target"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive provenance validates path, date and commit shape",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive provenance validates path, date and commit shape"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::binary bytes without a NUL stay unchanged and index metadata is validated",
+      "file": "scripts/archive-index.test.ts",
+      "name": "binary bytes without a NUL stay unchanged and index metadata is validated"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::every archived change names a test and the anchor matches the target tree",
+      "file": "scripts/archive-index.test.ts",
+      "name": "every archived change names a test and the anchor matches the target tree"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::malformed archive corrections and index files fail closed",
+      "file": "scripts/archive-index.test.ts",
+      "name": "malformed archive corrections and index files fail closed"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::provenance survives a squash with missing origin commits",
+      "file": "scripts/archive-index.test.ts",
+      "name": "provenance survives a squash with missing origin commits"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the archive check fails closed on an invalid target ref",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the archive check fails closed on an invalid target ref"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the archive CLI refuses a bypassed anchor, a re-pin and a malformed index",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the archive CLI refuses a bypassed anchor, a re-pin and a malformed index"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the archive index sorts by name and rejects a duplicate entry"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the baseline rejects a dropped or rewritten archived tree",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the baseline rejects a dropped or rewritten archived tree"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the baseline rejects duplicates, extra records and unpinned trees",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the baseline rejects duplicates, extra records and unpinned trees"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the committed archive index carries an origin and issue reference",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the committed archive index carries an origin and issue reference"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the original anchor cannot gain, lose or change a record",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the original anchor cannot gain, lose or change a record"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the original baseline catches a coordinated archive deletion",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the original baseline catches a coordinated archive deletion"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the target tree, not a working anchor, exempts an introduced archive",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the target tree, not a working anchor, exempts an introduced archive"
+    },
+    {
       "key": "scripts/build-official-roles.test.ts::a missing How to Run fails the build",
       "file": "scripts/build-official-roles.test.ts",
       "name": "a missing How to Run fails the build"
@@ -45,6 +225,11 @@
       "key": "scripts/build-official-roles.test.ts::wake state comes from the official reminders",
       "file": "scripts/build-official-roles.test.ts",
       "name": "wake state comes from the official reminders"
+    },
+    {
+      "key": "scripts/check-acceptance.test.ts::a reviewed legacy identifier alias is accepted, an unreviewed one is not",
+      "file": "scripts/check-acceptance.test.ts",
+      "name": "a reviewed legacy identifier alias is accepted, an unreviewed one is not"
     },
     {
       "key": "scripts/check-acceptance.test.ts::a role document with a different row count than the matrix fails",
@@ -135,6 +320,101 @@
       "key": "scripts/check-official.test.ts::one changed byte fails with a hash mismatch",
       "file": "scripts/check-official.test.ts",
       "name": "one changed byte fails with a hash mismatch"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::a runtime path with a quote still needs its capability delta",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "a runtime path with a quote still needs its capability delta"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::a storage change needs the state-and-storage delta spec",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "a storage change needs the state-and-storage delta spec"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::an archive-only transition keeps the package and its evidence",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an archive-only transition keeps the package and its evidence"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::an archived change resolves by its exact name or date prefix only",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an archived change resolves by its exact name or date prefix only"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::an archived package cannot satisfy a behavior change",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an archived package cannot satisfy a behavior change"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::an R3 change must name a same-issue OpenSpec package",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an R3 change must name a same-issue OpenSpec package"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::archive evidence must belong to the named transition",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "archive evidence must belong to the named transition"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::files alongside a delta cannot stand in for a changed spec",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "files alongside a delta cannot stand in for a changed spec"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::release metadata needs no OpenSpec package",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "release metadata needs no OpenSpec package"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a changed-file list may be NUL or newline separated",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a changed-file list may be NUL or newline separated"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a declared tier below the diff, a missing issue, risk or evidence fails"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a mixed gameplay and R3 diff keeps the gameplay evidence",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a mixed gameplay and R3 diff keeps the gameplay evidence"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a proven release metadata diff is R0 without an OpenSpec package",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a proven release metadata diff is R0 without an OpenSpec package"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a Verification section is the evidence when no Evidence line exists",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a Verification section is the evidence when no Evidence line exists"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::cited evidence must resolve to a real test file and a registry rule",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "cited evidence must resolve to a real test file and a registry rule"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::each tier needs the evidence its risk implies",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "each tier needs the evidence its risk implies"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::public seat and secret screens require privacy review",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "public seat and secret screens require privacy review"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::R2 rejects a body without pinned sources, revision or RED/GREEN",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "R2 rejects a body without pinned sources, revision or RED/GREEN"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::the diff decides the tier from its highest-risk path",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "the diff decides the tier from its highest-risk path"
     },
     {
       "key": "scripts/check-toolchain.test.ts::a format script that still calls prettier is reported",
@@ -412,6 +692,66 @@
       "name": "a VERSION that is not semantic fails"
     },
     {
+      "key": "scripts/conformance-fixture.test.ts::a rejected command leaves the saved state unchanged",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "a rejected command leaves the saved state unchanged"
+    },
+    {
+      "key": "scripts/conformance-fixture.test.ts::the journal replays the accepted commands to the saved state",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the journal replays the accepted commands to the saved state"
+    },
+    {
+      "key": "scripts/conformance-fixture.test.ts::the portable engine contract runs from JSON alone",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the portable engine contract runs from JSON alone"
+    },
+    {
+      "key": "scripts/conformance-fixture.test.ts::the portable fixture replays a committed legacy save through the engine",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the portable fixture replays a committed legacy save through the engine"
+    },
+    {
+      "key": "scripts/conformance-fixture.test.ts::the public projection exposes aggregates only",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the public projection exposes aggregates only"
+    },
+    {
+      "key": "scripts/documentation-consumers.test.ts::the consumer inventory includes readers that join the filename to a directory",
+      "file": "scripts/documentation-consumers.test.ts",
+      "name": "the consumer inventory includes readers that join the filename to a directory"
+    },
+    {
+      "key": "scripts/documentation-consumers.test.ts::the consumer map ignores binary content instead of matching raw bytes",
+      "file": "scripts/documentation-consumers.test.ts",
+      "name": "the consumer map ignores binary content instead of matching raw bytes"
+    },
+    {
+      "key": "scripts/documentation-consumers.test.ts::the consumer map names every file that reads an artifact and not the artifact itself",
+      "file": "scripts/documentation-consumers.test.ts",
+      "name": "the consumer map names every file that reads an artifact and not the artifact itself"
+    },
+    {
+      "key": "scripts/documentation-inventory.test.ts::counts committed blobs and separates active and archived OpenSpec changes",
+      "file": "scripts/documentation-inventory.test.ts",
+      "name": "counts committed blobs and separates active and archived OpenSpec changes"
+    },
+    {
+      "key": "scripts/documentation-inventory.test.ts::reports an empty tree and rejects malformed input instead of undercounting",
+      "file": "scripts/documentation-inventory.test.ts",
+      "name": "reports an empty tree and rejects malformed input instead of undercounting"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the boundary records its invariants and the conformance pilot status",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the boundary records its invariants and the conformance pilot status"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the engine boundary names only source files that exist",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the engine boundary names only source files that exist"
+    },
+    {
       "key": "scripts/fetch-official.test.ts::a second run leaves the manifest and snapshots byte-identical",
       "file": "scripts/fetch-official.test.ts",
       "name": "a second run leaves the manifest and snapshots byte-identical"
@@ -452,6 +792,16 @@
       "name": "the real matrix yields every pinned revision"
     },
     {
+      "key": "scripts/guidance-map.test.ts::every root guidance section has a canonical home that exists",
+      "file": "scripts/guidance-map.test.ts",
+      "name": "every root guidance section has a canonical home that exists"
+    },
+    {
+      "key": "scripts/guidance-map.test.ts::the section scan keeps each heading separate and counts its bytes",
+      "file": "scripts/guidance-map.test.ts",
+      "name": "the section scan keeps each heading separate and counts its bytes"
+    },
+    {
       "key": "scripts/harness.test.ts::mapLimit propagates a worker failure",
       "file": "scripts/harness.test.ts",
       "name": "mapLimit propagates a worker failure"
@@ -475,6 +825,111 @@
       "key": "scripts/harness.test.ts::workerCount defaults to three and clamps the override",
       "file": "scripts/harness.test.ts",
       "name": "workerCount defaults to three and clamps the override"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a change is archive-ready only with a finished checklist and every requirement in the baseline",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a change is archive-ready only with a finished checklist and every requirement in the baseline"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a delta file may mix ADDED and MODIFIED sections",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a delta file may mix ADDED and MODIFIED sections"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a delta that cannot be applied to the baseline is a conflict, not a sync",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a delta that cannot be applied to the baseline is a conflict, not a sync"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a delta without an operation header or capability path is rejected",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a delta without an operation header or capability path is rejected"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a matching requirement heading with a different body is not a sync",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a matching requirement heading with a different body is not a sync"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a modified requirement ends before the next operation heading",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a modified requirement ends before the next operation heading"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a removed requirement counts as synced only when the baseline no longer holds it",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a removed requirement counts as synced only when the baseline no longer holds it"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a RENAMED operation is rejected explicitly",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a RENAMED operation is rejected explicitly"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::an unsynced delta and an open task both block an archive",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "an unsynced delta and an open task both block an archive"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::missing evidence and empty task lists block an archive separately",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "missing evidence and empty task lists block an archive separately"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a dependency, script or lock dependency change fails the exemption",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a dependency, script or lock dependency change fails the exemption"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a release without the lock version change passes",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a release without the lock version change passes"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a runtime, workflow or verification change is not release metadata",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a runtime, workflow or verification change is not release metadata"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::a version bump that touches release metadata only passes",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "a version bump that touches release metadata only passes"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::an empty commit range is not release metadata",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "an empty commit range is not release metadata"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::an incomplete or inconsistent bump fails",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "an incomplete or inconsistent bump fails"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::divergent branches compare contents at the merge base",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "divergent branches compare contents at the merge base"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::root paths named after Object members are not release metadata",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "root paths named after Object members are not release metadata"
+    },
+    {
+      "key": "scripts/release-provenance.test.ts::a differing target first add needs the reviewed record",
+      "file": "scripts/release-provenance.test.ts",
+      "name": "a differing target first add needs the reviewed record"
+    },
+    {
+      "key": "scripts/release-provenance.test.ts::a record that differs from the index fails",
+      "file": "scripts/release-provenance.test.ts",
+      "name": "a record that differs from the index fails"
+    },
+    {
+      "key": "scripts/release-provenance.test.ts::a target first add that equals the index needs no record",
+      "file": "scripts/release-provenance.test.ts",
+      "name": "a target first add that equals the index needs no record"
     },
     {
       "key": "scripts/role-ownership.test.ts::a migrated attack keeps the references of the shared succession, not of the step completion",
@@ -585,6 +1040,111 @@
       "key": "scripts/role-ownership.test.ts::the Tinker, the Po and the Shabaloth resolve on the night-step capability, not in the step completion",
       "file": "scripts/role-ownership.test.ts",
       "name": "the Tinker, the Po and the Shabaloth resolve on the night-step capability, not in the step completion"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::a citation name the matrix cannot hold is reported instead of written",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "a citation name the matrix cannot hold is reported instead of written"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::a duplicate citation inside one rule is rejected",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "a duplicate citation inside one rule is rejected"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::a level accepted on the target branch cannot drop",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "a level accepted on the target branch cannot drop"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::an accepted citation baseline cannot lose entries",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "an accepted citation baseline cannot lose entries"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::an applied citation correction still passes after the target branch integrated it",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "an applied citation correction still passes after the target branch integrated it"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::an unappliable registry fails closed on ids, roles, levels, fields and tests",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "an unappliable registry fails closed on ids, roles, levels, fields and tests"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::citation corrections must be unique per source citation",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "citation corrections must be unique per source citation"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::cross references reject a duplicate id across files and a dangling atomic target",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "cross references reject a duplicate id across files and a dangling atomic target"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::every baseline citation is preserved exactly, with recorded corrections",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every baseline citation is preserved exactly, with recorded corrections"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::every correction for one rule applies by its full citation identity",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every correction for one rule applies by its full citation identity"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::every registry requirement text matches the matrix and the exception register is intact",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every registry requirement text matches the matrix and the exception register is intact"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::every role module has a canonical registry file",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every role module has a canonical registry file"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::legacy citations come from the matrix and the old role documents",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "legacy citations come from the matrix and the old role documents"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::legacy levels and citations read every matrix row",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "legacy levels and citations read every matrix row"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::parity reports exactly the rules whose normalized rows differ",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "parity reports exactly the rules whose normalized rows differ"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the citation legacy check fails closed on an invalid ref",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the citation legacy check fails closed on an invalid ref"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the generated trace names the registry source, not the retired dossiers",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the generated trace names the registry source, not the retired dossiers"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the matrix generator writes registry labels and is idempotent",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the matrix generator writes registry labels and is idempotent"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the registry rejects nested citation and ownership defects",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the registry rejects nested citation and ownership defects"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the runtime validator and the JSON Schema reject the same rule shapes",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the runtime validator and the JSON Schema reject the same rule shapes"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the sailor pilot validates its fields, role and test identities",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the sailor pilot validates its fields, role and test identities"
     },
     {
       "key": "scripts/rule-traceability.test.ts::a declared identifier without a matrix row fails",
@@ -8275,6 +8835,11 @@
       "key": "src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data, the shown role and the Goon alignment",
       "file": "src/ui/screens/player-projection.test.ts",
       "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
+    },
+    {
+      "key": "src/ui/screens/reference/filter.test.ts::a host can find a translated character by name or spaced catalog ID within its edition",
+      "file": "src/ui/screens/reference/filter.test.ts",
+      "name": "a host can find a translated character by name or spaced catalog ID within its edition"
     },
     {
       "key": "src/ui/screens/reference/reference-data.test.ts::concurrent reference requests share each attempt and a failed load can be retried",

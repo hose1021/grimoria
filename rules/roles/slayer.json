@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-SLAYER-01",
+      "roleId": "slayer",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3122",
+      "requirement": "Once per game, during the day, publicly choose a player: if they are the Demon, they die.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
+        }
+      ]
+    }
+  ]
+}

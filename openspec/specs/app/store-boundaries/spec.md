@@ -265,3 +265,134 @@ fields.
 
 - **WHEN** the demo game runs
 - **THEN** it uses its own state object and the stored game is unchanged
+
+### Requirement: Safe recovery of a damaged setup library
+
+The host SHALL be able to restore a valid export over a damaged library after preserving the original bytes. A dismissed or superseded file import SHALL leave the library unchanged.
+
+**Source**: SPEC.md, setup library and reliable persistence
+**Tests**: `src/infrastructure/library/bag-library.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Restore when the saved library cannot be parsed
+
+- **WHEN** the host imports a valid backup over the same damaged value they opened
+- **THEN** the original is backed up before the replacement and a backup or storage failure leaves the original intact for retry
+
+#### Scenario: The library changes before an import commits
+
+- **WHEN** another window writes a new library or the host closes the dialog or chooses a newer file
+- **THEN** the obsolete import cannot overwrite the saved library
+
+### Requirement: Startup and synchronization tolerate storage failures
+
+The store SHALL distinguish an untouched initial game from an unpersisted edit and keep the shell usable when storage access is denied.
+
+**Source**: SPEC.md, reliability and save failures
+**Tests**: `src/infrastructure/adapters.test.ts`, `src/application/store/create-game-store.test.ts`, `src/entry/store.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Blocked storage
+
+- **WHEN** the browser rejects even obtaining localStorage
+- **THEN** read-only routes remain available and the app reports the storage problem
+
+#### Scenario: First save across windows
+
+- **WHEN** a second untouched window receives the first saved game
+- **THEN** it adopts that game and can continue saving
+
+#### Scenario: Two empty setup windows race to initialize
+
+- **WHEN** another window commits the first save just before an untouched setup window initializes its bag
+- **THEN** the later window adopts the committed game and never replays its rejected command against that game
+
+#### Scenario: External replacement while the host is typing
+
+- **WHEN** adopting an external save would discard an unfinished host note
+- **THEN** the pending note remains available for recovery and export
+
+### Requirement: Recovery export includes pending notes
+
+A game backup SHALL include the latest pending host note in both its current state and its replay history.
+
+**Source**: SPEC.md, complete private backup
+**Tests**: `src/application/store/create-game-store.test.ts`
+
+#### Scenario: Note write failed
+
+- **WHEN** the host exports a note after saving fails
+- **THEN** the exported backup recovers that note on import and replay
+
+### Requirement: Concurrent library edits preserve saved entries
+
+Independent saves SHALL merge into the current library and stale edits to the same entry SHALL surface a conflict.
+
+**Source**: SPEC.md, persistent setup library
+**Tests**: `src/infrastructure/library/bag-library.test.ts`
+
+#### Scenario: Two independent additions
+
+- **WHEN** two open library views each save a different entry
+- **THEN** both entries survive reopening the library
+
+#### Scenario: Conflicting edits
+
+- **WHEN** two views save different edits to the same saved entry
+- **THEN** the second save reports the conflict and preserves the first edit
+
+### Requirement: Command execution is atomic and runs once
+
+Dispatch SHALL execute an accepted command once and publish the resulting state only after successful persistence.
+
+**Source**: SPEC.md, command transaction and replay
+**Tests**: `src/application/store/create-game-store.test.ts`
+
+#### Scenario: Apply and retry
+
+- **WHEN** the host dispatches an accepted command and retries its ID
+- **THEN** the first dispatch executes once and the retry reuses the recorded result
+
+#### Scenario: Failed write
+
+- **WHEN** persistence fails after the command draft is evaluated
+- **THEN** subscribers retain the last committed game and receive the save failure
+
+### Requirement: Keep the only recoverable copy of damaged data
+
+The store SHALL preserve unreadable primary bytes until a recovery copy is successfully stored.
+
+**Source**: SPEC.md, State v4 and corrupt save recovery
+**Tests**: `src/application/store/create-game-store.test.ts`
+
+#### Scenario: Backup storage is full
+
+- **WHEN** saving a broken primary under the backup key fails and a smaller replacement would fit
+- **THEN** the original remains intact, the error remains visible and the host can retry after freeing space
+
+### Requirement: History controls observe committed history
+
+The store SHALL expose the new undo and redo availability when it publishes a successful history operation.
+
+**Source**: SPEC.md, undo and redo
+**Tests**: `src/application/store/create-game-store.test.ts`
+
+#### Scenario: Immediate observation
+
+- **WHEN** a subscriber reads history during an undo or redo notification
+- **THEN** the controls reflect the committed operation and failed writes preserve the previous history
+
+### Requirement: Recovery preserves playable sessions and distinct originals
+
+The store SHALL retain a running game when the primary save becomes unreadable and SHALL accept a subsequent valid repair in an unedited window. Reopening the same damaged bytes SHALL reuse their recovery copy and distinct damaged values SHALL remain independently recoverable.
+
+**Source**: SPEC.md, persistence and cross-tab recovery
+**Tests**: `src/infrastructure/adapters.test.ts`, `src/application/store/create-game-store.test.ts`, `src/entry/store.test.ts`
+
+#### Scenario: Damage then repair from a second window
+
+- **WHEN** the primary becomes invalid while a playable game is open
+- **THEN** the host can still export the playable game and a clean window can adopt a valid repair
+
+#### Scenario: Repeated recovery
+
+- **WHEN** the damaged save is opened repeatedly or two distinct recoveries share a timestamp
+- **THEN** identical bytes share a backup and different originals remain available

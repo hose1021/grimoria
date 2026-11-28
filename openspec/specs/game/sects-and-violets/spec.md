@@ -314,7 +314,7 @@ dies, and SHALL use the borrowed ability in place of the printed character for
 that character's day ability. A Drunk's shown character SHALL NOT trigger a
 hidden consequence.
 
-**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165)
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165)
 **Tests**: `src/core/engine/snv.test.ts`, `src/core/roles/moonchild/role.test.ts`
 
 #### Scenario: Character in play
@@ -322,12 +322,6 @@ hidden consequence.
 - **WHEN** the Philosopher chooses a good character another player holds
 - **THEN** that player is drunk and the Philosopher wakes with the borrowed
   ability
-
-#### Scenario: Character enters play later
-
-- **WHEN** the chosen character is not in play at the choice and enters play
-  later
-- **THEN** its new owner becomes drunk at that moment
 
 #### Scenario: Borrowed day ability
 
@@ -368,6 +362,35 @@ hidden consequence.
 - **WHEN** a player who spent the ability later gains the Philosopher character
   again
 - **THEN** the once-per-game ability is available again
+
+### Requirement: Philosopher drunk owner follows the borrowed character
+
+When the chosen character is absent at the choice and enters play later —
+through a Pit-Hag change, a Fang Gu jump or a role correction — its current
+owner SHALL become drunk at that moment, and a seat that no longer holds the
+character SHALL NOT stay drunk. A borrowed ability SHALL NOT count as the
+character being in play.
+
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Character enters play later
+
+- **WHEN** the chosen character is not in play at the choice and enters play
+  later through a Pit-Hag change or a role correction
+- **THEN** its new owner becomes drunk at that moment
+
+#### Scenario: Borrowed character and the Pit-Hag
+
+- **WHEN** the Philosopher borrowed an absent character and the Pit-Hag chooses
+  that same character
+- **THEN** the Pit-Hag creates it and the new holder is drunk
+
+#### Scenario: Fang Gu jump
+
+- **WHEN** the Outsider the Philosopher borrowed becomes the new Fang Gu
+- **THEN** the old chosen character is out of play and the new Fang Gu is not
+  drunk for it
 
 ### Requirement: Replacement consistency
 
@@ -1461,3 +1484,74 @@ whether a Demon voted or a Minion nominated.
 
 - **WHEN** only a dead-vote marker was recorded outside the nomination ledger
 - **THEN** the role information still requires the Storyteller's answer
+
+### Requirement: The Pit-Hag offers arbitrary deaths only after creating a Demon
+
+The Pit-Hag step SHALL NOT offer a Storyteller control for a recorded death
+before the chosen character creates a Demon. The completion SHALL gain that
+control only when the new character is a Demon, and the outcome path SHALL
+reject a recorded death on a step that does not allow one.
+
+**Source**: [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998); Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A fresh step records no death
+
+- **WHEN** the Pit-Hag's step is built and the Storyteller records a death
+  before choosing a character
+- **THEN** the outcome is rejected and the named player stays alive
+
+#### Scenario: A no-op choice records no death
+
+- **WHEN** the Pit-Hag chooses a character already in play
+- **THEN** the step still offers no death and a recorded death is rejected
+
+#### Scenario: A created Demon opens the arbitrary deaths
+
+- **WHEN** the Pit-Hag turns a player into a Demon
+- **THEN** the step accepts the deaths the Storyteller marks as Pit-Hag attacks
+
+#### Scenario: An earlier recorded death replays
+
+- **WHEN** a command recorded under the earlier ruleset marks a Pit-Hag death
+- **THEN** the replay keeps that death
+
+### Requirement: The Pit-Hag death control follows the drafted character
+
+The Storyteller console SHALL expose the Pit-Hag's arbitrary-death control before
+the completion only when the drafted character is a not-in-play Demon, and the
+engine SHALL reject a recorded death when that condition is not met.
+
+**Source**: [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998); Issue #219
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Drafted Demon
+
+- **WHEN** the host drafts a not-in-play Demon for the Pit-Hag
+- **THEN** the death control appears and the confirmed command records the
+  chosen deaths
+
+#### Scenario: In-play character
+
+- **WHEN** the host drafts a character already in play
+- **THEN** no death control appears and a forced death is rejected
+
+### Requirement: Recorded information pairs remain inspectable
+
+The Storyteller journal SHALL keep the recorded Dreamer and Sage pairs and SHALL
+allow the host to read the full history independently of the eight-line preview,
+without exposing either pair in the public projection.
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904), [Sage r3009](https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009); Issue #216
+**Tests**: `src/core/engine/snv.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Pair beyond the preview
+
+- **WHEN** more than eight journal lines follow a recorded pair
+- **THEN** the pair is absent from the preview and present after the host
+  expands the full journal
+
+#### Scenario: Reload and privacy
+
+- **WHEN** the page reloads
+- **THEN** the pair remains inspectable and stays absent from the public view

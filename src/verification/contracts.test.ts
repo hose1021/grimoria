@@ -1,11 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const DIR = join(ROOT, "docs", "audits", "verification-gates");
+execFileSync(process.execPath, [join(ROOT, "scripts", "verification", "build-uncovered.ts")], {
+  stdio: "ignore",
+});
 const trace = JSON.parse(readFileSync(join(DIR, "traceability.json"), "utf8")) as {
   officialRules: Array<{ id: string; engineRuleIds: string[]; uiContractIds: string[] }>;
   engineRules: Array<{
@@ -24,7 +28,7 @@ const manifest = JSON.parse(readFileSync(join(DIR, "test-manifest.json"), "utf8"
   tests: Array<{ key: string }>;
   browser: Array<{ key: string }>;
 };
-const uncovered = JSON.parse(readFileSync(join(DIR, "uncovered.json"), "utf8")) as {
+const uncovered = JSON.parse(readFileSync(join(ROOT, "reports", "uncovered.json"), "utf8")) as {
   officialRules: Array<{ id: string }>;
   engineRules: Array<{ id: string }>;
   uiContracts: Array<{ id: string }>;

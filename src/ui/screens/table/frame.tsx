@@ -136,8 +136,7 @@ export function QueuePanel({ view }: { view: TableView }) {
     .slice(0, 3)
     .map(stepLabel)
     .join(", ");
-  const segments = 7;
-  const filled = total ? Math.round((done / total) * segments) : 0;
+
   return (
     <section className={`${PANEL} mx-auto mt-2 grid w-full max-w-[900px] gap-2`} data-panel="queue">
       <span className="label">{t("queue")}</span>
@@ -147,14 +146,12 @@ export function QueuePanel({ view }: { view: TableView }) {
           {t("ui.queueOf", { total })}
         </span>
       </div>
-      <div className="flex gap-[3px]" aria-hidden="true">
-        {Array.from({ length: segments }, (_, index) => (
-          <i
-            key={index}
-            className={`h-1 flex-1 rounded-[1px] ${index < filled ? "bg-amber" : "bg-crypt-3"}`}
-          />
-        ))}
-      </div>
+      <progress
+        className="h-1.5 w-full overflow-hidden rounded-full bg-crypt-3 accent-amber [&::-webkit-progress-bar]:bg-crypt-3 [&::-webkit-progress-value]:bg-amber [&::-moz-progress-bar]:bg-amber"
+        aria-label={t("queue")}
+        value={done}
+        max={total || 1}
+      />
       <p className={`${MUTED} !text-[12px]`}>
         {next ? t("ui.queueNext", { names: next }) : total ? t("ui.done") : t("noWake")}
       </p>

@@ -137,6 +137,11 @@ only where elapsed time is the behavior under test.
 - **WHEN** a check tests a service-worker update or cross-tab propagation
 - **THEN** it keeps a bounded explicit wait that fails with a named timeout instead of passing at any speed
 
+#### Scenario: Navigate to a lazy screen
+
+- **WHEN** a full-game scenario navigates to a screen to inspect its controls or text
+- **THEN** it waits for the requested screen before inspecting its contents, and a route mismatch fails with the expected and observed routes
+
 ### Requirement: CI runs the browser pipeline without serializing independent jobs
 
 Pull-request CI SHALL run the browser regression checks and the full-game

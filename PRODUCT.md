@@ -83,7 +83,7 @@ confirmed beyond that.
 - `docs/rules-matrix.md` — per-role audit table with pinned wiki revisions.
 - `docs/official/wiki/` — pinned official rules text (local recovery via
   `node scripts/fetch-official.ts`).
-- `src/core/roles/<role-id>/rule.md` — per-role rule identifiers and asserting
+- `rules/roles/<role-id>.json` — per-role rule identifiers and asserting
   tests; `node scripts/rules-for.ts <roleId>` prints one dossier.
 - `openspec/specs/` — verified behavior contract with asserting tests.
 - `README.md` support table, generated from the matrix.

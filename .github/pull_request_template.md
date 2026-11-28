@@ -9,9 +9,17 @@ Issue:
 
 Closes #N
 
+## Risk
+
+<!-- Required. R0 docs/tooling, R1 UX or refactor, R2 localized gameplay fix,
+     R3 role, cross-role, command/state, storage/privacy/offline or policy.
+     The diff decides the minimum; a reviewer may elevate it. -->
+
+Risk:
+
 ## OpenSpec change
 
-<!-- Required when this pull request touches openspec/changes/**. Use the
+<!-- Required for R3 and whenever this pull request touches openspec/changes/**. Use the
      change directory name. Documentation-only pull requests state why none
      applies. -->
 
@@ -40,6 +48,8 @@ OpenSpec change:
      command that failed before the change and passes after it. For a
      documentation, tooling or CI-only change, write "not applicable" and the
      check that proves the result. Do not repeat commands CI already runs. -->
+
+Evidence:
 
 - `<command that passed>`
 - Not run: `<command>` (`<reason>`)

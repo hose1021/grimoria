@@ -12,15 +12,15 @@ that evidence is read below, not assumed.
 
 | Layer | Data / test | Command |
 |---|---|---|
-| Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
-| Engine rules | 172 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
-| UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1491 node tests + 51 browser cases, with skip state | `test-index.ts` |
+| Official rules | Atomic rules from the official-rules audit | `build-trace.ts` |
+| Engine rules | Rows from `rules/roles/*.json`, `rules/shared.json`, labels checked against `docs/rules-matrix.md` | `build-trace.ts`, `sync-rules-matrix.ts` |
+| UI contracts | Contracts from the UI semantic audit | `build-trace.ts` |
+| Test identity | Indexed node tests and browser cases, with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
-| Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
+| Trace matrices | `reports/traceability-matrix.md`, `reports/ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
 | Findings gate | non-compliant UI contracts, weak engine rules, missing UI actions, stale citations, regression suite | `gates.ts --scope=findings` |
-| Mutation | 10 critical projections/gates, each with a green baseline | `mutation.ts` |
+| Mutation | Critical projections/gates, each with a green baseline | `mutation.ts` |
 
 ## Semantics
 
@@ -42,24 +42,19 @@ that evidence is read below, not assumed.
   must be listed in `removed-tests.json` with a reason, and an entry for a test
   that still exists fails the gate.
 
-## Status today (audited 2026-11-20)
+## Current status and historical evidence
 
-- Official rules: 523; **260 verified, 12 partial (host-choice) and 251
-  `ROLE_LEVEL_ONLY`**. `atomic-map.json` holds 272 reviewed entries;
-  `uncovered.json` lists every remaining rule with that task. A role-level
-  candidate is not evidence: only an atomic entry may claim a sentence.
-- Engine rules: 172; 152 `verified`, 20 `host-choice`, 0
-  `implemented-unverified`.
-- UI contracts: 87; 87 `COMPLIANT`, 0 non-compliant, 0 not gate-covered.
-- `gates.ts --scope=verified` and `gates.ts --scope=findings` pass;
-  `gates.ts --scope=all` reports 0 findings.
-- `mutation.ts` passes: 10 of 10 probes detected, each after a green baseline.
-- `npm test` includes the verified tests and passes.
+Use `traceability.json`, `uncovered.json`, `atomic-map.json` and
+`test-manifest.json` for the committed inventory. Run the checks below and
+inspect CI at the exact reviewed commit before claiming a passing result.
+The [2026-11-20 audit-era guide](https://github.com/hose1021/grimoria/blob/77e1e926404b66b1e99cbfcb229ba51420db69ad/docs/audits/verification-gates/README.md)
+preserves the previous historical counts and reported results; they are not
+current-branch proof.
 
 An empty findings register means no registered finding. It does not prove that
-every sentence of every official rule is implemented or asserted: 257 official
-rules remain role-level only, and a role-level match does not substitute for
-sentence-level evidence.
+every official rule is implemented or asserted: role-level matches do not
+substitute for reviewed sentence-level evidence. Do not infer verification
+from test names or aggregate passing-test counts.
 
 ## Commands
 
@@ -75,9 +70,11 @@ node scripts/verification/mutation.ts
 node --test scripts/verification/source-text.test.ts scripts/verification/gate-rules.test.ts
 ```
 
-The generated files (`traceability.json`, `test-manifest.json`, `uncovered.json`
-and the two matrices) are committed. The gate fails when any is stale, so a rule
-ID, contract ID or test cannot disappear silently.
+`traceability.json` and `test-manifest.json` are committed. `reports/` is
+ignored: `build-uncovered.ts` and `render-matrix.ts` regenerate it on demand, and
+their `--check` mode compares the result. The gate fails when a committed file is
+stale or a regenerated file differs, so a rule ID, contract ID or test cannot
+disappear silently.
 
 ## Test layers
 
@@ -92,13 +89,14 @@ ID, contract ID or test cannot disappear silently.
    No TSX test transformer is added; the browser is the component oracle.
 5. **Findings** (each PR, red): `gates.ts --scope=findings` plus
    `scripts/verification/findings.test.ts`.
-6. **Mutation** (weekly/dispatch): 9 probes on critical selectors and gates.
+6. **Mutation** (weekly/dispatch): probes on critical selectors and gates; see
+   `scripts/verification/mutation.ts` for the current inventory.
 
 ## Limits
 
 The gate cannot prove that a test asserts the rule it names; mutation probes and
 review are that control. Sentence-level equivalence exists only for the reviewed
-atomic entries (currently one). A listed contract test may not exercise its contract
+atomic entries. A listed contract test may not exercise its contract
 (`audit.md` A-10). Role/topic candidates remain visible in the matrix for that
 review.
 
@@ -106,13 +104,13 @@ review.
 
 - `audit.md` — independent audit of this system, defects and dispositions.
 - `traceability.json` — machine-readable Official Rule → engine rule → UI contract.
-- `traceability-matrix.md` — human-readable 523-rule matrix.
-- `ui-contract-test-matrix.md` — 87-contract matrix.
+- `reports/traceability-matrix.md` — generated official-rule matrix, not tracked.
+- `reports/ui-contract-test-matrix.md` — generated UI-contract matrix, not tracked.
 - `test-manifest.json` — committed test identity baseline with skip state.
-- `atomic-map.json` — reviewed official-rule → engine-rule mappings (one entry).
+- `atomic-map.json` — reviewed official-rule → engine-rule mappings.
 - `removed-verification.json` — allowed mapping downgrades with reasons.
 - `removed-tests.json` — allowed test-identity removals with reasons.
-- `uncovered.json` — every uncovered rule/contract with reason and task.
+- `reports/uncovered.json` — every uncovered rule/contract with reason and task, regenerated.
 - `command-scope.json` — UI/product/internal/missing command classification.
 - `known-findings.md` — red regression tests and linked issues.
 - `architecture.md`, `coverage-policy.md`, `ci.md`, `mutation.md`.

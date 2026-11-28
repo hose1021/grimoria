@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-SAGE-01",
+      "roleId": "sage",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r3009",
+      "requirement": "If the Demon kills you, you learn that it is 1 of 2 players.",
+      "assertingTests": [
+        {
+          "file": "src/core/roles/sage/role.test.ts",
+          "name": "a player who did not die as the Sage gets no death information (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Sage's death-triggered wake keeps its official slot (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a host answer to the Dreamer and the Sage changes no game state and stays private (SNV-DREAMER-01, SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a sober Sage offers only pairs with the Demon that killed them (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired Sage may show the Demon, and a Vortox forbids it (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Sage shows the Demon who killed them after the Barber moves the Demon character (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a saved 0.4.1 journal replays its sober Dreamer and Sage answers without a pair (SNV-DREAMER-01, SNV-SAGE-01)"
+        }
+      ]
+    }
+  ]
+}

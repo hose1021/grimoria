@@ -62,7 +62,7 @@ export function appBarMarkup({
       <img class="brand-mark" src="${esc(brandUrl)}" alt="">
       <span class="${APP_BAR_NAME}">
         <b class="${APP_BAR_TITLE}">Grimoria</b>
-        <small class="${APP_BAR_SUBTITLE}">${esc(t("caseFile"))}${
+        <small class="${APP_BAR_SUBTITLE}">${esc(t(active))}${
           scriptName ? ` · ${esc(scriptName)}` : ""
         }</small>
       </span>

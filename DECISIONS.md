@@ -4,7 +4,7 @@ AGENTS.md is authoritative. If this file conflicts with it, AGENTS.md wins and t
 
 ## Purpose
 
-This file records why a delivery-process choice was made and what it costs. It is never normative. Rules live in `AGENTS.md`, assignments live in `TEAM.md`, and architecture lives in `docs/adr/`.
+This file records why a delivery-process choice was made and what it costs. It is never normative. Rules live in `AGENTS.md`; architecture decisions live in `docs/adr/`.
 
 ## Format
 
@@ -58,3 +58,10 @@ Each entry is a dated heading followed by exactly four bullets: `Date`, `Decisio
 - Decision: Issue #478 ships as a documentation-only change with no OpenSpec change.
 - Reason: `AGENTS.md` Workflow step 1 permits it while the PR still names the issue.
 - Consequence: The PR carries both issue lines, runs `node scripts/openspec-check.ts` and `openspec validate --changes --strict`, and changes no spec.
+
+## 2026-11-28 - One instruction file and ADR-only architecture records
+
+- Date: 2026-11-28
+- Decision: remove `TEAM.md` and `docs/workflow.md`; the unique delivery rules return to `AGENTS.md`, and durable architecture decisions live in `docs/adr/` (`0005-runtime-boundaries.md` replaces `docs/architecture.md`).
+- Reason: role tables and a second workflow document duplicated binding rules and drifted; one instruction file with scoped nested guides stays checkable.
+- Consequence: no general-purpose process document carries rules; `package.json` is the command source, and the guidance map points every section at its canonical file.

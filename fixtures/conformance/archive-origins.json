@@ -1,0 +1,706 @@
+{
+  "origins": [
+    {
+      "name": "2026-11-27-bluff-picker-replacement",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-27-shared-alignment-reveal",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-27-snv-gap-coverage",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-27-stabilize-browser-acceptance",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-bmr-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-clockmaker-oracle-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-death-step-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-death-step-roles",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-dreamer-information-capability",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-drunk-slayer-attempt",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-evidence-gate",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-evil-twin-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-flowergirl-towncrier-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-game-chronicle-undo",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-guard-private-views-and-restores",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-jinx-residual-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-journal-phase-groups",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-juggler-wake-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-mathematician-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-mixed-regression-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-mobile-bag-order",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-permanent-verification-gates",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-pithag-arbitrary-death",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-protect-handoffs-and-recovery",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-protect-library-capacity",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-protect-recovery-and-setup-edits",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-recover-live-saves-and-offline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-recover-saves-and-streamline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-release-defect-reachability",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-remove-player-card-countdown",
+      "commit": "1b09b9500b431940555a591d602cf13eb4236cb6",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-role-choice-log",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-secrets-checksheet",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-setup-random-swap",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-snv-wake-capabilities",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-storyteller-reference",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-storyteller-workspace",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-tb-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-verified-jinx-behaviors",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-28-windows-verification",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "reason": "Squash-integrated in 0a999ce5dffc0af2af0eedaba97acd88a6bcff72 (#526); the PR branch commit is not reachable from dev, so the indexed origin cannot be the first add."
+    },
+    {
+      "name": "2026-11-12-madness-review",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-12-madness-review/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-16-intent-effect-coordinator",
+      "commit": "c4fd33792021f8b82235ccef8bb767106824b5dd",
+      "date": "2026-11-16",
+      "reason": "Release 0.14.0 squash into main: the dev origin c4fd33792021f8b82235ccef8bb767106824b5dd added openspec/changes/archive/2026-11-16-intent-effect-coordinator/proposal.md. Main's first add is b1bb011724ba3cda89e54afb62ae72022cedfe71 (2026-11-16); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-16-lifecycle-phase-guards",
+      "commit": "2feba3072aab8823fd8791b94736940d6be77682",
+      "date": "2026-11-16",
+      "reason": "Release 0.14.0 squash into main: the dev origin 2feba3072aab8823fd8791b94736940d6be77682 added openspec/changes/archive/2026-11-16-lifecycle-phase-guards/proposal.md. Main's first add is b1bb011724ba3cda89e54afb62ae72022cedfe71 (2026-11-16); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-adjudication-capability",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-adjudication-capability/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-badge-and-public-projection",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-badge-and-public-projection/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-advocate-exorcist-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-advocate-exorcist-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-audit-followups",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-audit-followups/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-execution-and-moonchild-choices",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-execution-and-moonchild-choices/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-gambler-pukka-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-gambler-pukka-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-goon-self-poisoned-chooser",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-goon-self-poisoned-chooser/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-night-step-resurrection",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-night-step-resurrection/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-sailor-innkeeper-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-sailor-innkeeper-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-tinker-night-death",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-tinker-night-death/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-bmr-tinker-po-shabaloth-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-bmr-tinker-po-shabaloth-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-browser-harness-speedup",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-browser-harness-speedup/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-cerenovus-night-window",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-cerenovus-night-window/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-chef-registration-counts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-chef-registration-counts/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-command-pipeline-atomicity",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-command-pipeline-atomicity/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-correction-effect-and-shown",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-correction-effect-and-shown/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-day-player-sheet",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-day-player-sheet/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-duplicate-night-targets",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-duplicate-night-targets/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-engine-contracts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-engine-contracts/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-eviltwin-partner-correction",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-eviltwin-partner-correction/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-execution-capability",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-execution-capability/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-gambler-resolved-death",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-gambler-resolved-death/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-grandmother-death-and-target",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-grandmother-death-and-target/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-installable-manifest-icons",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-installable-manifest-icons/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-klutz-day-control",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-klutz-day-control/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-lunatic-default-bluffs",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-lunatic-default-bluffs/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-lunatic-minion-tips",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-lunatic-minion-tips/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-mandatory-night-step-skip",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-mandatory-night-step-skip/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-mid-game-seat-order-328",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-mid-game-seat-order-328/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-midgame-start-knowing",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-midgame-start-knowing/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-notes-debounced-commit",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-notes-debounced-commit/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-official-execution-events",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-official-execution-events/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-official-night-effects",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-official-night-effects/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-official-provenance",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-official-provenance/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-pacifist-survival-control",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-pacifist-survival-control/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-philosopher-borrowed-day-abilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-philosopher-borrowed-day-abilities/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-retire-legacy-js",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-retire-legacy-js/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-review-regressions",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-review-regressions/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-ru-empath-neighbour-count",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-ru-empath-neighbour-count/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-scarletwoman-day-succession",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-scarletwoman-day-succession/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-seat-surface-redesign",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-seat-surface-redesign/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-secrets-engine-agreement",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-secrets-engine-agreement/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-setup-zero-librarian-only",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-setup-zero-librarian-only/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-snv-cerenovus-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-snv-cerenovus-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-snv-demon-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-snv-demon-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-snv-information-night-steps",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-snv-information-night-steps/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-snv-snakecharmer-pithag",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-snv-snakecharmer-pithag/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-stale-execution-drafts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-stale-execution-drafts/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-step-kind-capabilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-step-kind-capabilities/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-storyteller-adjudication-216",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-storyteller-adjudication-216/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-sv-ability-holders",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-sv-ability-holders/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-sv-barber-death-record",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-sv-barber-death-record/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-sv-clockmaker-dead-minion",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-sv-clockmaker-dead-minion/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-sv-death-time-impairment",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-sv-death-time-impairment/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-sv-demon-and-false-info",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-sv-demon-and-false-info/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-sv-eviltwin-pairing",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-sv-eviltwin-pairing/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-sv-peak-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-sv-peak-information/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-table-console-ux",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-table-console-ux/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-table-controls",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-table-controls/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-table-dock-trim",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-table-dock-trim/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-table-host-prompts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-table-host-prompts/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-table-setup-board",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-table-setup-board/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-table-surface-redesign",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-table-surface-redesign/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-butler-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-butler-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-character-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-character-information/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-chef-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-chef-information/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-empath-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-empath-information/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-fortuneteller-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-fortuneteller-information/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-imp-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-imp-night-step/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-new-demon-wake-once",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-new-demon-wake-once/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-night-step-capabilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-night-step-capabilities/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-setup-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-setup-information/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-tb-spy-grimoire",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-tb-spy-grimoire/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-update-prompt-race",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-update-prompt-race/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    },
+    {
+      "name": "2026-11-20-washerwoman-one-draft",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "reason": "Release 0.14.0 squash into main: the dev origin b0a68b480051e69495035aa7c9eabedfee5e851b added openspec/changes/archive/2026-11-20-washerwoman-one-draft/proposal.md. Main's first add is f7aba4f0111f4300bb326a402e9514ad0bab05ab (2026-11-20); the squash does not carry dev history. Reviewed on 2026-11-28."
+    }
+  ]
+}

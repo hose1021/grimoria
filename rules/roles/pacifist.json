@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-PACIFIST-01",
+      "roleId": "pacifist",
+      "edition": "bmr",
+      "level": "host-choice",
+      "revision": "r2601",
+      "requirement": "Executed good players might not die.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)"
+        },
+        {
+          "file": "src/application/read-models/table.test.ts",
+          "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+        }
+      ]
+    }
+  ]
+}

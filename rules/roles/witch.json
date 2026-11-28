@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-WITCH-01",
+      "roleId": "witch",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r2682",
+      "requirement": "Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Witch curse kills the nominator but keeps the nomination (SNV-WITCH-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a placed Witch curse does not kill after the Witch dies or is impaired (SNV-WITCH-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Witch loses a placed curse only when exactly three players live (SNV-WITCH-01)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-SOLDIER-01",
+      "roleId": "soldier",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3121",
+      "requirement": "You are safe from the Demon.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Monk protection and Soldier safety stop the Imp (TB-MONK-01, TB-SOLDIER-01)"
+        }
+      ]
+    }
+  ]
+}

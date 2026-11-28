@@ -150,22 +150,26 @@ SHALL NOT be reported as `verified`.
 The app SHALL keep a jinx table pinned to a committed official resources
 snapshot, SHALL include every official pair whose two characters are supported,
 SHALL give each pair its official reason and a source that names the snapshot,
-and SHALL list the pairs a script can trigger. A pool that can trigger a jinx
-SHALL be at most `requires-storyteller-choice`.
+and SHALL register each pair in the versioned interaction registry with a
+behavior status and its asserting test. A pair SHALL NOT be verified from
+membership alone. A pool that can trigger an `unsupported` pair SHALL NOT run
+automatically.
 
-**Source**: [Official resources `jinxes.json`](https://release.botc.app/resources/data/jinxes.json);
-`docs/official/jinxes.json`
-**Tests**: `src/core/model/support.test.ts`
+**Source**: [Official resources `jinxes.json`](https://release.botc.app/resources/data/jinxes.json); `docs/official/jinxes.json`; [Issue #475](https://github.com/hose1021/grimoria/issues/475)
+**Tests**: `src/core/model/support.test.ts`, `src/core/model/script-definition.test.ts`, `src/core/engine/jinxes.test.ts`
 
 #### Scenario: Official pair
 
-- **WHEN** the lookup is asked for two supported characters that have an official jinx
-- **THEN** it returns the pair with its reason and snapshot source
+- **WHEN** the registry is asked about two supported characters that have an
+  official jinx
+- **THEN** it returns the pair with its reason, snapshot source, behavior
+  status and asserting test
 
 #### Scenario: Pair without a jinx
 
-- **WHEN** the lookup is asked for two supported characters without an official jinx
-- **THEN** it returns `none`
+- **WHEN** the registry is asked about two supported characters without an
+  official jinx
+- **THEN** it returns no pair
 
 #### Scenario: Pair missing from the table
 
@@ -241,3 +245,150 @@ current custom script has the same identifier and a different pool.
 - **WHEN** a host saves a bag, removes one of its roles from the custom pool,
   then loads the saved bag without changing the script identifier
 - **THEN** the saved pool and selected bag roles are restored successfully
+
+### Requirement: A mixed script applies the shared protection rules
+
+A certified mixed script SHALL apply the shared protection rules to every
+death path: the Monk and Soldier against a Demon attack, and the BMR Fool, Tea
+Lady, Sailor, Zombuul, Innkeeper and Devil's Advocate. The death cause SHALL
+stay the real one and Demon attribution SHALL be separate. A prevented death
+SHALL be journaled and SHALL leave the player alive.
+
+**Source**: Monk r3124, Soldier r3121, Fool r2636, Tea Lady r1777, Sailor r1768,
+Zombuul r3022, Innkeeper r3160, Devil's Advocate r2594, Fang Gu r2974;
+[Issue #220](https://github.com/hose1021/grimoria/issues/220)
+**Tests**: `src/core/engine/mixed.test.ts`
+
+#### Scenario: Monk protection
+
+- **WHEN** a mixed S&V Demon attacks a Monk-protected player
+- **THEN** the player stays alive and a secret prevention is journaled
+
+#### Scenario: Soldier
+
+- **WHEN** a mixed S&V Demon attacks the Soldier
+- **THEN** the Soldier stays alive
+
+#### Scenario: Fool
+
+- **WHEN** a mixed S&V Demon attacks the Fool for the first time
+- **THEN** the Fool stays alive and its first-death ability is spent
+
+#### Scenario: Innkeeper
+
+- **WHEN** a mixed non-Demon ability attacks an Innkeeper-protected player
+- **THEN** the player stays alive
+
+#### Scenario: Devil's Advocate
+
+- **WHEN** a mixed game executes a Devil's Advocate–protected player
+- **THEN** the player stays alive
+
+#### Scenario: Fang Gu jump
+
+- **WHEN** the Fang Gu chooses a Monk-protected Outsider
+- **THEN** no jump happens and the target and the old Demon stay alive
+
+### Requirement: A mixed script applies the shared win rules
+
+A mixed script SHALL apply the Vortox day-end win, the Evil Twin good-twin
+execution and the Mastermind extra day when those characters are in the script.
+The Mastermind extra day SHALL suspend the win while active. The shared Mayor
+and demon-dead/two-alive rules SHALL stay unchanged.
+
+**Source**: Vortox r3017, Evil Twin r3101, Mastermind r2993, Mayor r2995;
+[Issue #220](https://github.com/hose1021/grimoria/issues/220)
+**Tests**: `src/core/engine/mixed.test.ts`
+
+#### Scenario: Vortox
+
+- **WHEN** a mixed day ends with a living Vortox and no execution
+- **THEN** evil wins with reason `vortox`
+
+#### Scenario: Mastermind
+
+- **WHEN** a mixed game executes the Demon while a Mastermind is active
+- **THEN** the win is suspended and the extra day is armed
+
+### Requirement: A mixed transformation swaps characters across editions
+
+A death-triggered transformation in a mixed script SHALL swap two players'
+characters even when the two roles come from different editions, and SHALL
+keep the shared role and team records consistent.
+
+**Source**: Barber r1757; [Issue #220](https://github.com/hose1021/grimoria/issues/220)
+**Tests**: `src/core/engine/mixed.test.ts`
+
+#### Scenario: Barber swap
+
+- **WHEN** a mixed Barber swaps a TB and an S&V character
+- **THEN** each player holds the other's character
+
+### Requirement: Verified jinx behavior
+
+Every official jinx SHALL have one implemented behavior, a pinned source and an
+asserting behavioral test. A pair SHALL NOT be `verified` without that test. The
+seven supported pairs SHALL be `verified`; the setup screens list no pair as
+unsupported.
+
+**Source**: `docs/official/jinxes.json` (committed 2026-11-11); [Issue #475](https://github.com/hose1021/grimoria/issues/475)
+**Tests**: `src/core/engine/jinxes.test.ts`, `src/core/model/support.test.ts`
+
+#### Scenario: Chambermaid and Mathematician
+
+- **WHEN** the Chambermaid chooses an alive Mathematician and another player
+- **THEN** the later Mathematician wake counts, and the answer is the number of
+  chosen characters who woke tonight
+
+#### Scenario: Drunk and Mathematician
+
+- **WHEN** the Drunk's believed ability gives false information or fails
+- **THEN** the Drunk carries an ABNORMAL reminder and the Mathematician counts
+  the character once
+
+#### Scenario: Fang Gu and Scarlet Woman
+
+- **WHEN** the Fang Gu possession creates a second living Demon or another
+  Demon lives at a Demon death
+- **THEN** the Scarlet Woman remains a Minion
+
+#### Scenario: Goon and Pit-Hag
+
+- **WHEN** the Pit-Hag turns an evil player into the Goon and a good player
+  later chooses the Goon
+- **THEN** the chooser becomes drunk and the Goon stays evil
+
+#### Scenario: Lunatic and Mathematician
+
+- **WHEN** the Lunatic's chosen attack set differs from the acting Demon's,
+  including a Demon that attacked nobody
+- **THEN** the Lunatic carries one ABNORMAL reminder
+
+#### Scenario: Mastermind and Vigormortis
+
+- **WHEN** the Vigormortis killed the Mastermind, the Vigormortis later dies,
+  and the Demon is executed
+- **THEN** the dead Mastermind still arms the extra day
+
+#### Scenario: Recluse and Sage
+
+- **WHEN** the Sage is killed by the Demon and the Storyteller chooses a pair
+  naming the Recluse
+- **THEN** the pair is legal and the implied Recluse-as-Demon registration is
+  journaled
+
+### Requirement: Jinx host choices
+
+A jinx that requires a Storyteller choice SHALL keep it as an existing
+validated, journaled answer. The Sage pair and the Recluse registration SHALL
+be stored on the step and reproduced by replay. No new command or state store
+SHALL be introduced.
+
+**Source**: [Sage r3009](https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009); [Recluse r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007)
+**Tests**: `src/core/engine/jinxes.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: Recluse pair
+
+- **WHEN** the host completes the Sage step with a pair naming the Recluse
+- **THEN** the step stores the pair and a `registration: demon` answer, and the
+  secret journal has both host-choice lines
