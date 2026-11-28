@@ -902,6 +902,11 @@
       "name": "a duplicate citation inside one rule is rejected"
     },
     {
+      "key": "scripts/rule-registry.test.ts::a level accepted on the target branch cannot drop",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "a level accepted on the target branch cannot drop"
+    },
+    {
       "key": "scripts/rule-registry.test.ts::an accepted citation baseline cannot lose entries",
       "file": "scripts/rule-registry.test.ts",
       "name": "an accepted citation baseline cannot lose entries"
