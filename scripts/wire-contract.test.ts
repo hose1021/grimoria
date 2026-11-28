@@ -17,6 +17,12 @@ const SCHEMA = JSON.parse(
     response: { required: string[]; additionalProperties: boolean };
   };
 };
+const ERROR_SCHEMA = JSON.parse(
+  readFileSync(join(ROOT, "contracts/wire/error.schema.json"), "utf8"),
+) as {
+  required: string[];
+  properties: { code: { const: string }; kind: { enum: string[] } };
+};
 const FIXTURE = JSON.parse(
   readFileSync(join(ROOT, "fixtures/conformance/wire-serialization.json"), "utf8"),
 ) as { fixtureVersion: number; wireVersion: number; vectors: { id: string; input: string }[] };
@@ -49,6 +55,37 @@ test("the schema and the Rust DTO pin the same operation enum", () => {
     [...SCHEMA.$defs.request.properties.operation.enum].sort(),
     rustOperations().sort(),
   );
+});
+
+test("the operation inventory distinguishes implemented and reserved work", () => {
+  const statuses = (SCHEMA as unknown as { "x-operationStatus": Record<string, string> })[
+    "x-operationStatus"
+  ];
+  assert.deepEqual(Object.keys(statuses).sort(), rustOperations().sort());
+  assert.deepEqual(
+    Object.entries(statuses)
+      .filter(([, status]) => status === "implemented")
+      .map(([operation]) => operation)
+      .sort(),
+    ["canonical_bytes", "canonical_state"],
+  );
+  assert.ok(!Object.values(statuses).includes("unavailable"));
+  assert.match(
+    String((SCHEMA as unknown as { "x-unavailableOperation": string })["x-unavailableOperation"]),
+    /engine-contract-violation/,
+  );
+});
+
+test("the error schema is the machine-readable contract", () => {
+  assert.deepEqual(ERROR_SCHEMA.required.sort(), ["code", "kind", "message"]);
+  assert.equal(ERROR_SCHEMA.properties.code.const, "engine-contract-violation");
+  assert.deepEqual(ERROR_SCHEMA.properties.kind.enum.sort(), [
+    "contract",
+    "duplicate-key",
+    "limit",
+    "non-finite-number",
+    "syntax",
+  ]);
 });
 
 test("the envelope requires its fields and forbids extras", () => {

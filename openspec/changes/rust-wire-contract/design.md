@@ -33,9 +33,17 @@ Three forms exist:
 - **canonical**: UTF-16 sorted object keys, arrays preserved, absent keys
   omitted, explicit nulls kept, ECMAScript number and string encoding.
 
-The wire form preserves the order the host produced. The canonical form sorts
-keys by UTF-16 code units, which deliberately differs from ECMAScript's
-integer-first enumeration; the fixture records both orders.
+The wire form preserves the order the host produced. The comparison-only
+canonical form, version `grimoria-canonical-v1`, sorts keys by UTF-16 code
+units, which deliberately differs from ECMAScript's integer-first enumeration;
+the fixture records both orders.
+
+Legacy compatibility is a separate encoding,
+`grimoria-legacy-canonical-v0.14.0`. It reproduces the TypeScript
+`canonicalize` plus `JSON.stringify`: recursively sort keys by UTF-16, then let
+ECMAScript object enumeration put canonical array-index keys first in ascending
+numeric order. This is used only for fingerprints, seeds and persisted
+identities; the TypeScript oracle is unchanged.
 
 ## ECMAScript compatibility
 
@@ -49,25 +57,55 @@ integer-first enumeration; the fixture records both orders.
   emitted as UTF-8; an unpaired surrogate stays as lowercase `\uxxxx`.
 - Integer-like keys keep the host order in the wire form. Canonical sorting uses
   the full UTF-16 code-unit sequence, so `"10"` sorts before `"2"`.
+- The legacy encoding also drops a `__proto__` key, matching the v0.14.0
+  TypeScript object assignment; the other encodings keep it.
 - An absent optional field is omitted; an explicit null remains.
 - Arrays preserve order in every form.
+
+## Failures and limits
+
+A failure is a JSON object with code `engine-contract-violation`, a stable
+`kind` (`syntax`, `duplicate-key`, `non-finite-number`, `limit` or `contract`),
+a human message and an offset or limit where available. WASM returns that JSON
+as the error value; callers do not parse exception prose. Limits default to
+16 MiB input, depth 256, 100,000 collection entries and 1,000,000 nodes.
+Duplicate keys use a hash set rather than a linear scan.
+
+## Operation inventory
+
+The approved operations keep their wire status. `canonical_state` and
+`canonical_bytes` are implemented serialization; `apply_command`,
+`preview_command`, `validate_command`, `replay`, `import_save` and `export_save`
+are reserved for a later phase; every name outside the enum is unavailable and
+fails with a contract violation.
 
 ## Fixtures and parity
 
 `fixtures/conformance/wire-serialization.json` holds raw JSON inputs with the
-expected wire and canonical bytes. The native conformance runner reads it from
-the repository. The WASM `wasm-bindgen-test` calls the exported functions on
-the same inputs and compares the same expected strings. A mismatch fails the
-respective test; the fixture is committed and immutable within the phase.
+expected wire and comparison canonical bytes. The native conformance runner
+reads it from the repository. The WASM `wasm-bindgen-test` calls the exported
+functions on the same inputs and compares the same expected strings. A mismatch
+fails the respective test; the fixture is committed and immutable within the
+phase.
+
+`fixtures/conformance/wire-legacy-vectors.json` holds the v0.14.0 TypeScript
+canonical vectors, including numeric-key, index-boundary, nested and lone
+surrogate cases. `scripts/wire-differential.test.ts` compares the wire fixture
+with `JSON.stringify`, the legacy fixture with the real TypeScript
+`canonicalize`, persisted fingerprints and portable identities.
+`scripts/wire-wasm-parity.ts` executes the generated Node WASM bindings and
+compares all three encodings through the JavaScript boundary.
 
 ## Dependencies and locked builds
 
-The graph check keeps the workspace edge matrix and adds a per-crate external
+The graph check keeps the workspace edge matrix and adds a per-crate direct
 allowlist: `grimoria-wire` may use `ryu-js`; `grimoria-wasm` may use
 `wasm-bindgen` and its test-only `wasm-bindgen-test`; `grimoria-domain`,
-`grimoria-conformance` and `grimoria-cli` use no external crate. Every other
-external package fails. `Cargo.lock` is committed and `cargo metadata --locked
---offline` is the gate.
+`grimoria-conformance` and `grimoria-cli` use no external crate. Every resolved
+direct and transitive package must match an approved name, version and crates.io
+source, with a matching lock checksum. Path dependencies outside the workspace,
+git sources, `[patch]`/`[replace]` sections and source replacements fail.
+`Cargo.lock` is committed and `cargo metadata --locked --offline` is the gate.
 
 ## WASM test execution
 

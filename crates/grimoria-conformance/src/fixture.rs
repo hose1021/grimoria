@@ -40,6 +40,38 @@ pub fn run_wire_fixture(input: &str) -> Result<usize, WireError> {
     Ok(vectors.len())
 }
 
+/// Runs the v0.14.0 legacy canonical vectors.
+pub fn run_legacy_fixture(input: &str) -> Result<usize, WireError> {
+    let root = Value::parse(input)?;
+    let Value::Object(entries) = root else {
+        return Err(contract("fixture root must be an object"));
+    };
+    if number(&entries, "fixtureVersion")? != 1.0
+        || text(&entries, "canonicalVersion")? != grimoria_wire::LEGACY_CANONICAL_VERSION
+    {
+        return Err(contract("legacy fixture version must be v0.14.0"));
+    }
+    let vectors = match entry(&entries, "vectors")? {
+        Value::Array(vectors) => vectors,
+        _ => return Err(contract("fixture vectors must be an array")),
+    };
+    for vector in vectors {
+        let Value::Object(fields) = vector else {
+            return Err(contract("fixture vector must be an object"));
+        };
+        let id = text(fields, "id")?;
+        let source = text(fields, "input")?;
+        let expected = text(fields, "expected")?;
+        let actual = Value::parse(&source)?.to_legacy_canonical();
+        if actual != expected {
+            return Err(contract(format!(
+                "legacy canonical bytes differ for {id}: {actual}"
+            )));
+        }
+    }
+    Ok(vectors.len())
+}
+
 fn contract(message: impl Into<String>) -> WireError {
     WireError::ContractViolation {
         message: message.into(),
@@ -78,5 +110,11 @@ mod tests {
     fn the_committed_fixture_runs() {
         let fixture = include_str!("../../../fixtures/conformance/wire-serialization.json");
         assert_eq!(run_wire_fixture(fixture).unwrap(), 12);
+    }
+
+    #[test]
+    fn the_legacy_fixture_runs() {
+        let fixture = include_str!("../../../fixtures/conformance/wire-legacy-vectors.json");
+        assert_eq!(run_legacy_fixture(fixture).unwrap(), 6);
     }
 }

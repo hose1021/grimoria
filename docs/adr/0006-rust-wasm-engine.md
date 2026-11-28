@@ -107,16 +107,27 @@ serializes unpaired surrogates as `\uXXXX` escapes. Vectors:
 
 `grimoria-wire` owns the executable contract: `WIRE_VERSION = 1`, request and
 response DTOs, a strict JSON parser, `Wtf16`, and wire/canonical serializers.
-`ryu-js` supplies ECMAScript number formatting. The only other direct external
-crates are `wasm-bindgen` in `grimoria-wasm` and the test-only
-`wasm-bindgen-test`. `scripts/check-cargo-graph.ts` enforces this direct
-allowlist per package and dependency kind; transitive crates are pinned by the
-committed `Cargo.lock`, and every check uses `--locked --offline`.
+The comparison encoding is `grimoria-canonical-v1`; legacy fingerprints use
+the separate `grimoria-legacy-canonical-v0.14.0`, which reproduces the v0.14.0
+TypeScript canonicalize plus `JSON.stringify`, including numeric-first array
+indexes. `ryu-js` supplies ECMAScript number formatting.
 
-The committed `fixtures/conformance/wire-serialization.json` runs natively in
-`grimoria-conformance` and through `wasm-bindgen-test` in Node. The wasm32 CI job
-installs `wasm-bindgen-cli` at the lockfile version and executes the test with
-the matching runner, so parity is executable rather than compile-only.
+Failures are JSON with code `engine-contract-violation`, a stable category and
+an optional offset or limit. Input bytes, depth, collection entries and nodes
+are bounded; duplicate keys use a hash set. Operations carry an explicit
+implemented, reserved or unavailable status.
+
+`scripts/check-cargo-graph.ts` checks the full resolved graph: approved
+name/version/crates.io source for every direct and transitive package, lock
+checksum equality, no path or git substitution, no patch/replace and no source
+replacement. `Cargo.lock` is committed and every check uses `--locked
+--offline`.
+
+The committed fixtures run natively in `grimoria-conformance` and through
+`wasm-bindgen-test` in Node. `scripts/wire-differential.test.ts` compares them
+with ECMAScript and the real TypeScript canonicalizer, and
+`scripts/wire-wasm-parity.ts` executes the generated Node bindings. The wasm32
+CI job installs `wasm-bindgen-cli` at the lockfile version and runs both.
 
 ## Oracle versioning
 

@@ -7,6 +7,17 @@
     { "$ref": "#/$defs/request" },
     { "$ref": "#/$defs/response" }
   ],
+  "x-unavailableOperation": "Any operation not listed in x-operationStatus is unavailable and returns engine-contract-violation.",
+  "x-operationStatus": {
+    "apply_command": "reserved",
+    "preview_command": "reserved",
+    "validate_command": "reserved",
+    "replay": "reserved",
+    "import_save": "reserved",
+    "export_save": "reserved",
+    "canonical_state": "implemented",
+    "canonical_bytes": "implemented"
+  },
   "$defs": {
     "request": {
       "type": "object",

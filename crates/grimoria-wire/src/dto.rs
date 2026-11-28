@@ -58,6 +58,37 @@ impl fmt::Display for Operation {
     }
 }
 
+/// Implementation state of an approved operation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum OperationStatus {
+    /// The wire crate can parse, validate and serialize this operation.
+    Implemented,
+    /// Approved for a later phase; the envelope is reserved but execution is absent.
+    Reserved,
+    /// Not in the approved architecture.
+    Unavailable,
+}
+
+impl Operation {
+    /// Status of one approved operation.
+    pub const fn status(self) -> OperationStatus {
+        match self {
+            Self::CanonicalState | Self::CanonicalBytes => OperationStatus::Implemented,
+            Self::ApplyCommand
+            | Self::PreviewCommand
+            | Self::ValidateCommand
+            | Self::Replay
+            | Self::ImportSave
+            | Self::ExportSave => OperationStatus::Reserved,
+        }
+    }
+
+    /// Status for an operation name, including a name outside the architecture.
+    pub fn status_of(name: &str) -> OperationStatus {
+        Self::parse(name).map_or(OperationStatus::Unavailable, Self::status)
+    }
+}
+
 /// One boundary request.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Request {
@@ -250,6 +281,24 @@ mod tests {
         assert_eq!(
             response.to_json(),
             r#"{"wireVersion":1,"result":null,"state":true}"#
+        );
+    }
+
+    #[test]
+    fn every_operation_has_an_explicit_status() {
+        let implemented = Operation::ALL
+            .into_iter()
+            .filter(|operation| operation.status() == OperationStatus::Implemented)
+            .map(Operation::as_str)
+            .collect::<Vec<_>>();
+        assert_eq!(implemented, ["canonical_state", "canonical_bytes"]);
+        assert_eq!(
+            Operation::status_of("apply_command"),
+            OperationStatus::Reserved
+        );
+        assert_eq!(
+            Operation::status_of("query_players"),
+            OperationStatus::Unavailable
         );
     }
 

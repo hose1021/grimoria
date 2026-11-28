@@ -2,9 +2,14 @@
 
 use core::fmt;
 use core::fmt::Write as _;
+use std::collections::HashSet;
+
 use ryu_js::Buffer;
 
 use crate::wtf16::Wtf16;
+
+/// Machine-readable code for every contract failure.
+pub const CONTRACT_VIOLATION_CODE: &str = "engine-contract-violation";
 
 /// A wire failure. Offsets are byte offsets in the input.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -19,9 +24,58 @@ pub enum WireError {
     NonFiniteNumber {
         offset: usize,
     },
+    Limit {
+        kind: &'static str,
+        max: usize,
+        actual: usize,
+    },
     ContractViolation {
         message: String,
     },
+}
+
+impl WireError {
+    /// Stable machine category, independent of the human message.
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Self::Syntax { .. } => "syntax",
+            Self::DuplicateKey { .. } => "duplicate-key",
+            Self::NonFiniteNumber { .. } => "non-finite-number",
+            Self::Limit { .. } => "limit",
+            Self::ContractViolation { .. } => "contract",
+        }
+    }
+
+    /// Serializes the failure as a machine-readable response.
+    pub fn to_failure_json(&self) -> String {
+        let mut fields = vec![
+            (
+                Wtf16::from_utf8("code"),
+                Value::String(Wtf16::from_utf8(CONTRACT_VIOLATION_CODE)),
+            ),
+            (
+                Wtf16::from_utf8("kind"),
+                Value::String(Wtf16::from_utf8(self.kind())),
+            ),
+            (
+                Wtf16::from_utf8("message"),
+                Value::String(Wtf16::from_utf8(&self.to_string())),
+            ),
+        ];
+        match self {
+            Self::Syntax { offset, .. }
+            | Self::DuplicateKey { offset }
+            | Self::NonFiniteNumber { offset } => {
+                fields.push((Wtf16::from_utf8("offset"), Value::Number(*offset as f64)))
+            }
+            Self::Limit { max, actual, .. } => {
+                fields.push((Wtf16::from_utf8("max"), Value::Number(*max as f64)));
+                fields.push((Wtf16::from_utf8("actual"), Value::Number(*actual as f64)));
+            }
+            Self::ContractViolation { .. } => {}
+        }
+        Value::Object(fields).to_wire()
+    }
 }
 
 impl fmt::Display for WireError {
@@ -35,6 +89,9 @@ impl fmt::Display for WireError {
             }
             Self::NonFiniteNumber { offset } => {
                 write!(formatter, "non-finite number at byte {offset}")
+            }
+            Self::Limit { kind, max, actual } => {
+                write!(formatter, "{kind} limit {max} exceeded by {actual}")
             }
             Self::ContractViolation { message } => formatter.write_str(message),
         }
@@ -52,15 +109,47 @@ pub enum Value {
     Object(Vec<(Wtf16, Value)>),
 }
 
-const MAX_DEPTH: usize = 256;
+/// Parser limits. Defaults accept every committed legacy save and journal.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Limits {
+    pub max_input_bytes: usize,
+    pub max_depth: usize,
+    pub max_collection_entries: usize,
+    pub max_nodes: usize,
+}
+
+impl Default for Limits {
+    fn default() -> Self {
+        Self {
+            max_input_bytes: 16 * 1024 * 1024,
+            max_depth: 256,
+            max_collection_entries: 100_000,
+            max_nodes: 1_000_000,
+        }
+    }
+}
 
 impl Value {
     /// Parses strict JSON. Duplicate keys and non-finite numbers are rejected.
     pub fn parse(input: &str) -> Result<Self, WireError> {
+        Self::parse_with_limits(input, &Limits::default())
+    }
+
+    /// Parses strict JSON under explicit limits.
+    pub fn parse_with_limits(input: &str, limits: &Limits) -> Result<Self, WireError> {
+        if input.len() > limits.max_input_bytes {
+            return Err(WireError::Limit {
+                kind: "input-bytes",
+                max: limits.max_input_bytes,
+                actual: input.len(),
+            });
+        }
         let mut parser = Parser {
             input,
             bytes: input.as_bytes(),
             index: 0,
+            limits,
+            nodes: 0,
         };
         let value = parser.value(0)?;
         parser.whitespace();
@@ -80,6 +169,13 @@ impl Value {
         self.render(true)
     }
 
+    /// Serializes with the exact v0.14.0 TypeScript canonical order.
+    pub fn to_legacy_canonical(&self) -> String {
+        let mut output = String::new();
+        write_value_legacy(&mut output, self);
+        output
+    }
+
     fn render(&self, canonical: bool) -> String {
         let mut output = String::new();
         write_value(&mut output, self, canonical);
@@ -91,6 +187,8 @@ struct Parser<'a> {
     input: &'a str,
     bytes: &'a [u8],
     index: usize,
+    limits: &'a Limits,
+    nodes: usize,
 }
 
 impl Parser<'_> {
@@ -111,8 +209,20 @@ impl Parser<'_> {
     }
 
     fn value(&mut self, depth: usize) -> Result<Value, WireError> {
-        if depth > MAX_DEPTH {
-            return Err(self.syntax("nesting exceeds the limit"));
+        if depth > self.limits.max_depth {
+            return Err(WireError::Limit {
+                kind: "depth",
+                max: self.limits.max_depth,
+                actual: depth,
+            });
+        }
+        self.nodes += 1;
+        if self.nodes > self.limits.max_nodes {
+            return Err(WireError::Limit {
+                kind: "nodes",
+                max: self.limits.max_nodes,
+                actual: self.nodes,
+            });
         }
         self.whitespace();
         match self.bytes.get(self.index).copied() {
@@ -154,6 +264,13 @@ impl Parser<'_> {
             return Ok(Value::Array(values));
         }
         loop {
+            if values.len() >= self.limits.max_collection_entries {
+                return Err(WireError::Limit {
+                    kind: "collection-entries",
+                    max: self.limits.max_collection_entries,
+                    actual: values.len() + 1,
+                });
+            }
             values.push(self.value(depth + 1)?);
             self.whitespace();
             match self.bytes.get(self.index) {
@@ -173,6 +290,7 @@ impl Parser<'_> {
     fn object(&mut self, depth: usize) -> Result<Value, WireError> {
         self.index += 1;
         let mut entries: Vec<(Wtf16, Value)> = Vec::new();
+        let mut seen = HashSet::new();
         self.whitespace();
         if self.bytes.get(self.index) == Some(&b'}') {
             self.index += 1;
@@ -185,7 +303,14 @@ impl Parser<'_> {
             }
             let key_offset = self.index;
             let key = self.string()?;
-            if entries.iter().any(|(existing, _)| existing == &key) {
+            if entries.len() >= self.limits.max_collection_entries {
+                return Err(WireError::Limit {
+                    kind: "collection-entries",
+                    max: self.limits.max_collection_entries,
+                    actual: entries.len() + 1,
+                });
+            }
+            if !seen.insert(key.clone()) {
                 return Err(WireError::DuplicateKey { offset: key_offset });
             }
             self.whitespace();
@@ -378,6 +503,73 @@ fn write_entries<'a>(
     }
 }
 
+fn write_value_legacy(output: &mut String, value: &Value) {
+    match value {
+        Value::Null => output.push_str("null"),
+        Value::Bool(true) => output.push_str("true"),
+        Value::Bool(false) => output.push_str("false"),
+        Value::Number(number) => write_number(output, *number),
+        Value::String(text) => write_string(output, text),
+        Value::Array(values) => {
+            output.push('[');
+            for (index, value) in values.iter().enumerate() {
+                if index > 0 {
+                    output.push(',');
+                }
+                write_value_legacy(output, value);
+            }
+            output.push(']');
+        }
+        Value::Object(entries) => {
+            let mut indices: Vec<(u32, &(Wtf16, Value))> = Vec::new();
+            let mut strings: Vec<&(Wtf16, Value)> = Vec::new();
+            for entry in entries {
+                if entry.0.to_utf8().as_deref() == Ok("__proto__") {
+                    continue;
+                }
+                if let Some(index) = array_index(&entry.0) {
+                    indices.push((index, entry));
+                } else {
+                    strings.push(entry);
+                }
+            }
+            indices.sort_by_key(|(index, _)| *index);
+            strings.sort_by(|left, right| left.0.cmp(&right.0));
+            output.push('{');
+            for (position, (_, (key, value))) in indices.iter().enumerate() {
+                if position > 0 {
+                    output.push(',');
+                }
+                write_string(output, key);
+                output.push(':');
+                write_value_legacy(output, value);
+            }
+            for (position, (key, value)) in strings.iter().enumerate() {
+                if position > 0 || !indices.is_empty() {
+                    output.push(',');
+                }
+                write_string(output, key);
+                output.push(':');
+                write_value_legacy(output, value);
+            }
+            output.push('}');
+        }
+    }
+}
+
+/// ECMAScript array-index key: canonical decimal 0..=2^32-2.
+fn array_index(key: &Wtf16) -> Option<u32> {
+    let text = key.to_utf8().ok()?;
+    if text.is_empty()
+        || (text.len() > 1 && text.starts_with('0'))
+        || !text.bytes().all(|byte| byte.is_ascii_digit())
+    {
+        return None;
+    }
+    let value = text.parse::<u64>().ok()?;
+    (value <= 4_294_967_294).then_some(value as u32)
+}
+
 fn write_number(output: &mut String, number: f64) {
     if !number.is_finite() {
         output.push_str("null");
@@ -518,5 +710,102 @@ mod tests {
     fn empty_input_fails() {
         assert!(Value::parse("").is_err());
         assert!(Value::parse("   ").is_err());
+    }
+
+    #[test]
+    fn legacy_canonical_orders_array_index_keys_numerically_first() {
+        let value = Value::parse(r#"{"10":1,"2":2,"1":3,"b":4,"a":5}"#).unwrap();
+        assert_eq!(
+            value.to_legacy_canonical(),
+            r#"{"1":3,"2":2,"10":1,"a":5,"b":4}"#
+        );
+        assert_eq!(value.to_canonical(), r#"{"1":3,"10":1,"2":2,"a":5,"b":4}"#);
+    }
+
+    #[test]
+    fn legacy_canonical_handles_index_boundaries_nested_objects_and_surrogates() {
+        let boundaries =
+            Value::parse(r#"{"4294967295":1,"4294967294":2,"01":3,"0":4,"-1":5,"1.5":6}"#).unwrap();
+        assert_eq!(
+            boundaries.to_legacy_canonical(),
+            r#"{"0":4,"4294967294":2,"-1":5,"01":3,"1.5":6,"4294967295":1}"#
+        );
+        let nested = Value::parse(r#"{"outer":{"10":1,"2":2},"list":[{"1":"a"}]}"#).unwrap();
+        assert_eq!(
+            nested.to_legacy_canonical(),
+            r#"{"list":[{"1":"a"}],"outer":{"2":2,"10":1}}"#
+        );
+        let surrogate = Value::parse(r#"{"\ud800":1,"2":2,"1":3,"a":4}"#).unwrap();
+        assert_eq!(
+            surrogate.to_legacy_canonical(),
+            r#"{"1":3,"2":2,"a":4,"\ud800":1}"#
+        );
+    }
+
+    #[test]
+    fn limits_reject_oversized_input_depth_collections_and_nodes() {
+        let input = r#"{"a":[1,2,3]}"#;
+        for limits in [
+            Limits {
+                max_input_bytes: 4,
+                ..Limits::default()
+            },
+            Limits {
+                max_depth: 1,
+                ..Limits::default()
+            },
+            Limits {
+                max_collection_entries: 2,
+                ..Limits::default()
+            },
+            Limits {
+                max_nodes: 2,
+                ..Limits::default()
+            },
+        ] {
+            assert!(matches!(
+                Value::parse_with_limits(input, &limits),
+                Err(WireError::Limit { .. })
+            ));
+        }
+        assert!(Value::parse_with_limits(input, &Limits::default()).is_ok());
+    }
+
+    #[test]
+    fn malformed_inputs_are_structured_syntax_failures() {
+        for input in ["{", "[1,", r#""\q""#, "tru", "1e", r#"{"a":}"#] {
+            let error = Value::parse(input).unwrap_err();
+            assert_eq!(error.kind(), "syntax", "{input}");
+            assert!(
+                error
+                    .to_failure_json()
+                    .starts_with(r#"{"code":"engine-contract-violation","#),
+                "{input}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_contract_failure_is_machine_readable() {
+        let error = Value::parse(r#"{"a":1,"a":2}"#).unwrap_err();
+        let failure = Value::parse(&error.to_failure_json()).unwrap();
+        let Value::Object(fields) = failure else {
+            panic!("failure must be an object");
+        };
+        let field = |name: &str| {
+            fields
+                .iter()
+                .find(|(key, _)| key.to_utf8().as_deref() == Ok(name))
+                .map(|(_, value)| value)
+                .expect("field exists")
+        };
+        assert_eq!(
+            field("code"),
+            &Value::String(Wtf16::from_utf8("engine-contract-violation"))
+        );
+        assert_eq!(
+            field("kind"),
+            &Value::String(Wtf16::from_utf8("duplicate-key"))
+        );
     }
 }

@@ -302,6 +302,11 @@
       "name": "an extra member fails"
     },
     {
+      "key": "scripts/check-cargo-graph.test.ts::patches, replacements and source substitutions fail",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "patches, replacements and source substitutions fail"
+    },
+    {
       "key": "scripts/check-cargo-graph.test.ts::the canonical five-crate workspace passes",
       "file": "scripts/check-cargo-graph.test.ts",
       "name": "the canonical five-crate workspace passes"
@@ -310,6 +315,11 @@
       "key": "scripts/check-cargo-graph.test.ts::the external allowlist names each package and kind",
       "file": "scripts/check-cargo-graph.test.ts",
       "name": "the external allowlist names each package and kind"
+    },
+    {
+      "key": "scripts/check-cargo-graph.test.ts::the resolved allowlist pins names, versions and registry sources",
+      "file": "scripts/check-cargo-graph.test.ts",
+      "name": "the resolved allowlist pins names, versions and registry sources"
     },
     {
       "key": "scripts/check-official.test.ts::a covered pin passes",
@@ -1497,6 +1507,16 @@
       "name": "the envelope requires its fields and forbids extras"
     },
     {
+      "key": "scripts/wire-contract.test.ts::the error schema is the machine-readable contract",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "the error schema is the machine-readable contract"
+    },
+    {
+      "key": "scripts/wire-contract.test.ts::the operation inventory distinguishes implemented and reserved work",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "the operation inventory distinguishes implemented and reserved work"
+    },
+    {
       "key": "scripts/wire-contract.test.ts::the schema and the Rust DTO pin the same operation enum",
       "file": "scripts/wire-contract.test.ts",
       "name": "the schema and the Rust DTO pin the same operation enum"
@@ -1510,6 +1530,31 @@
       "key": "scripts/wire-contract.test.ts::the WASM runner is pinned to the locked wasm-bindgen version",
       "file": "scripts/wire-contract.test.ts",
       "name": "the WASM runner is pinned to the locked wasm-bindgen version"
+    },
+    {
+      "key": "scripts/wire-differential.test.ts::every persisted fingerprint is already canonical",
+      "file": "scripts/wire-differential.test.ts",
+      "name": "every persisted fingerprint is already canonical"
+    },
+    {
+      "key": "scripts/wire-differential.test.ts::every wire vector equals ECMAScript JSON.stringify",
+      "file": "scripts/wire-differential.test.ts",
+      "name": "every wire vector equals ECMAScript JSON.stringify"
+    },
+    {
+      "key": "scripts/wire-differential.test.ts::legacy canonicalization sorts array-index keys numerically, not by UTF-16",
+      "file": "scripts/wire-differential.test.ts",
+      "name": "legacy canonicalization sorts array-index keys numerically, not by UTF-16"
+    },
+    {
+      "key": "scripts/wire-differential.test.ts::the legacy fixture equals the v0.14.0 TypeScript canonicalizer",
+      "file": "scripts/wire-differential.test.ts",
+      "name": "the legacy fixture equals the v0.14.0 TypeScript canonicalizer"
+    },
+    {
+      "key": "scripts/wire-differential.test.ts::the portable contract identities match identityOf",
+      "file": "scripts/wire-differential.test.ts",
+      "name": "the portable contract identities match identityOf"
     },
     {
       "key": "src/application/dispatch/adapt.test.ts::a missing payload becomes an empty object",

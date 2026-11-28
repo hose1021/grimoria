@@ -7,9 +7,15 @@ pub mod dto;
 pub mod json;
 pub mod wtf16;
 
-pub use dto::{Operation, Request, Response, WIRE_VERSION};
-pub use json::{Value, WireError};
+pub use dto::{Operation, OperationStatus, Request, Response, WIRE_VERSION};
+pub use json::{CONTRACT_VIOLATION_CODE, Limits, Value, WireError};
 pub use wtf16::{LoneSurrogate, Wtf16};
+
+/// Version of the comparison-only canonical byte encoding.
+pub const CANONICAL_ENCODING_VERSION: &str = "grimoria-canonical-v1";
+
+/// Exact v0.14.0 TypeScript canonical encoding used by legacy fingerprints.
+pub const LEGACY_CANONICAL_VERSION: &str = "grimoria-legacy-canonical-v0.14.0";
 
 /// Wire contract version shared with `contracts/engine-boundary.json`.
 pub const CONTRACT_VERSION: &str = "1";
