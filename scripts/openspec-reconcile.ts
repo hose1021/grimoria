@@ -18,6 +18,7 @@ export interface RequirementRef {
   capability: string;
   operation: string;
   name: string;
+  present: boolean;
   synced: boolean;
   conflict?: DeltaConflict;
 }
@@ -69,7 +70,7 @@ export function parseChecklist(tasks: string): Checklist {
 }
 
 export function hasEvidence(tasks: string): boolean {
-  return /^- RED:/m.test(tasks) && /^- GREEN:/m.test(tasks);
+  return /^- RED:[ \t]*\S/m.test(tasks) && /^- GREEN:[ \t]*\S/m.test(tasks);
 }
 
 function normalize(text: string): string {
@@ -152,6 +153,7 @@ export function parseRequirements(
       capability,
       operation,
       name,
+      present,
       synced,
       ...(conflict ? { conflict } : {}),
     });

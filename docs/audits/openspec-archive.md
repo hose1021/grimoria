@@ -46,21 +46,27 @@ in the integrated tree, pinned by `treeHash`, the index and the baseline fixture
   hash, the new hash and a reason, and updates the index, baseline and anchor.
 - The index declares `canonicalization: "text-lf-binary-raw-v1"`: text hashes the
   LF form, binary bytes are hashed raw.
-- A recorded origin is validated as the first add of the change path; when a
-  squash removed that commit object, the index committed with that add keeps the
-  accepted origin. A target branch keeps the origin it accepted.
-- An origin introduced by the same commit that adds the archive is the only
-  record the repository holds; no earlier one is observable. Review covers that
-  record, and a later rewrite still fails.
-- The original anchor fixture is immutable: the target branch's copy must keep
-  exactly its names and hashes. A new archive is pinned by the current baseline,
-  never by the anchor, so it cannot exempt itself from the readiness gate.
+- A recorded origin must be the first add of the change path. A squash that
+  removed that commit needs a reviewed record in
+  `fixtures/conformance/archive-origins.json` with the name, commit, date and
+  reason; the target branch keeps the origin it accepted. An origin written in
+  the same commit as the archive is self-attestation and fails.
+- The original anchor fixture records only the archives the target branch
+  accepted at introduction; a new archive is pinned by the current baseline and
+  is checked by the readiness gate. The anchor is immutable: the target's copy
+  must keep exactly its names and hashes.
 - `archive:index` appends a new archive to the current baseline. It refuses to
   rewrite an accepted record, so a changed tree needs a correction entry.
-- An archived delta spec may name a test file that was renamed or never existed.
-  A reviewed record in `fixtures/conformance/archive-test-corrections.json` maps
-  it to the current asserting file; an unresolved reference fails the gate.
-- An archive outside the original anchor must be complete: no open checklist
-  item and a RED/GREEN evidence record. Anchor entries stay untouched.
+- An archive outside the anchor must be complete and applied: no open checklist
+  item, non-empty RED/GREEN evidence, and every ADDED or MODIFIED requirement
+  present in the baseline while a REMOVED one is gone.
+- An archived delta spec may name a historical `.mjs` or type-test file. A
+  reviewed record in `fixtures/conformance/legacy-test-paths.json` maps it to the
+  current file; when a delta spec names none, the change's task and design
+  evidence is read. An unresolved reference fails the gate.
+- A test reference must be a regular file inside the repository; a symbolic
+  link or a directory fails, and a runnable test must also be in the test
+  manifest. A delta spec may name a file that never existed only through a
+  reviewed record in `fixtures/conformance/archive-test-corrections.json`.
 - No retention decision may weaken the pinned-rule, licensing or verification
   guarantees.

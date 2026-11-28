@@ -1,0 +1,114 @@
+{
+  "paths": [
+    {
+      "from": "js/acceptance.test.mjs",
+      "to": "src/core/engine/acceptance.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/bmr.test.mjs",
+      "to": "src/core/engine/bmr.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/commands.test.mjs",
+      "to": "src/core/engine/commands.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/engine.test.mjs",
+      "to": "src/core/engine/engine.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/host-choice.test.mjs",
+      "to": "src/core/engine/host-choice.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/library.test.mjs",
+      "to": "src/infrastructure/library/bag-library.test.ts",
+      "reason": "The saved-library test moved to the library infrastructure module."
+    },
+    {
+      "from": "js/manual.test.mjs",
+      "to": "src/core/engine/manual.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/offline-worker.test.mjs",
+      "to": "src/infrastructure/offline/offline-worker.test.ts",
+      "reason": "The worker test moved next to the offline module."
+    },
+    {
+      "from": "js/scripts.test.mjs",
+      "to": "src/core/model/scripts.test.ts",
+      "reason": "The script-definition test moved to the model layer."
+    },
+    {
+      "from": "js/setup.test.mjs",
+      "to": "src/core/engine/setup.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/snv.test.mjs",
+      "to": "src/core/engine/snv.test.ts",
+      "reason": "The Node test moved to the TypeScript engine tree during the TS migration."
+    },
+    {
+      "from": "js/store.test.mjs",
+      "to": "src/application/store/create-game-store.test.ts",
+      "reason": "The store test moved to the application store module."
+    },
+    {
+      "from": "js/support.test.mjs",
+      "to": "src/core/model/support.test.ts",
+      "reason": "The support-level test moved to the model layer."
+    },
+    {
+      "from": "js/types.test-d.ts",
+      "to": "src/core/model/types.test-d.ts",
+      "reason": "The type assertions moved to a compile-time test next to the model types."
+    },
+    {
+      "from": "js/strings.test.mjs",
+      "to": "src/ui/i18n/strings.test.ts",
+      "reason": "The string-catalog test moved to the i18n layer."
+    },
+    {
+      "from": "js/invariants.test.mjs",
+      "to": "src/core/engine/invariants.test.ts",
+      "reason": "The invariants test moved to the TypeScript engine tree."
+    },
+    {
+      "from": "scripts/check-acceptance.test.mjs",
+      "to": "scripts/check-acceptance.test.ts",
+      "reason": "The acceptance test moved to TypeScript."
+    },
+    {
+      "from": "scripts/rules-for.test.mjs",
+      "to": "scripts/rules-for.test.ts",
+      "reason": "The rules dossier test moved to TypeScript."
+    },
+    {
+      "from": "scripts/openspec-check.mjs",
+      "to": "scripts/openspec-check.ts",
+      "reason": "The OpenSpec checker moved to TypeScript; a workflow change names its checker as its evidence."
+    },
+    {
+      "from": "scripts/browser-check.mjs",
+      "to": "scripts/browser-check.ts",
+      "reason": "The browser harness moved to TypeScript."
+    },
+    {
+      "from": "scripts/check-toolchain.test.mjs",
+      "to": "scripts/check-toolchain.test.ts",
+      "reason": "The tooling test moved to TypeScript."
+    },
+    {
+      "from": "scripts/check-types-policy.test.mjs",
+      "to": "scripts/check-types-policy.test.ts",
+      "reason": "The policy test moved to TypeScript."
+    }
+  ]
+}

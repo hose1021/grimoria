@@ -6,14 +6,16 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   existsSync,
+  lstatSync,
   readFileSync,
   readdirSync,
   readlinkSync,
   statSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseRequirements, type RequirementRef } from "./openspec-reconcile.ts";
 
 export interface ArchiveEntry {
   name: string;
@@ -53,6 +55,9 @@ function proposalIssue(root: string, path: string): string | null {
 }
 
 function build(root: string): ArchiveEntry[] {
+  const legacyPaths = readLegacyPaths(root);
+  if (legacyPaths === null) throw new Error("legacy-test-paths.json is malformed");
+  const legacy = new Map(legacyPaths.map((path) => [path.from, path.to]));
   const dir = join(root, "openspec/changes/archive");
   return entriesFrom(
     readdirSync(dir)
@@ -76,7 +81,7 @@ function build(root: string): ArchiveEntry[] {
           path,
           treeHash: treeHash(root, path),
           issue: proposalIssue(root, path),
-          tests: testReferences(root, path),
+          tests: testReferences(root, path, legacy),
         };
       }),
   );
@@ -167,30 +172,222 @@ function treeHash(root: string, path: string, ref?: string): string {
   return hash.digest("hex");
 }
 
-function testReferences(root: string, path: string): string[] {
-  const files: string[] = [];
+const LEGACY_PATHS_FILE = "fixtures/conformance/legacy-test-paths.json";
+const ORIGINS_FILE = "fixtures/conformance/archive-origins.json";
+
+function isTestReference(token: string): boolean {
+  if (/\s/.test(token) || token.includes("*")) return false;
+  return (
+    /\.(test\.ts|test\.mjs|test-d\.ts|test-d\.mts)$/.test(token) ||
+    token === "scripts/browser-check.ts" ||
+    token === "scripts/browser-check.mjs" ||
+    token === "scripts/openspec-check.ts" ||
+    token === "scripts/openspec-check.mjs"
+  );
+}
+
+/**
+ * Every test reference an archived change names. Delta-spec `**Tests**` lines
+ * come first; a change that names none falls back to its task and design
+ * evidence. Historical `.mjs` and type-test paths are returned as written.
+ */
+export function historicalReferences(root: string, path: string): string[] {
+  const refs = new Set<string>();
+  const collect = (text: string, filter: (line: string) => boolean): void => {
+    for (const line of text.split("\n"))
+      if (filter(line))
+        for (const match of line.matchAll(/`([^`]+)`/g))
+          for (const part of match[1]!.split(/\s+/)) if (isTestReference(part)) refs.add(part);
+  };
+  const specFiles: string[] = [];
   const walk = (dir: string): void => {
     for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
       const next = dir + "/" + entry.name;
       if (entry.isDirectory()) walk(next);
-      else if (entry.name === "spec.md") files.push(next);
+      else if (entry.name === "spec.md") specFiles.push(next);
     }
   };
   try {
     walk(`${path}/specs`);
   } catch {
-    return [];
+    // A change without delta specs uses its task evidence below.
   }
-  const refs = new Set<string>();
-  for (const file of files) {
-    const source = readFileSync(join(root, file), "utf8");
-    for (const line of source.split("\n")) {
-      if (!/\*\*Tests\*\*:/.test(line)) continue;
-      for (const match of line.matchAll(/`([^`]+\.test\.ts)`/g)) refs.add(match[1]!);
-      if (line.includes("browser-check.ts")) refs.add("scripts/browser-check.ts");
+  for (const file of specFiles)
+    collect(readFileSync(join(root, file), "utf8"), (line) => /\*\*Tests\*\*:/.test(line));
+  if (!refs.size)
+    for (const file of ["tasks.md", "design.md"]) {
+      const absolute = join(root, path, file);
+      if (existsSync(absolute)) collect(readFileSync(absolute, "utf8"), () => true);
     }
-  }
   return [...refs].sort();
+}
+
+export interface LegacyTestPath {
+  from: string;
+  to: string;
+  reason: string;
+}
+
+export function parseLegacyPaths(text: string): LegacyTestPath[] | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const paths = (parsed as { paths?: unknown }).paths;
+  if (!Array.isArray(paths)) return null;
+  for (const entry of paths) {
+    if (typeof entry !== "object" || entry === null) return null;
+    const value = entry as LegacyTestPath;
+    if (
+      typeof value.from !== "string" ||
+      typeof value.to !== "string" ||
+      typeof value.reason !== "string"
+    )
+      return null;
+  }
+  return paths as LegacyTestPath[];
+}
+
+function readLegacyPaths(root: string): LegacyTestPath[] | null {
+  const path = join(root, LEGACY_PATHS_FILE);
+  if (!existsSync(path)) return [];
+  return parseLegacyPaths(readFileSync(path, "utf8"));
+}
+
+export function isRegularFile(root: string, path: string): boolean {
+  if (path.startsWith("/") || path.includes("\\") || path.split("/").includes("..")) return false;
+  try {
+    const stat = lstatSync(join(root, path));
+    return stat.isFile() && !stat.isSymbolicLink();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A historical test path that no longer exists is resolved once by a reviewed
+ * record. Every referenced legacy path needs a mapping, and every mapping must
+ * point at a regular asserting file and still be used.
+ */
+export function legacyPathFailures(
+  root: string,
+  entries: readonly ArchiveEntry[],
+  paths: readonly LegacyTestPath[],
+): string[] {
+  const failures: string[] = [];
+  const byFrom = new Map<string, LegacyTestPath>();
+  for (const path of paths) {
+    if (byFrom.has(path.from)) failures.push(`${path.from}: duplicate legacy test path`);
+    byFrom.set(path.from, path);
+    if (!path.reason.trim()) failures.push(`${path.from}: legacy test path has no reason`);
+    if (!isTestReference(path.to))
+      failures.push(`${path.from}: mapping target ${path.to} is not an asserting test file`);
+    else if (!isRegularFile(root, path.to))
+      failures.push(`${path.from}: mapping target ${path.to} is not a regular file`);
+  }
+  const used = new Set<string>();
+  for (const entry of entries)
+    for (const ref of historicalReferences(root, entry.path)) {
+      const mapping = byFrom.get(ref);
+      if (mapping) {
+        used.add(ref);
+        continue;
+      }
+      if (!isCurrentTestReference(ref))
+        failures.push(`${entry.name}: historical test reference ${ref} has no mapping`);
+    }
+  for (const path of paths)
+    if (!used.has(path.from)) failures.push(`${path.from}: legacy test path is not used`);
+  return failures;
+}
+
+export interface ArchiveOrigin {
+  name: string;
+  commit: string;
+  date: string;
+  reason: string;
+}
+
+export function parseOrigins(text: string): ArchiveOrigin[] | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const origins = (parsed as { origins?: unknown }).origins;
+  if (!Array.isArray(origins)) return null;
+  for (const entry of origins) {
+    if (typeof entry !== "object" || entry === null) return null;
+    const value = entry as ArchiveOrigin;
+    if (
+      typeof value.name !== "string" ||
+      typeof value.commit !== "string" ||
+      typeof value.date !== "string" ||
+      typeof value.reason !== "string"
+    )
+      return null;
+  }
+  return origins as ArchiveOrigin[];
+}
+
+export function readOrigins(root: string): ArchiveOrigin[] | null {
+  const path = join(root, ORIGINS_FILE);
+  if (!existsSync(path)) return [];
+  return parseOrigins(readFileSync(path, "utf8"));
+}
+
+/**
+ * A reviewed record names a squash-integrated origin that the branch history
+ * can no longer prove. It must match the indexed origin exactly and carry a
+ * reason; a fabricated origin has no record.
+ */
+export function originRecordFailures(
+  records: readonly ArchiveOrigin[],
+  entries: readonly ArchiveEntry[],
+): string[] {
+  const failures: string[] = [];
+  const byName = new Map(entries.map((entry) => [entry.name, entry]));
+  const seen = new Set<string>();
+  for (const record of records) {
+    if (seen.has(record.name)) failures.push(`${record.name}: duplicate origin record`);
+    seen.add(record.name);
+    const entry = byName.get(record.name);
+    if (!entry) failures.push(`${record.name}: origin record names no archived change`);
+    else if (entry.commit !== record.commit || entry.date !== record.date)
+      failures.push(`${record.name}: origin record differs from the index`);
+    if (!/^[0-9a-f]{40}$/.test(record.commit))
+      failures.push(`${record.name}: origin record commit is not a full SHA-1`);
+    if (!/^[0-9]{4}-\d{2}-\d{2}$/.test(record.date))
+      failures.push(`${record.name}: origin record date is not an ISO day`);
+    if (!record.reason.trim()) failures.push(`${record.name}: origin record has no reason`);
+  }
+  return failures;
+}
+
+function isCurrentTestReference(ref: string): boolean {
+  return (
+    ref.endsWith(".test.ts") ||
+    ref.endsWith(".test-d.ts") ||
+    ref === "scripts/browser-check.ts" ||
+    ref === "scripts/openspec-check.ts"
+  );
+}
+
+function testReferences(root: string, path: string, legacy: ReadonlyMap<string, string>): string[] {
+  const refs = historicalReferences(root, path);
+  const out = new Set<string>();
+  for (const ref of refs) {
+    const mapped = legacy.get(ref);
+    if (mapped) out.add(mapped);
+    else if (isCurrentTestReference(ref)) out.add(ref);
+    else out.add(ref);
+  }
+  return [...out].sort();
 }
 
 export interface ArchiveNameHash {
@@ -233,17 +430,19 @@ export function archiveOriginFailures(
   ref?: string,
 ): string[] {
   const accepted = ref ? indexAt(root, ref) : undefined;
-  const indexes = new Map<string, ReadonlyMap<string, ArchiveEntry>>();
-  // The target branch wins when it already accepted the change. Otherwise the
-  // index committed with the first add is the record: a squash merge rewrites
-  // the introducing commit, but the tree it committed still names the reviewed
-  // origin. A target without an index (a legacy main) is protected the same way.
+  const records = new Map((readOrigins(root) ?? []).map((origin) => [origin.name, origin]));
+  // The target branch wins when it accepted the change. Otherwise the origin is
+  // accepted only when it is the first add itself, or when a reviewed record
+  // names the squash-integrated origin: a record written in the same commit as
+  // the archive is self-attestation, not evidence.
   const acceptedOrigin = (entry: ArchiveEntry, first: Origin | null): Origin | undefined => {
     const target = accepted?.get(entry.name);
     if (target) return target;
-    if (!first) return undefined;
-    if (!indexes.has(first.commit)) indexes.set(first.commit, indexAt(root, first.commit));
-    return indexes.get(first.commit)?.get(entry.name);
+    if (first && entry.commit === first.commit && entry.date === first.date) return first;
+    const record = records.get(entry.name);
+    if (record && record.commit === entry.commit && record.date === entry.date)
+      return { commit: record.commit, date: record.date };
+    return undefined;
   };
   return originFailures(entries, (entry) => firstAdd(root, entry), acceptedOrigin);
 }
@@ -362,15 +561,24 @@ export interface ArchiveTestCorrection {
   reason: string;
 }
 
+function manifestApplies(path: string): boolean {
+  return path.endsWith(".test.ts") || path === "scripts/browser-check.ts";
+}
+
+export type PathState = "file" | "missing" | "other";
+
 /**
  * Resolves the test files an archived delta spec names. A historical citation
  * may name a file that never existed or was renamed since; a reviewed record
  * maps it to the current asserting file without editing the archived tree.
+ * Every resolved reference must be a regular file, and when the test manifest
+ * is supplied it must also be an indexed test.
  */
 export function testReferenceFailures(
   entries: readonly ArchiveEntry[],
   corrections: readonly ArchiveTestCorrection[],
-  exists: (path: string) => boolean,
+  state: (path: string) => PathState,
+  known?: (path: string) => boolean,
 ): string[] {
   const failures: string[] = [];
   const byArchive = new Map(entries.map((entry) => [entry.name, new Set(entry.tests ?? [])]));
@@ -385,20 +593,33 @@ export function testReferenceFailures(
       failures.push(`${correction.archive}: ${correction.from} is not an indexed test reference`);
     if (!correction.reason.trim())
       failures.push(`${correction.archive}: correction for ${correction.from} has no reason`);
-    if (exists(correction.from))
+    if (state(correction.from) === "file")
       failures.push(`${correction.archive}: ${correction.from} exists; the correction is stale`);
-    if (!exists(correction.to))
-      failures.push(`${correction.archive}: correction target ${correction.to} is missing`);
-    else if (!correction.to.endsWith(".test.ts") && correction.to !== "scripts/browser-check.ts")
+    if (state(correction.to) !== "file")
+      failures.push(
+        `${correction.archive}: correction target ${correction.to} is not a regular file`,
+      );
+    else if (!isTestReference(correction.to))
       failures.push(
         `${correction.archive}: correction target ${correction.to} is not an asserting test file`,
+      );
+    else if (known && manifestApplies(correction.to) && !known(correction.to))
+      failures.push(
+        `${correction.archive}: correction target ${correction.to} is not an indexed test`,
       );
     corrected.set(key, correction.to);
   }
   for (const entry of entries)
-    for (const reference of entry.tests ?? [])
-      if (!exists(reference) && !corrected.has(entry.name + "\0" + reference))
-        failures.push(`${entry.name}: historical test reference ${reference} is dangling`);
+    for (const reference of entry.tests ?? []) {
+      const resolved = corrected.get(entry.name + "\0" + reference) ?? reference;
+      const status = state(resolved);
+      if (status === "missing")
+        failures.push(`${entry.name}: historical test reference ${resolved} is dangling`);
+      else if (status === "other")
+        failures.push(`${entry.name}: test reference ${resolved} is not a regular file`);
+      else if (known && manifestApplies(resolved) && !known(resolved))
+        failures.push(`${entry.name}: test reference ${resolved} is not an indexed test`);
+    }
   return failures;
 }
 
@@ -429,14 +650,18 @@ export function parseTestCorrections(text: string): ArchiveTestCorrection[] | nu
 }
 
 /**
- * An archived change outside the accepted anchor must be finished and carry
- * its RED/GREEN record. Entries the anchor accepted predate this gate and stay
- * as they are: history is evidence, not something to rewrite.
+ * An archived change outside the accepted anchor must be finished, carry real
+ * RED/GREEN evidence, and have every delta requirement applied to the baseline
+ * specs: ADDED and MODIFIED requirements are present, REMOVED ones are gone.
+ * Entries the anchor accepted predate this gate and stay as they are: history
+ * is evidence, not something to rewrite.
  */
 export function archiveReadinessFailures(
   entries: readonly ArchiveEntry[],
   anchor: readonly BaselineEntry[],
   read: (path: string) => string | null,
+  list: (dir: string) => string[],
+  baseline: (capability: string) => string | null,
 ): string[] {
   const accepted = new Set(anchor.map((entry) => entry.name));
   const failures: string[] = [];
@@ -451,8 +676,35 @@ export function archiveReadinessFailures(
     const open = boxes.filter((box) => box === " ").length;
     if (boxes.length === 0) failures.push(`${entry.name}: archived change has no checklist`);
     else if (open > 0) failures.push(`${entry.name}: archived change has ${open} open task(s)`);
-    if (!/^\s*- RED:/m.test(tasks) || !/^\s*- GREEN:/m.test(tasks))
-      failures.push(`${entry.name}: archived change has no RED/GREEN evidence`);
+    if (!/^\s*- RED:[ \t]*\S/m.test(tasks) || !/^\s*- GREEN:[ \t]*\S/m.test(tasks))
+      failures.push(`${entry.name}: archived change has no non-empty RED/GREEN evidence`);
+    const specs = list(`${entry.path}/specs`).filter((file) => file.endsWith("spec.md"));
+    if (specs.length === 0) failures.push(`${entry.name}: archived change has no delta spec`);
+    for (const spec of specs) {
+      const text = read(spec);
+      if (text === null) {
+        failures.push(`${entry.name}: delta spec ${spec} is unreadable`);
+        continue;
+      }
+      let rows: RequirementRef[];
+      try {
+        rows = parseRequirements(relative(entry.path, spec), text, baseline);
+      } catch (error) {
+        failures.push(`${entry.name}: delta spec ${spec} is unreadable: ${String(error)}`);
+        continue;
+      }
+      if (rows.length === 0) failures.push(`${entry.name}: delta spec ${spec} has no requirements`);
+      for (const row of rows) {
+        if (row.operation === "RENAMED")
+          failures.push(`${entry.name}: RENAMED requirement "${row.name}" is not supported`);
+        else if ((row.operation === "ADDED" || row.operation === "MODIFIED") && !row.present)
+          failures.push(`${entry.name}: requirement "${row.name}" is not applied to the baseline`);
+        else if (row.operation === "REMOVED" && row.present)
+          failures.push(
+            `${entry.name}: removed requirement "${row.name}" is still in the baseline`,
+          );
+      }
+    }
   }
   return failures;
 }
@@ -649,7 +901,18 @@ export function repinFailures(
   return failures;
 }
 
+function assertNoSymlinks(root: string, path: string): void {
+  for (const entry of readdirSync(join(root, path), { withFileTypes: true })) {
+    const child = `${path}/${entry.name}`;
+    if (entry.isSymbolicLink()) throw new Error(`archived tree contains a symbolic link: ${child}`);
+    if (entry.isDirectory()) assertNoSymlinks(root, child);
+  }
+}
+
 function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
+  const legacyPaths = readLegacyPaths(root);
+  if (legacyPaths === null) throw new Error("legacy-test-paths.json is malformed");
+  const legacy = new Map(legacyPaths.map((path) => [path.from, path.to]));
   for (const entry of entries) {
     if (
       entry.path !== `openspec/changes/archive/${entry.name}` ||
@@ -657,11 +920,14 @@ function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
       entry.name === ".."
     )
       throw new Error(`invalid archive path: ${entry.path}`);
-    if (!existsSync(join(root, entry.path)) || treeHash(root, entry.path) !== entry.treeHash)
+    if (!existsSync(join(root, entry.path)))
+      throw new Error(`archived tree changed or missing: ${entry.path}`);
+    assertNoSymlinks(root, entry.path);
+    if (treeHash(root, entry.path) !== entry.treeHash)
       throw new Error(`archived tree changed or missing: ${entry.path}`);
     if (entry.issue !== proposalIssue(root, entry.path))
       throw new Error(`archive issue differs from proposal: ${entry.path}`);
-    const tests = testReferences(root, entry.path);
+    const tests = testReferences(root, entry.path, legacy);
     if (JSON.stringify(tests) !== JSON.stringify(entry.tests ?? []))
       throw new Error(`archive test references differ from the delta specs: ${entry.path}`);
   }
@@ -733,8 +999,9 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
+    let targetAnchor: BaselineEntry[] | "absent" | null = null;
     if (ref) {
-      const targetAnchor = refBaseline(root, ref, ANCHOR_FILE);
+      targetAnchor = refBaseline(root, ref, ANCHOR_FILE);
       if (targetAnchor === null) {
         console.error(`cannot read the original archive anchor at ${ref}; fetch the target branch`);
         process.exitCode = 1;
@@ -811,13 +1078,85 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
-    const references = testReferenceFailures(existing, testCorrections, (path) =>
-      existsSync(join(root, path)),
-    );
-    const readiness = archiveReadinessFailures(existing, anchor, (path) => {
+    const legacyPaths = readLegacyPaths(root);
+    if (legacyPaths === null) {
+      console.error("legacy-test-paths.json is malformed");
+      process.exitCode = 1;
+      return;
+    }
+    const origins = readOrigins(root);
+    if (origins === null) {
+      console.error("archive-origins.json is malformed");
+      process.exitCode = 1;
+      return;
+    }
+    const manifestPath = join(root, "docs/audits/verification-gates/test-manifest.json");
+    if (!existsSync(manifestPath)) {
+      console.error("test-manifest.json is missing; test references cannot be verified");
+      process.exitCode = 1;
+      return;
+    }
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      tests: Array<{ file: string }>;
+      browser: Array<{ file: string }>;
+    };
+    const known = new Set([...manifest.tests, ...manifest.browser].map((entry) => entry.file));
+    const state = (path: string): PathState => {
+      if (path.startsWith("/") || path.includes("\\") || path.split("/").includes(".."))
+        return "other";
+      try {
+        const stat = lstatSync(join(root, path));
+        return stat.isFile() && !stat.isSymbolicLink() ? "file" : "other";
+      } catch {
+        return "missing";
+      }
+    };
+    const readAny = (path: string): string | null => {
       const absolute = join(root, path);
       return existsSync(absolute) ? readFileSync(absolute, "utf8") : null;
-    });
+    };
+    const list = (dir: string): string[] => {
+      const out: string[] = [];
+      const walk = (relativeDir: string): void => {
+        const absolute = join(root, relativeDir);
+        if (!existsSync(absolute)) return;
+        for (const entry of readdirSync(absolute, { withFileTypes: true })) {
+          const child = `${relativeDir}/${entry.name}`;
+          if (entry.isDirectory()) walk(child);
+          else out.push(child);
+        }
+      };
+      walk(dir);
+      return out.sort();
+    };
+    const baselineSpec = (capability: string): string | null => {
+      const path = join(root, "openspec/specs", capability, "spec.md");
+      return existsSync(path) ? readFileSync(path, "utf8") : null;
+    };
+    const references = [
+      ...testReferenceFailures(existing, testCorrections, state, (path) => known.has(path)),
+      ...legacyPathFailures(root, existing, legacyPaths),
+      ...existing
+        .filter((entry) => (entry.tests ?? []).length === 0)
+        .map((entry) => `${entry.name}: archived change has no test reference`),
+      ...originRecordFailures(origins, existing),
+    ];
+    // The historical exemption comes from the target: its anchor when one
+    // exists, otherwise its actual archive tree. A working anchor cannot
+    // introduce a name the target never accepted.
+    let exemptions: readonly BaselineEntry[] = anchor;
+    if (targetAnchor === "absent") {
+      const tree = refArchiveEntries(root, ref!);
+      if (tree === null) {
+        console.error(`cannot read the archive tree at ${ref}`);
+        process.exitCode = 1;
+        return;
+      }
+      exemptions = tree;
+    } else if (targetAnchor !== null) {
+      exemptions = targetAnchor;
+    }
+    const readiness = archiveReadinessFailures(existing, exemptions, readAny, list, baselineSpec);
     if (references.length || readiness.length) {
       console.error([...references, ...readiness].join("; "));
       process.exitCode = 1;

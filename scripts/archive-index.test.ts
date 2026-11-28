@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -14,9 +22,14 @@ import {
   baselineCoverageFailures,
   canonicalBytes,
   correctionFailures,
+  historicalReferences,
+  legacyPathFailures,
   originFailures,
+  originRecordFailures,
   parseBaseline,
   parseIndex,
+  parseLegacyPaths,
+  parseOrigins,
   parseTestCorrections,
   baselineFailures,
   entriesFrom,
@@ -399,24 +412,56 @@ test("archive origins survive squash integration into a legacy target", () => {
     write("README.md", "# main\n");
     git(["add", "README.md"]);
     git(["commit", "-qm", "legacy main"]);
+    git(["checkout", "-f", "-q", "dev"]);
+
+    const entries = parseIndex(
+      readFileSync(join(root, "docs/audits/openspec-archive-index.json"), "utf8"),
+    );
+    assert.ok(entries);
+    // The squash rewrote the first add; without a reviewed record the recorded
+    // origin is self-attested and must fail, even for a legacy target.
+    write("fixtures/conformance/archive-origins.json", JSON.stringify({ origins: [] }));
+    assert.ok(
+      archiveOriginFailures(root, entries!, "main").some((failure) =>
+        failure.includes("origin differs"),
+      ),
+      "an unrecorded squash origin fails",
+    );
+    write(
+      "fixtures/conformance/archive-origins.json",
+      JSON.stringify({
+        origins: [
+          {
+            name,
+            commit: feature,
+            date: "2026-01-01",
+            reason: "squashed into dev; the feature commit is gone",
+          },
+        ],
+      }),
+    );
+    git(["add", "."]);
+    git(["commit", "-qm", "accept origin record"]);
+    assert.deepEqual(archiveOriginFailures(root, entries!, "main"), []);
 
     // A fresh clone keeps only the integrated history.
     const clone = mkdtempSync(join(tmpdir(), "archive-clone-"));
     execFileSync("git", ["clone", "-q", "--no-local", root, clone], { encoding: "utf8" });
     execFileSync("git", ["checkout", "-q", "dev"], { cwd: clone });
+    execFileSync("git", ["branch", "main", "origin/main"], { cwd: clone });
     const cloneGit = (args: string[]): string =>
       execFileSync("git", args, { cwd: clone, encoding: "utf8" }).trim();
     assert.throws(() => cloneGit(["cat-file", "-e", feature]));
-    const entries = parseIndex(
+    const cloneEntries = parseIndex(
       readFileSync(join(clone, "docs/audits/openspec-archive-index.json"), "utf8"),
     );
-    assert.ok(entries);
-    assert.deepEqual(archiveOriginFailures(clone, entries!, "dev"), []);
-    assert.deepEqual(archiveOriginFailures(clone, entries!, "main"), []);
+    assert.ok(cloneEntries);
+    assert.deepEqual(archiveOriginFailures(clone, cloneEntries!, "dev"), []);
+    assert.deepEqual(archiveOriginFailures(clone, cloneEntries!, "main"), []);
 
     // A fabricated origin for a genuinely new archive fails against dev.
     const fabricated = [
-      ...entries!,
+      ...cloneEntries!,
       {
         ...entry("f".repeat(40)),
         name: "2026-02-01-fabricated",
@@ -493,6 +538,21 @@ test("archive origins survive repeated feature, squash, release and back-merge c
     git(["merge", "-q", "--squash", "feat/one"]);
     git(["commit", "-qm", "integrate one"]);
     git(["branch", "-D", "feat/one"]);
+    write(
+      "fixtures/conformance/archive-origins.json",
+      JSON.stringify({
+        origins: [
+          {
+            name: "2026-01-01-one",
+            commit: one.commit,
+            date: one.date,
+            reason: "squashed into dev; the feature commit is gone",
+          },
+        ],
+      }),
+    );
+    git(["add", "."]);
+    git(["commit", "-qm", "accept one origin"]);
     git(["checkout", "-q", "main"]);
     git(["merge", "-q", "--squash", "dev"]);
     git(["commit", "-qm", "release 1"]);
@@ -518,6 +578,35 @@ test("archive origins survive repeated feature, squash, release and back-merge c
     git(["merge", "-q", "--squash", "feat/two"]);
     git(["commit", "-qm", "integrate two"]);
     git(["branch", "-D", "feat/two"]);
+
+    // The squash rewrote the second first add; the origin needs a record.
+    assert.ok(
+      archiveOriginFailures(root, readEntries(), "main").some((failure) =>
+        failure.includes("2026-02-01-two: origin differs"),
+      ),
+      "an unrecorded squash origin fails the release check",
+    );
+    write(
+      "fixtures/conformance/archive-origins.json",
+      JSON.stringify({
+        origins: [
+          {
+            name: "2026-01-01-one",
+            commit: one.commit,
+            date: one.date,
+            reason: "squashed into dev; the feature commit is gone",
+          },
+          {
+            name: "2026-02-01-two",
+            commit: two.commit,
+            date: two.date,
+            reason: "squashed into dev; the feature commit is gone",
+          },
+        ],
+      }),
+    );
+    git(["add", "."]);
+    git(["commit", "-qm", "accept two origin"]);
 
     // The release pull request checks the squashed dev tree against main.
     assert.deepEqual(archiveOriginFailures(root, readEntries(), "main"), []);
@@ -549,23 +638,107 @@ test("archive origins survive repeated feature, squash, release and back-merge c
   }
 });
 
+test("a same-commit origin is self-attested and fails", () => {
+  const root = mkdtempSync(join(tmpdir(), "archive-self-"));
+  const git = (args: string[]): string =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  const write = (file: string, content: string): void => {
+    mkdirSync(join(root, file, ".."), { recursive: true });
+    writeFileSync(join(root, file), content);
+  };
+  try {
+    git(["init", "-q", "-b", "dev"]);
+    git(["config", "user.email", "test@example.com"]);
+    git(["config", "user.name", "Test"]);
+    write("README.md", "# dev\n");
+    git(["add", "."]);
+    git(["commit", "-qm", "base"]);
+    git(["branch", "base"]);
+
+    // The archive and an index entry with an older origin land in one commit.
+    const name = "2026-01-01-self";
+    const path = `openspec/changes/archive/${name}`;
+    write(`${path}/proposal.md`, "Issue: #1\n");
+    write(
+      `${path}/specs/game/sample/spec.md`,
+      "### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
+    );
+    const fake = "f".repeat(40);
+    write(
+      "docs/audits/openspec-archive-index.json",
+      JSON.stringify({
+        schemaVersion: 2,
+        canonicalization: "text-lf-binary-raw-v1",
+        entries: [
+          {
+            name,
+            commit: fake,
+            date: "2026-01-01",
+            path,
+            treeHash: "a".repeat(64),
+            issue: "#1",
+            tests: [],
+          },
+        ],
+      }),
+    );
+    write("fixtures/conformance/archive-origins.json", JSON.stringify({ origins: [] }));
+    git(["add", "."]);
+    git(["commit", "-qm", "self-attested origin"]);
+    const first = git(["rev-parse", "HEAD"]);
+    const entries = parseIndex(
+      readFileSync(join(root, "docs/audits/openspec-archive-index.json"), "utf8"),
+    )!;
+    assert.ok(
+      archiveOriginFailures(root, entries, "base").some((failure) =>
+        failure.includes("origin differs"),
+      ),
+      "an origin written beside the archive cannot attest itself",
+    );
+    write(
+      "fixtures/conformance/archive-origins.json",
+      JSON.stringify({
+        origins: [{ name, commit: fake, date: "2026-01-01", reason: "reviewed squash" }],
+      }),
+    );
+    assert.deepEqual(
+      archiveOriginFailures(root, entries, "base"),
+      [],
+      "a reviewed record distinguishes an integrated origin from self-attestation",
+    );
+    const honest = entries.map((entry) => ({
+      ...entry,
+      commit: first,
+      date: git(["log", "-1", "--format=%cs"]),
+    }));
+    assert.deepEqual(
+      archiveOriginFailures(root, honest, "base"),
+      [],
+      "recording the first add needs no record",
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("a dangling archived test reference needs a reviewed correction", () => {
   const entry = {
     ...row("2026-11-01-a"),
     tests: ["src/kept.test.ts", "src/gone.test.ts"],
   };
-  const exists = (path: string) => ["src/kept.test.ts", "src/rewritten.test.ts"].includes(path);
+  const state = (path: string): "file" | "missing" | "other" =>
+    path === "src/kept.test.ts" || path === "src/rewritten.test.ts" ? "file" : "missing";
   const correction = {
     archive: "2026-11-01-a",
     from: "src/gone.test.ts",
     to: "src/rewritten.test.ts",
     reason: "renamed",
   };
-  const dangling = testReferenceFailures([entry], [], exists);
+  const dangling = testReferenceFailures([entry], [], state);
   assert.ok(dangling.some((failure) => failure.includes("src/gone.test.ts")));
-  assert.deepEqual(testReferenceFailures([entry], [correction], exists), []);
+  assert.deepEqual(testReferenceFailures([entry], [correction], state), []);
   assert.ok(
-    testReferenceFailures([entry], [{ ...correction, archive: "other" }], exists).some((failure) =>
+    testReferenceFailures([entry], [{ ...correction, archive: "other" }], state).some((failure) =>
       failure.includes("names no archived change"),
     ),
   );
@@ -573,72 +746,142 @@ test("a dangling archived test reference needs a reviewed correction", () => {
     testReferenceFailures(
       [entry],
       [{ ...correction, from: "src/not-indexed.test.ts" }],
-      exists,
+      state,
     ).some((failure) => failure.includes("not an indexed test reference")),
   );
   assert.ok(
-    testReferenceFailures([entry], [{ ...correction, reason: " " }], exists).some((failure) =>
+    testReferenceFailures([entry], [{ ...correction, reason: " " }], state).some((failure) =>
       failure.includes("no reason"),
     ),
   );
   assert.ok(
-    testReferenceFailures([entry], [{ ...correction, to: "src/missing.test.ts" }], exists).some(
-      (failure) => failure.includes("missing"),
+    testReferenceFailures([entry], [{ ...correction, to: "src/missing.test.ts" }], state).some(
+      (failure) => failure.includes("not a regular file"),
     ),
   );
   assert.ok(
-    testReferenceFailures(
-      [entry],
-      [{ ...correction, to: "src/kept.ts" }],
-      (path) => path === "src/kept.ts",
+    testReferenceFailures([entry], [{ ...correction, to: "src/kept.ts" }], (path) =>
+      path === "src/kept.ts" ? "file" : "missing",
     ).some((failure) => failure.includes("not an asserting test file")),
   );
   assert.ok(
-    testReferenceFailures([entry], [correction, correction], exists).some((failure) =>
+    testReferenceFailures([entry], [correction, correction], state).some((failure) =>
       failure.includes("duplicate correction"),
     ),
   );
   assert.ok(
-    testReferenceFailures([entry], [{ ...correction, from: "src/kept.test.ts" }], exists).some(
+    testReferenceFailures([entry], [{ ...correction, from: "src/kept.test.ts" }], state).some(
       (failure) => failure.includes("stale"),
     ),
+  );
+  assert.ok(
+    testReferenceFailures([{ ...entry, tests: ["src/dir.test.ts"] }], [], () => "other").some(
+      (failure) => failure.includes("not a regular file"),
+    ),
+    "a directory or a symbolic link is not an asserting test",
+  );
+  assert.ok(
+    testReferenceFailures(
+      [{ ...entry, tests: ["src/online.test.ts"] }],
+      [],
+      () => "file",
+      () => false,
+    ).some((failure) => failure.includes("not an indexed test")),
+    "a runnable test must be in the manifest",
   );
   assert.equal(parseTestCorrections("not json"), null);
   assert.equal(parseTestCorrections(JSON.stringify({ corrections: [{ archive: 1 }] })), null);
   assert.equal(parseTestCorrections(JSON.stringify({ corrections: [correction] }))?.length, 1);
 });
 
-test("an archive outside the accepted anchor must be finished and carry evidence", () => {
+test("an archive outside the accepted anchor must be finished and applied", () => {
   const anchored = { ...row("2026-11-01-a"), tests: [] };
   const fresh = { ...row("2026-12-01-b"), tests: [] };
   const anchor = [{ name: anchored.name, treeHash: anchored.treeHash }];
+  const complete = "# Tasks\n\n- [x] 1.1 Done.\n\n## Evidence\n\n- RED: one\n- GREEN: two\n";
+  const specPath = `${fresh.path}/specs/game/sample/spec.md`;
   const files = new Map([
     [`${anchored.path}/tasks.md`, "# Tasks\n\n- [ ] 1.1 Unfinished.\n"],
-    [`${fresh.path}/tasks.md`, "# Tasks\n\n- [ ] 1.1 Unfinished.\n"],
+    [`${fresh.path}/tasks.md`, complete],
+    [specPath, "## ADDED Requirements\n\n### Requirement: One\n\n**Tests**: `src/x.test.ts`\n"],
   ]);
   const read = (path: string) => files.get(path) ?? null;
-  const failures = archiveReadinessFailures([anchored, fresh], anchor, read);
+  const list = (dir: string) => [...files.keys()].filter((path) => path.startsWith(dir + "/"));
+  const baseline = (capability: string) =>
+    capability === "game/sample" ? "## Requirements\n\n### Requirement: One\n" : null;
+  const failures = archiveReadinessFailures([anchored, fresh], anchor, read, list, baseline);
+  assert.deepEqual(failures, [], "the anchored archive is skipped and the fresh one applies");
   assert.deepEqual(
-    [...new Set(failures.map((failure) => failure.split(":")[0]))],
-    [fresh.name],
-    "only the archive outside the anchor is checked",
+    archiveReadinessFailures(
+      [fresh],
+      anchor,
+      (path) => files.get(path) ?? null,
+      list,
+      () => null,
+    ).filter((failure) => failure.includes("not applied")),
+    [`2026-12-01-b: requirement "One" is not applied to the baseline`],
   );
-  const finished = new Map([
-    [
-      `${fresh.path}/tasks.md`,
-      "# Tasks\n\n- [x] 1.1 Done.\n\n## Evidence\n\n- RED: one\n- GREEN: two\n",
-    ],
-  ]);
-  assert.deepEqual(
-    archiveReadinessFailures([fresh], anchor, (path) => finished.get(path) ?? null),
-    [],
+  files.set(
+    specPath,
+    "## REMOVED Requirements\n\n### Requirement: One\n\n**Tests**: `src/x.test.ts`\n",
   );
   assert.deepEqual(
-    archiveReadinessFailures([fresh], anchor, () => null).some((failure) =>
-      failure.includes("no tasks.md"),
+    archiveReadinessFailures([fresh], anchor, read, list, baseline).filter((failure) =>
+      failure.includes("still in the baseline"),
     ),
+    [`2026-12-01-b: removed requirement "One" is still in the baseline`],
+  );
+  files.set(
+    specPath,
+    "## ADDED Requirements\n\n### Requirement: One\n\n**Tests**: `src/x.test.ts`\n",
+  );
+  files.set(
+    `${fresh.path}/tasks.md`,
+    "# Tasks\n\n- [x] 1.1 Done.\n\n## Evidence\n\n- RED:\n- GREEN: two\n",
+  );
+  assert.ok(
+    archiveReadinessFailures([fresh], anchor, read, list, baseline).some((failure) =>
+      failure.includes("no non-empty RED/GREEN evidence"),
+    ),
+    "an empty RED line is no evidence",
+  );
+  assert.deepEqual(
+    archiveReadinessFailures(
+      [fresh],
+      anchor,
+      () => null,
+      () => [],
+      () => null,
+    ).some((failure) => failure.includes("no tasks.md")),
     true,
   );
+});
+
+test("an indented checklist and evidence line still count", () => {
+  const entry = { ...row("2026-12-01-b"), tests: [] };
+  const specPath = `${entry.path}/specs/game/sample/spec.md`;
+  const baseline = () => "## Requirements\n\n### Requirement: One\n";
+  const run = (tasks: string) =>
+    archiveReadinessFailures(
+      [entry],
+      [],
+      (path) =>
+        path.endsWith("tasks.md")
+          ? tasks
+          : path === specPath
+            ? "## ADDED Requirements\n\n### Requirement: One\n"
+            : null,
+      () => [specPath],
+      baseline,
+    );
+  assert.deepEqual(
+    run("- [x] 1\n  - [ ] 2 open\n\n- RED: r\n- GREEN: g\n").filter((failure) =>
+      failure.includes("open task"),
+    ),
+    ["2026-12-01-b: archived change has 1 open task(s)"],
+    "an indented open task is still open",
+  );
+  assert.deepEqual(run("- [x] 1\n  - RED: r\n  - GREEN: g\n"), [], "indented evidence counts");
 });
 
 test("a new archive is appended to the baseline and an accepted hash is never rewritten", () => {
@@ -712,25 +955,6 @@ test("malformed archive corrections and index files fail closed", () => {
   }
 });
 
-test("an indented checklist and evidence line still count", () => {
-  const entry = { ...row("2026-12-01-b"), tests: [] };
-  const read = (text: string) => () => text;
-  assert.deepEqual(
-    archiveReadinessFailures(
-      [entry],
-      [],
-      read("- [x] 1\n  - [ ] 2 open\n\n- RED: r\n- GREEN: g\n"),
-    ).filter((failure) => failure.includes("open task")),
-    ["2026-12-01-b: archived change has 1 open task(s)"],
-    "an indented open task is still open",
-  );
-  assert.deepEqual(
-    archiveReadinessFailures([entry], [], read("- [x] 1\n  - RED: r\n  - GREEN: g\n")),
-    [],
-    "indented evidence counts",
-  );
-});
-
 test("the archive CLI refuses a bypassed anchor, a re-pin and a malformed index", () => {
   const root = mkdtempSync(join(tmpdir(), "archive-cli-"));
   const git = (args: string[]): string =>
@@ -750,7 +974,7 @@ test("the archive CLI refuses a bypassed anchor, a re-pin and a malformed index"
     write(`${path}/proposal.md`, "Issue: #1\n");
     write(
       `${path}/specs/game/sample/spec.md`,
-      "### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
+      "## ADDED Requirements\n\n### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
     );
     if (tasks !== null) write(`${path}/tasks.md`, tasks);
   };
@@ -761,10 +985,19 @@ test("the archive CLI refuses a bypassed anchor, a re-pin and a malformed index"
       join(root, "scripts", "archive-index.ts"),
       readFileSync(fileURLToPath(new URL("./archive-index.ts", import.meta.url))),
     );
+    writeFileSync(
+      join(root, "scripts", "openspec-reconcile.ts"),
+      readFileSync(fileURLToPath(new URL("./openspec-reconcile.ts", import.meta.url))),
+    );
     git(["init", "-q", "-b", "base"]);
     git(["config", "user.email", "test@example.com"]);
     git(["config", "user.name", "Test"]);
     write("src/sample.test.ts", "import test from 'node:test';\ntest('sample', () => {});\n");
+    write(
+      "docs/audits/verification-gates/test-manifest.json",
+      JSON.stringify({ tests: [{ file: "src/sample.test.ts", name: "sample" }], browser: [] }),
+    );
+    write("openspec/specs/game/sample/spec.md", "## Requirements\n\n### Requirement: One\n");
     write("docs/audits/openspec-archive-baseline.json", emptyBaseline);
     write("fixtures/conformance/openspec-archive-baseline.json", emptyBaseline);
     write("fixtures/conformance/archive-corrections.json", JSON.stringify({ corrections: [] }));
@@ -796,6 +1029,16 @@ test("the archive CLI refuses a bypassed anchor, a re-pin and a malformed index"
     git(["commit", "-qm", "complete archive"]);
     const buildThree = run();
     assert.equal(buildThree.status, 0, buildThree.stderr);
+
+    // A symbolic link inside an archived tree is not accepted as evidence.
+    symlinkSync(
+      "../../../../README.md",
+      join(root, "openspec/changes/archive/2026-03-01-three/link"),
+    );
+    const linked = run();
+    assert.equal(linked.status, 1);
+    assert.match(linked.stderr, /symbolic link/);
+    rmSync(join(root, "openspec/changes/archive/2026-03-01-three/link"));
 
     // Adding the name to the anchor fixture does not exempt it either.
     const anchorPath = "fixtures/conformance/openspec-archive-baseline.json";
@@ -836,6 +1079,193 @@ test("the archive CLI refuses a bypassed anchor, a re-pin and a malformed index"
     rmSync(root, { recursive: true, force: true });
   }
 });
+test("the target tree, not a working anchor, exempts an introduced archive", () => {
+  const root = mkdtempSync(join(tmpdir(), "archive-exempt-"));
+  const git = (args: string[]): string =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  const write = (file: string, content: string): void => {
+    mkdirSync(join(root, file, ".."), { recursive: true });
+    writeFileSync(join(root, file), content);
+  };
+  const run = (args: string[] = []) =>
+    spawnSync(process.execPath, ["scripts/archive-index.ts", ...args], {
+      cwd: root,
+      encoding: "utf8",
+    });
+  const complete = "# Tasks\n\n- [x] 1.1 Done.\n\n## Evidence\n\n- RED: one\n- GREEN: two\n";
+  const archive = (name: string, tasks: string | null): string => {
+    const path = `openspec/changes/archive/${name}`;
+    write(`${path}/proposal.md`, "Issue: #1\n");
+    write(
+      `${path}/specs/game/sample/spec.md`,
+      "## ADDED Requirements\n\n### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
+    );
+    if (tasks !== null) write(`${path}/tasks.md`, tasks);
+    return path;
+  };
+  try {
+    mkdirSync(join(root, "scripts"), { recursive: true });
+    for (const file of ["archive-index.ts", "openspec-reconcile.ts"])
+      writeFileSync(
+        join(root, "scripts", file),
+        readFileSync(fileURLToPath(new URL(`./${file}`, import.meta.url))),
+      );
+    git(["init", "-q", "-b", "dev"]);
+    git(["config", "user.email", "test@example.com"]);
+    git(["config", "user.name", "Test"]);
+    write("src/sample.test.ts", "import test from 'node:test';\ntest('sample', () => {});\n");
+    write(
+      "docs/audits/verification-gates/test-manifest.json",
+      JSON.stringify({ tests: [{ file: "src/sample.test.ts", name: "sample" }], browser: [] }),
+    );
+    write("openspec/specs/game/sample/spec.md", "## Requirements\n\n### Requirement: One\n");
+    archive("2026-01-01-one", complete);
+    git(["add", "."]);
+    git(["commit", "-qm", "accepted archive"]);
+    git(["branch", "base"]);
+
+    // The worktree introduces a second archive and an anchor that names both.
+    archive("2026-02-01-two", null);
+    write(
+      "docs/audits/openspec-archive-baseline.json",
+      JSON.stringify({ schemaVersion: 1, entries: [] }),
+    );
+    write("fixtures/conformance/archive-corrections.json", JSON.stringify({ corrections: [] }));
+    write("fixtures/conformance/archive-origins.json", JSON.stringify({ origins: [] }));
+    write("fixtures/conformance/legacy-test-paths.json", JSON.stringify({ paths: [] }));
+    git(["add", "."]);
+    git(["commit", "-qm", "introduce two"]);
+    const built = run();
+    assert.equal(built.status, 0, built.stderr);
+    const index = JSON.parse(
+      readFileSync(join(root, "docs/audits/openspec-archive-index.json"), "utf8"),
+    ) as { entries: Array<{ name: string; treeHash: string }> };
+    write(
+      "fixtures/conformance/openspec-archive-baseline.json",
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: index.entries.map((entry) => ({ name: entry.name, treeHash: entry.treeHash })),
+      }),
+    );
+    const check = run(["--check", "--against", "base"]);
+    assert.equal(check.status, 1, "the target has no anchor, so its tree defines the exemptions");
+    assert.match(check.stderr, /2026-02-01-two: archived change has no tasks\.md/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("an origin record must match the index and carry a reason", () => {
+  const entry = { ...row("2026-11-01-a"), commit: "a".repeat(40), date: "2026-11-01" };
+  const record = {
+    name: entry.name,
+    commit: entry.commit,
+    date: entry.date,
+    reason: "squashed into dev",
+  };
+  assert.deepEqual(originRecordFailures([record], [entry]), []);
+  assert.ok(
+    originRecordFailures([{ ...record, commit: "f".repeat(40) }], [entry]).some((failure) =>
+      failure.includes("differs from the index"),
+    ),
+  );
+  assert.ok(
+    originRecordFailures([{ ...record, reason: " " }], [entry]).some((failure) =>
+      failure.includes("no reason"),
+    ),
+  );
+  assert.ok(
+    originRecordFailures([{ ...record, name: "2026-12-01-other" }], [entry]).some((failure) =>
+      failure.includes("names no archived change"),
+    ),
+  );
+  assert.ok(
+    originRecordFailures([record, record], [entry]).some((failure) =>
+      failure.includes("duplicate origin record"),
+    ),
+  );
+  assert.equal(parseOrigins("not json"), null);
+  assert.equal(parseOrigins(JSON.stringify({ origins: [{ name: "x" }] })), null);
+  assert.equal(parseOrigins(JSON.stringify({ origins: [record] }))?.length, 1);
+});
+
+test("a legacy test path needs one reviewed mapping and must be used", () => {
+  const root = mkdtempSync(join(tmpdir(), "legacy-paths-"));
+  try {
+    const entry = { ...row("2026-11-01-a"), tests: [] };
+    mkdirSync(join(root, entry.path, "specs", "game", "sample"), { recursive: true });
+    writeFileSync(
+      join(root, entry.path, "specs", "game", "sample", "spec.md"),
+      "## ADDED Requirements\n\n### Requirement: One\n\n**Tests**: `js/old.test.mjs`\n",
+    );
+    assert.deepEqual(historicalReferences(root, entry.path), ["js/old.test.mjs"]);
+    mkdirSync(join(root, "src"), { recursive: true });
+    writeFileSync(join(root, "src", "new.test.ts"), "");
+    const mapping = { from: "js/old.test.mjs", to: "src/new.test.ts", reason: "renamed" };
+    assert.deepEqual(legacyPathFailures(root, [entry], [mapping]), []);
+    assert.ok(
+      legacyPathFailures(root, [entry], []).some((failure) => failure.includes("has no mapping")),
+    );
+    assert.ok(
+      legacyPathFailures(root, [entry], [{ ...mapping, reason: " " }]).some((failure) =>
+        failure.includes("no reason"),
+      ),
+    );
+    assert.ok(
+      legacyPathFailures(root, [entry], [{ ...mapping, to: "src/gone.test.ts" }]).some((failure) =>
+        failure.includes("not a regular file"),
+      ),
+    );
+    assert.ok(
+      legacyPathFailures(root, [entry], [mapping, { ...mapping, to: "src/new.test.ts" }]).some(
+        (failure) => failure.includes("duplicate legacy test path"),
+      ),
+    );
+    const unused = { from: "js/other.test.mjs", to: "src/new.test.ts", reason: "renamed" };
+    assert.ok(
+      legacyPathFailures(root, [entry], [mapping, unused]).some((failure) =>
+        failure.includes("is not used"),
+      ),
+    );
+    assert.equal(parseLegacyPaths("not json"), null);
+    assert.equal(parseLegacyPaths(JSON.stringify({ paths: [{ from: 1 }] })), null);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("every archived change names a test and the anchor matches the target tree", () => {
+  const root = fileURLToPath(new URL("..", import.meta.url));
+  const index = JSON.parse(
+    readFileSync(join(root, "docs/audits/openspec-archive-index.json"), "utf8"),
+  ) as { entries: Array<{ name: string; tests?: string[] }> };
+  assert.deepEqual(
+    index.entries.filter((entry) => (entry.tests ?? []).length === 0).map((entry) => entry.name),
+    [],
+    "every archive carries at least one test reference",
+  );
+  const anchor = JSON.parse(
+    readFileSync(join(root, "fixtures/conformance/openspec-archive-baseline.json"), "utf8"),
+  ) as { entries: Array<{ name: string }> };
+  const listing = execFileSync(
+    "git",
+    ["ls-tree", "-rz", "--name-only", "origin/dev", "--", "openspec/changes/archive"],
+    { cwd: root, encoding: "utf8" },
+  );
+  const target = new Set(
+    listing
+      .split("\0")
+      .filter(Boolean)
+      .map((file) => file.split("/")[3])
+      .filter((name) => name && name !== ".gitkeep"),
+  );
+  assert.deepEqual(
+    new Set(anchor.entries.map((entry) => entry.name)),
+    target,
+    "the anchor records only the archives the target branch accepted",
+  );
+});
+
 test("the archive check fails closed on an invalid target ref", () => {
   const result = spawnSync(
     process.execPath,

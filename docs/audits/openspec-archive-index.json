@@ -9,7 +9,9 @@
       "path": "openspec/changes/archive/2026-11-11-adopt-issue-driven-workflow",
       "treeHash": "41be6dc396d61b3404fc24d46ef419803de5a583ad51adc4a35ed3b412009d8f",
       "issue": "#19",
-      "tests": []
+      "tests": [
+        "scripts/openspec-check.ts"
+      ]
     },
     {
       "name": "2026-11-11-adopt-layered-architecture-foundation",
@@ -18,7 +20,16 @@
       "path": "openspec/changes/archive/2026-11-11-adopt-layered-architecture-foundation",
       "treeHash": "d72122a7a7f27e97f0c7753480e18e6b73db7a56faf7fec2968a5b6bcfe1b254",
       "issue": "#52",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/model/scripts.test.ts",
+        "src/core/model/types.test-d.ts",
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-adopt-oxlint-oxfmt",
@@ -27,7 +38,9 @@
       "path": "openspec/changes/archive/2026-11-11-adopt-oxlint-oxfmt",
       "treeHash": "1dc28bbff4b102c0d2e12b0eea8478d851596363897cd3d7ee5d17f0177dede8",
       "issue": "#74",
-      "tests": []
+      "tests": [
+        "scripts/check-toolchain.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-adopt-react-ui-shell",
@@ -36,7 +49,12 @@
       "path": "openspec/changes/archive/2026-11-11-adopt-react-ui-shell",
       "treeHash": "9fa13067a7eafc4502875fb13be4e7f7fdd873cb3d0fb3f08bb5c0f963d19cec",
       "issue": "#69",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/infrastructure/offline/offline-worker.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-adopt-strict-typescript-checkjs",
@@ -45,7 +63,12 @@
       "path": "openspec/changes/archive/2026-11-11-adopt-strict-typescript-checkjs",
       "treeHash": "fd7d36498fba54b63b894f2fdfc55b0ad361997ba74396db892666d4a44e5fe0",
       "issue": "#50",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/model/types.test-d.ts"
+      ]
     },
     {
       "name": "2026-11-11-bmr-goon-lunatic-tinker",
@@ -54,7 +77,9 @@
       "path": "openspec/changes/archive/2026-11-11-bmr-goon-lunatic-tinker",
       "treeHash": "d54e065656714e2fe645f10c53e08a22c8a1f263fc5439f69ab1fa2b6c141ce3",
       "issue": "#37",
-      "tests": []
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-custom-scripts-jinxes",
@@ -63,7 +88,12 @@
       "path": "openspec/changes/archive/2026-11-11-custom-scripts-jinxes",
       "treeHash": "13b53cd082e5878b79ee8f0142acf049bfd2f4d1321325ee1bf6b1ea8ee56fd1",
       "issue": "#44",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/model/scripts.test.ts",
+        "src/core/model/support.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-event-priorities-cascades",
@@ -72,7 +102,11 @@
       "path": "openspec/changes/archive/2026-11-11-event-priorities-cascades",
       "treeHash": "d5cda03153cdb1a8cca1b6a94c5dd63563a7fb20bcdf24f227f94178aa1118e3",
       "issue": "#29",
-      "tests": []
+      "tests": [
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-fix-bmr-repeat-target-restrictions",
@@ -81,7 +115,9 @@
       "path": "openspec/changes/archive/2026-11-11-fix-bmr-repeat-target-restrictions",
       "treeHash": "adb7b5308c1402358fc96131971b7e7ae199b74fc0e58bd16dfd8a6739d7ed9c",
       "issue": "#35",
-      "tests": []
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-fix-pukka-self-target-and-poison-cycles",
@@ -90,7 +126,12 @@
       "path": "openspec/changes/archive/2026-11-11-fix-pukka-self-target-and-poison-cycles",
       "treeHash": "29b5d45bec121318b1ccdfbaecbf9b2a34d254bbec6fb3f28b15df2ba5bdf181",
       "issue": "#19",
-      "tests": []
+      "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-migrate-player-screen",
@@ -99,7 +140,10 @@
       "path": "openspec/changes/archive/2026-11-11-migrate-player-screen",
       "treeHash": "a23a666723a63b919ac0bdb3bd68e8ed70814f1477d93515c3ab71e372621009",
       "issue": "#77",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/commands.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-migrate-setup-screens",
@@ -108,7 +152,9 @@
       "path": "openspec/changes/archive/2026-11-11-migrate-setup-screens",
       "treeHash": "7db66b61621af662b2f942fd0c55eeed49b853b1ab4bb44a7a14544d93e38e00",
       "issue": "#82",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-11-migrate-storyteller-console",
@@ -117,7 +163,14 @@
       "path": "openspec/changes/archive/2026-11-11-migrate-storyteller-console",
       "treeHash": "e99a220a85541c3bdbfa4156bac1a1c3caeccac8e59550a046d990627f46232b",
       "issue": "#85",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/snv.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-rebrand-grimoria",
@@ -126,7 +179,10 @@
       "path": "openspec/changes/archive/2026-11-11-rebrand-grimoria",
       "treeHash": "67d03b20c7d58d8db27816dfa203d76150e28809465b94051d35acae11c51c3a",
       "issue": "#54",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/infrastructure/library/bag-library.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-remove-player-cover-step",
@@ -135,7 +191,9 @@
       "path": "openspec/changes/archive/2026-11-11-remove-player-cover-step",
       "treeHash": "49c7d7110a366d05aeccc2cde7ec528b9c79b4f569027de306fdeb8df5a4d696",
       "issue": "#61",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-11-remove-player-handoff-done-screen",
@@ -144,7 +202,12 @@
       "path": "openspec/changes/archive/2026-11-11-remove-player-handoff-done-screen",
       "treeHash": "6bc6cf02e94f238b6aaeed75bc55bbff322c1e3c9d6e91988aecf7fa303afbe3",
       "issue": "#48",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "scripts/openspec-check.ts",
+        "src/infrastructure/offline/offline-worker.test.ts",
+        "src/ui/i18n/strings.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-save-recovery-and-versioning",
@@ -177,7 +240,11 @@
       "path": "openspec/changes/archive/2026-11-11-setup-masks-and-modifiers",
       "treeHash": "893b553dc92412f13efa65a8127dce7dbf8e59e70c769266665b9cc6c1ced4a8",
       "issue": "#43",
-      "tests": []
+      "tests": [
+        "src/core/engine/manual.test.ts",
+        "src/core/engine/setup.test.ts",
+        "src/core/model/scripts.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-snakecharmer-dead-seat",
@@ -186,7 +253,10 @@
       "path": "openspec/changes/archive/2026-11-11-snakecharmer-dead-seat",
       "treeHash": "0435f28feb8ae7f3d00a2be627d9105d66bb6a1420a0afe7ea2e701e66f24ff6",
       "issue": "#104",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/snv.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-state-invariants",
@@ -196,7 +266,10 @@
       "treeHash": "be8af134a20374fa4e99f721fa8b4d0b28db05bbb240d116c73dbef8cd3393c0",
       "issue": "#32",
       "tests": [
-        "src/application/store/create-game-store.test.ts"
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/invariants.test.ts"
       ]
     },
     {
@@ -207,6 +280,11 @@
       "treeHash": "34dbfc55b40deef3a360718c85b164efefa99d36588caba0660272e3f4315030",
       "issue": "#45",
       "tests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/ui/i18n/strings.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ]
     },
@@ -217,7 +295,9 @@
       "path": "openspec/changes/archive/2026-11-11-sv-character-replacements",
       "treeHash": "c2cac8fe7875616d5bc6f2d5dad17ea47f56cbbee9d95aca7dc60db3c12eeb1a",
       "issue": "#38",
-      "tests": []
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-type-engine-core",
@@ -227,7 +307,9 @@
       "treeHash": "79f5635c26cbce54ad2b0658cfb2a0b7f5b849683c4e31b8a635891f525ab381",
       "issue": "#59",
       "tests": [
-        "src/application/store/create-game-store.test.ts"
+        "scripts/check-types-policy.test.ts",
+        "src/application/store/create-game-store.test.ts",
+        "src/core/model/types.test-d.ts"
       ]
     },
     {
@@ -238,6 +320,10 @@
       "treeHash": "18d105095b2a1ab3ce4de842b711caeba0023ee61c08283c413a2f3289b6afd4",
       "issue": "#28",
       "tests": [
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/bmr.test.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/model/scripts.test.ts",
         "src/core/model/state.test.ts"
       ]
     },
@@ -248,7 +334,9 @@
       "path": "openspec/changes/archive/2026-11-11-verify-bmr-unverified-roles",
       "treeHash": "4a34524d53d881b212078cf971ae9235b1002b916a68dbae524ae5053114601e",
       "issue": "#36",
-      "tests": []
+      "tests": [
+        "src/core/engine/bmr.test.ts"
+      ]
     },
     {
       "name": "2026-11-11-verify-tb-mechanics",
@@ -257,7 +345,9 @@
       "path": "openspec/changes/archive/2026-11-11-verify-tb-mechanics",
       "treeHash": "070bb15cfaeb001cb350463e729e12e598326f0f187a2f8184dc3af20e3c98f5",
       "issue": "#34",
-      "tests": []
+      "tests": [
+        "src/core/engine/engine.test.ts"
+      ]
     },
     {
       "name": "2026-11-12-acceptance-docs",
@@ -266,7 +356,9 @@
       "path": "openspec/changes/archive/2026-11-12-acceptance-docs",
       "treeHash": "2530d89bd34ce19cdac524a9ea759e7784a900ab7fdbde2db3b3b0ad1db9b643",
       "issue": "#46",
-      "tests": []
+      "tests": [
+        "src/core/model/support.test.ts"
+      ]
     },
     {
       "name": "2026-11-12-acceptance-pipeline",
@@ -275,7 +367,10 @@
       "path": "openspec/changes/archive/2026-11-12-acceptance-pipeline",
       "treeHash": "9f8db6debd3c8877ec5187128c1a8d0c9eb391b65b8eba8be23f0be49f60040f",
       "issue": "#46",
-      "tests": []
+      "tests": [
+        "src/core/engine/acceptance.test.ts",
+        "src/core/engine/commands.test.ts"
+      ]
     },
     {
       "name": "2026-11-12-acceptance-ui-360",
@@ -284,7 +379,9 @@
       "path": "openspec/changes/archive/2026-11-12-acceptance-ui-360",
       "treeHash": "03fde384412a8505718b55e8189b6fb92e7a6edca5f33229dae425302d1e7795",
       "issue": "#46",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-12-event-log-replay",
@@ -294,7 +391,9 @@
       "treeHash": "f97e3d323c6b63ca8e04e0c48ac9adcb1407d90e0a65c3c2a3f501a57c161b8d",
       "issue": "#30",
       "tests": [
-        "src/application/store/create-game-store.test.ts"
+        "src/application/store/create-game-store.test.ts",
+        "src/core/engine/commands.test.ts",
+        "src/core/engine/invariants.test.ts"
       ]
     },
     {
@@ -304,7 +403,9 @@
       "path": "openspec/changes/archive/2026-11-12-host-choice-controls",
       "treeHash": "7370812db6a6f33bfcb7bad8d6c4bcb8cb452854ca741a1ed7df610d24565f07",
       "issue": "#42",
-      "tests": []
+      "tests": [
+        "src/core/engine/host-choice.test.ts"
+      ]
     },
     {
       "name": "2026-11-12-madness-review",
@@ -327,6 +428,8 @@
       "treeHash": "83f0583341c2ee598c4b4a9e3b442f1369a24206ab3cea0f63283c37f950b12d",
       "issue": "#137",
       "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
         "src/infrastructure/offline/offline-worker.test.ts"
       ]
     },
@@ -338,6 +441,7 @@
       "treeHash": "31c06861af06e8c4785988c1ca0937cd75517e250b5c4a2adeffc34913ce0a35",
       "issue": "#40",
       "tests": [
+        "src/core/engine/snv.test.ts",
         "src/ui/screens/player-projection.test.ts"
       ]
     },
@@ -348,7 +452,9 @@
       "path": "openspec/changes/archive/2026-11-12-sv-vigormortis-vortox-info",
       "treeHash": "b20b92bc677f92416d87ed968ff12893583fb6e37a355f32d62c8048a0616297",
       "issue": "#41",
-      "tests": []
+      "tests": [
+        "src/core/engine/snv.test.ts"
+      ]
     },
     {
       "name": "2026-11-13-arcane-instrument-ui",
@@ -358,6 +464,8 @@
       "treeHash": "f472092aa15a266724851d60a858acdb0327fe09b8ef6cc96b16e25e942e6ea7",
       "issue": "#137",
       "tests": [
+        "scripts/browser-check.ts",
+        "scripts/check-types-policy.test.ts",
         "src/core/engine/commands.test.ts",
         "src/infrastructure/offline/offline-worker.test.ts"
       ]
@@ -380,7 +488,9 @@
       "path": "openspec/changes/archive/2026-11-13-mobile-burger-menu",
       "treeHash": "23aeb6ba61c5afcc093250fbacffa2d55893bd909d1533e9a6c77ade0e122a7a",
       "issue": "#141",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-13-remove-handback-cover",
@@ -389,7 +499,9 @@
       "path": "openspec/changes/archive/2026-11-13-remove-handback-cover",
       "treeHash": "4c9f5458c738521a7962ab59608af6737eaae38337d5221ff952fd160156f890",
       "issue": "#142",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-13-remove-hide-screen-overlay",
@@ -398,7 +510,9 @@
       "path": "openspec/changes/archive/2026-11-13-remove-hide-screen-overlay",
       "treeHash": "4b7c2c850bf6b2eb0622d45c7b7de3f2d9757887b72bd0a6a5519849c774823e",
       "issue": "#150",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-13-remove-sheet-duplicate-nav",
@@ -407,7 +521,9 @@
       "path": "openspec/changes/archive/2026-11-13-remove-sheet-duplicate-nav",
       "treeHash": "46f47fd25a02960ad0b64cf9e604b6b4b2331122d815b4b50918f6cd10b97ee7",
       "issue": "#151",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-13-role-sheet-readability",
@@ -416,7 +532,9 @@
       "path": "openspec/changes/archive/2026-11-13-role-sheet-readability",
       "treeHash": "997cc60c9ded067972e0d00bfb556cbfada3d3b28c5831caf352b8e132a78700",
       "issue": "#143",
-      "tests": []
+      "tests": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "name": "2026-11-13-seat-bottom-actions",
@@ -426,6 +544,7 @@
       "treeHash": "2bbe780318a525514455d4f3bdabe45c60cfd4e8b30c340f177dd8b20f41f180",
       "issue": "#154",
       "tests": [
+        "scripts/browser-check.ts",
         "src/core/engine/commands.test.ts"
       ]
     },
@@ -437,6 +556,7 @@
       "treeHash": "3ceade0cbca3b96fccf6f2ba4e130aac0881b30f7372106fbe970a457545d37e",
       "issue": "#170",
       "tests": [
+        "scripts/browser-check.ts",
         "src/application/read-models/table.test.ts",
         "src/core/engine/bmr.test.ts",
         "src/core/engine/commands.test.ts",
@@ -452,6 +572,7 @@
       "treeHash": "123132d93afcdb0983d5f314e5f41453d59a982b9d1701a67c781089241cf2f7",
       "issue": "#171",
       "tests": [
+        "scripts/browser-check.ts",
         "src/application/read-models/table.test.ts",
         "src/ui/i18n/strings.test.ts",
         "src/ui/screens/table/helpers.test.ts"
@@ -508,6 +629,7 @@
       "treeHash": "b5346c463de95401f858e2a2d1807865eb6d68ae4e8e8d6de7792f43fdd03223",
       "issue": "#171",
       "tests": [
+        "scripts/browser-check.ts",
         "src/core/engine/engine.test.ts",
         "src/ui/screens/seat-projection.test.ts",
         "src/ui/screens/secrets-options.test.ts",
@@ -535,6 +657,7 @@
       "treeHash": "171f0c940092e09176ddf5584febc331b7f66f90aa5b6bda259f27b208716a79",
       "issue": "#164",
       "tests": [
+        "scripts/browser-check.ts",
         "src/core/engine/commands.test.ts"
       ]
     },
@@ -546,7 +669,6 @@
       "treeHash": "3dcb71a712d38f79681cbf43b94a0cd498a06b5b96faa8d658d102f56957c65c",
       "issue": "#200",
       "tests": [
-        "scripts/browser-check.ts",
         "src/application/read-models/table.test.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
@@ -586,6 +708,7 @@
       "issue": "#200",
       "tests": [
         "src/core/engine/bmr.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/gambler/role.test.ts"
       ]
     },
@@ -597,6 +720,8 @@
       "treeHash": "747d3b167a8aad50a27075e1a5dc0a1b6612e8fd0bfa097a542d37737423047e",
       "issue": "#177",
       "tests": [
+        "scripts/check-acceptance.test.ts",
+        "scripts/rules-for.test.ts",
         "src/core/engine/bmr.test.ts",
         "src/core/engine/commands.test.ts",
         "src/core/engine/engine.test.ts",
@@ -615,6 +740,7 @@
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/commands.test.ts",
         "src/core/engine/coordinator.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/architecture.test.ts"
       ]
     },
@@ -668,6 +794,7 @@
         "scripts/role-ownership.test.ts",
         "src/core/engine/bmr.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/devilsadvocate/role.test.ts",
         "src/core/roles/exorcist/role.test.ts"
       ]
@@ -704,6 +831,7 @@
       "tests": [
         "scripts/role-ownership.test.ts",
         "src/core/engine/bmr.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/gambler/role.test.ts",
         "src/core/roles/night-step.test.ts",
         "src/core/roles/pukka/role.test.ts"
@@ -747,6 +875,7 @@
         "scripts/role-ownership.test.ts",
         "src/core/engine/bmr.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/gambler/role.test.ts",
         "src/core/roles/innkeeper/role.test.ts",
         "src/core/roles/night-step.test.ts",
@@ -777,6 +906,7 @@
         "scripts/role-ownership.test.ts",
         "src/core/engine/bmr.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/po/role.test.ts",
         "src/core/roles/shabaloth/role.test.ts",
         "src/core/roles/tinker/role.test.ts"
@@ -880,6 +1010,7 @@
         "src/core/engine/invariants.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/architecture.test.ts",
         "src/core/roles/gambler/role.test.ts",
         "src/core/roles/pukka/role.test.ts",
@@ -1101,7 +1232,8 @@
       "issue": "#132",
       "tests": [
         "scripts/check-toolchain.test.ts",
-        "scripts/check-types-policy.test.ts"
+        "scripts/check-types-policy.test.ts",
+        "src/core/model/types.test-d.ts"
       ]
     },
     {
@@ -1176,6 +1308,7 @@
         "scripts/browser-check.ts",
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/investigator/role.test.ts",
         "src/core/roles/librarian/role.test.ts",
         "src/core/roles/washerwoman/role.test.ts",
@@ -1193,6 +1326,7 @@
         "scripts/role-ownership.test.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/cerenovus/role.test.ts"
       ]
     },
@@ -1241,6 +1375,7 @@
       "tests": [
         "scripts/role-ownership.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/pithag/role.test.ts",
         "src/core/roles/snakecharmer/role.test.ts"
       ]
@@ -1447,6 +1582,7 @@
       "tests": [
         "src/core/engine/bmr.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/butler/role.test.ts"
       ]
     },
@@ -1460,6 +1596,7 @@
       "tests": [
         "scripts/role-ownership.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/night-step.test.ts",
         "src/core/roles/ravenkeeper/role.test.ts",
         "src/core/roles/undertaker/role.test.ts"
@@ -1475,6 +1612,7 @@
       "tests": [
         "src/core/engine/engine.test.ts",
         "src/core/engine/host-choice.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/chef/role.test.ts",
         "src/core/roles/night-step.test.ts"
       ]
@@ -1488,6 +1626,7 @@
       "issue": "#200",
       "tests": [
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/empath/role.test.ts",
         "src/core/roles/night-step.test.ts"
       ]
@@ -1514,6 +1653,7 @@
       "issue": "#200",
       "tests": [
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/imp/role.test.ts"
       ]
     },
@@ -1541,6 +1681,7 @@
         "src/core/engine/bmr.test.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/monk/role.test.ts",
         "src/core/roles/night-step.test.ts",
         "src/core/roles/poisoner/role.test.ts"
@@ -1556,6 +1697,7 @@
       "tests": [
         "scripts/role-ownership.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/investigator/role.test.ts",
         "src/core/roles/librarian/role.test.ts",
         "src/core/roles/washerwoman/role.test.ts"
@@ -1571,6 +1713,7 @@
       "tests": [
         "scripts/role-ownership.test.ts",
         "src/core/engine/engine.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/spy/role.test.ts"
       ]
     },
@@ -1667,6 +1810,7 @@
         "src/core/engine/cross-role.test.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/architecture.test.ts",
         "src/core/roles/clockmaker/role.test.ts",
         "src/core/roles/oracle/role.test.ts"
@@ -1707,6 +1851,7 @@
       "tests": [
         "scripts/browser-check.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/dreamer/role.test.ts"
       ]
     },
@@ -1745,6 +1890,7 @@
         "src/core/engine/evil-twin-choice.test.ts",
         "src/core/engine/information-facts.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/eviltwin/role.test.ts"
       ]
     },
@@ -1758,6 +1904,7 @@
       "tests": [
         "src/core/engine/information-facts.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/flowergirl/role.test.ts",
         "src/core/roles/towncrier/role.test.ts"
       ]
@@ -1834,6 +1981,7 @@
       "tests": [
         "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
+        "src/core/roles/ability.test-d.ts",
         "src/core/roles/architecture.test.ts",
         "src/core/roles/mathematician/role.test.ts"
       ]
@@ -2063,7 +2211,9 @@
       "path": "openspec/changes/archive/2026-11-28-storyteller-workspace",
       "treeHash": "9182eb43df09ab06c4857b40f1bd3b75e42bc10dee5cafe3ff06af0b764ece06",
       "issue": "#517",
-      "tests": []
+      "tests": [
+        "src/ui/screens/reference/filter.test.ts"
+      ]
     },
     {
       "name": "2026-11-28-tb-gap-coverage",

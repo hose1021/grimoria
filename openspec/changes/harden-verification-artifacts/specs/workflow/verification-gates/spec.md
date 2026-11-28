@@ -28,6 +28,20 @@ gate.
 - **WHEN** a verification-policy migration sets `Policy migration: true`
 - **THEN** the gate accepts proposal, design and tasks without gameplay specs
 
+### Requirement: Each risk tier keeps its evidence obligation
+
+A change SHALL satisfy the evidence of every tier present in its diff, not only
+the highest tier. A gameplay path in an R3 diff SHALL still carry its pinned
+official source, rule identifier, asserting test and RED/GREEN record.
+
+**Source**: Issue #519
+**Tests**: `scripts/check-risk-tier.test.ts`
+
+#### Scenario: Mixed diff
+
+- **WHEN** a diff contains a gameplay path and a verification-policy path
+- **THEN** the gate requires both the R2 and the R3 evidence
+
 ### Requirement: Archive evidence is append-only against the target branch
 
 The archive index SHALL keep every tree accepted on the target branch with its
@@ -62,10 +76,11 @@ satisfied.
 
 ### Requirement: Archive provenance survives squash integration
 
-A new archive SHALL keep the origin recorded by the index committed with its
-first add when the target branch holds no record for it, so a squash merge,
-release and back-merge cannot lose it. A record the target branch accepted SHALL
-take precedence, and a rewritten origin SHALL fail the gate.
+A recorded origin SHALL equal the first add of the change path. When a squash
+removed that commit, a reviewed record in
+`fixtures/conformance/archive-origins.json` SHALL name the origin; a record the
+target branch accepted SHALL take precedence, and an origin written in the same
+commit as the archive SHALL fail.
 
 **Source**: Issue #519
 **Tests**: `scripts/archive-index.test.ts`
@@ -74,20 +89,26 @@ take precedence, and a rewritten origin SHALL fail the gate.
 
 - **WHEN** a feature archive is squashed into the integration branch, released
   and back-merged, and the target holds no record for it
-- **THEN** the gate accepts the origin committed with the first add
+- **THEN** the gate accepts the origin only through its reviewed record
+
+#### Scenario: Same-commit origin
+
+- **WHEN** a new archive and an index entry with an older origin are introduced
+  in one commit
+- **THEN** the gate fails because no record supports the origin
 
 #### Scenario: Accepted record wins
 
 - **WHEN** the target branch already holds a record whose origin differs
 - **THEN** the gate fails and names the archive
 
-### Requirement: Archived references and completion are verifiable
+### Requirement: Archived test references resolve
 
-The archive gate SHALL reject an indexed test reference that resolves to no file
-unless a reviewed correction maps it to an existing asserting test file, and the
-index test list SHALL equal the references in the archived delta specs. An
-archive outside the accepted anchor SHALL have no open checklist item and SHALL
-carry RED/GREEN evidence.
+The archive gate SHALL reject an indexed test reference that resolves to no
+regular repository file unless a reviewed correction maps it to an existing
+asserting test. A runnable test SHALL be in the test manifest, a symbolic link or
+a directory SHALL fail, and the index test list SHALL equal the references in the
+archived delta specs.
 
 **Source**: Issue #519
 **Tests**: `scripts/archive-index.test.ts`
@@ -97,10 +118,54 @@ carry RED/GREEN evidence.
 - **WHEN** an archived delta spec names a test file that does not exist
 - **THEN** the gate fails unless a correction names an existing asserting file
 
+#### Scenario: Symbolic link
+
+- **WHEN** an archived tree contains a symbolic link
+- **THEN** the gate fails instead of hashing the link target
+
+### Requirement: An archive outside the anchor is complete and applied
+
+An archive outside the accepted anchor SHALL have no open checklist item and
+non-empty RED/GREEN evidence. Every ADDED or MODIFIED requirement SHALL be
+present in the baseline, and a REMOVED requirement SHALL be gone. A completed
+checklist alone SHALL NOT permit archiving an unsynchronized change.
+
+**Source**: Issue #519
+**Tests**: `scripts/archive-index.test.ts`
+
 #### Scenario: Unfinished archive
 
-- **WHEN** a new archive holds an open checklist item or no RED/GREEN record
+- **WHEN** a new archive holds an open checklist item or an empty RED or GREEN
+  line
 - **THEN** the gate fails and names the archive
+
+#### Scenario: Unapplied delta
+
+- **WHEN** a newly archived change adds a requirement the baseline does not hold,
+  or keeps a requirement it removed
+- **THEN** the gate fails and names the requirement
+
+### Requirement: Historical test paths resolve through one reviewed mapping
+
+A historical `.mjs` or type-test path SHALL resolve through
+`fixtures/conformance/legacy-test-paths.json`; a delta spec that names no test
+SHALL fall back to the change's task and design evidence. Every referenced
+historical path SHALL be mapped, every mapping SHALL be used and point at a
+regular file, and no archived change SHALL carry an empty test list.
+
+**Source**: Issue #519
+**Tests**: `scripts/archive-index.test.ts`
+
+#### Scenario: Historical reference
+
+- **WHEN** an archived spec names a `.mjs` test file that the TypeScript
+  migration replaced
+- **THEN** the index records the mapped current file
+
+#### Scenario: Unmapped reference
+
+- **WHEN** a historical path has no reviewed mapping
+- **THEN** the gate fails and names the path
 
 ### Requirement: Citation corrections use the complete identity
 

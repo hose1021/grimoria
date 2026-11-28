@@ -65,7 +65,7 @@ interface EngineRule {
   level: string;
   revision: string | null;
   citations: Citation[];
-  source: "matrix" | "shared" | "role-doc";
+  source: "matrix" | "shared" | "registry";
 }
 
 interface OfficialTrace {
@@ -119,7 +119,7 @@ function roleDocs(): EngineRule[] {
         level: rule.level,
         revision: rule.revision,
         citations: rule.assertingTests,
-        source: "role-doc",
+        source: "registry",
       });
     }
   }

@@ -31,6 +31,17 @@
       cannot exempt itself; refuse a build that would re-pin a dropped or
       changed record, and refuse to rebuild a malformed index. The CLI test
       runs the real script against a temporary repository.
+- [x] 2.8 Derive the anchor from the target branch's archive tree: 134 target
+      records, so the 39 newly archived changes are checked by the readiness
+      gate.
+- [x] 2.9 Apply every archived delta to the baseline (ADDED/MODIFIED present,
+      REMOVED absent), reject an empty RED or GREEN line, a symbolic link and a
+      non-regular test reference.
+- [x] 2.10 Require a reviewed origin record for a squash-rewritten origin; a
+      same-commit self-attested origin fails.
+- [x] 2.11 Recover the 32 archives whose specs name only historical `.mjs` files
+      through `fixtures/conformance/legacy-test-paths.json`, with a task/design
+      fallback; no archive has an empty test list.
 
 ## 3. Risk and artifacts
 
@@ -51,6 +62,10 @@
       unknown accepted level, widen the citation path parser, refuse an
       unrepresentable matrix citation, and read NUL-separated changed-file
       lists; tests for each.
+- [x] 3.8 Apply every tier's evidence in a mixed diff; an R3 label does not
+      waive the gameplay obligations.
+- [x] 3.9 Name the generated trace source `registry` instead of the retired
+      `role-doc` dossiers.
 
 ## 4. Verification
 
@@ -87,3 +102,10 @@
 - GREEN: the risk check names the unknown rule and the missing file and rejects
   the empty section; an unrepresentable matrix citation is reported instead of
   written.
+- RED: the anchor carried all 173 archives, so no newly archived change was
+  checked; a same-commit origin, an unapplied delta, an R2 path in an R3 diff and
+  an empty test list all passed; 32 archives named only historical `.mjs` files.
+- GREEN: the anchor holds the 134 target records; the 39 new archives pass the
+  applied-delta and non-empty evidence checks; an unrecorded squash origin fails
+  until its reviewed record exists; the mixed diff requires the R2 evidence; all
+  173 archives name a current test.

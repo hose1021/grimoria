@@ -174,6 +174,7 @@ export function checkRisk(
   context: RiskEvidenceContext = {},
 ): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
+  const present = new Set<Tier>(paths.map((path) => tierOf(path)));
   const computed = classify(paths);
   const declared = /^Risk:\s*(R[0-3])\s*$/m.exec(body)?.[1] as Tier | undefined;
   if (!/^Issue:\s*(#\d+|https?:\/\/\S+)/m.test(body)) errors.push("PR body has no Issue line");
@@ -182,10 +183,14 @@ export function checkRisk(
     errors.push(`declared ${declared} is lower than the diff's ${computed}`);
   if (!/^Evidence:/m.test(body) && !/^## Verification\b/m.test(body))
     errors.push("PR body has no Evidence line or Verification section");
-  errors.push(...evidenceFailures(computed, body, context));
-  if (declared && ORDER.indexOf(declared) > ORDER.indexOf(computed))
-    for (const error of evidenceFailures(declared, body, context))
-      if (!errors.includes(error)) errors.push(error);
+  // Each tier the diff touches keeps its own evidence obligation: a gameplay
+  // path in an R3 change still needs its source, rule id, test and RED/GREEN.
+  const obligations = new Set<Tier>([computed, ...present]);
+  if (declared) obligations.add(declared);
+  for (const tier of ORDER)
+    if (obligations.has(tier))
+      for (const error of evidenceFailures(tier, body, context))
+        if (!errors.includes(error)) errors.push(error);
   return { ok: errors.length === 0, errors };
 }
 

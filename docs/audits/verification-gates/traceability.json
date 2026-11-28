@@ -31477,7 +31477,7 @@
           "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-ASSASSIN-02",
@@ -31510,7 +31510,7 @@
           "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-CHAMBERMAID-01",
@@ -31531,7 +31531,7 @@
           "name": "the Chambermaid counts an impaired player who woke for their ability (ROLE-CHAMBERMAID-005)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-CHAMBERMAID-02",
@@ -31544,7 +31544,7 @@
           "name": "the Chambermaid does not wake with fewer than two other living players (BMR-CHAMBERMAID-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-CHAMBERMAID-03",
@@ -31561,7 +31561,7 @@
           "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-CHAMBERMAID-04",
@@ -31574,7 +31574,7 @@
           "name": "a Chambermaid choosing the Goon gets false information (BMR-CHAMBERMAID-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-CHAMBERMAID-05",
@@ -31587,7 +31587,7 @@
           "name": "the Chambermaid does not wake without two registered-living choices (BMR-CHAMBERMAID-05)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-COURTIER-01",
@@ -31600,7 +31600,7 @@
           "name": "the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-DEVILSADVOCATE-01",
@@ -31633,7 +31633,7 @@
           "name": "a healthy Devil's Advocate records the choice and protects the player from tomorrow's execution (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-DEVILSADVOCATE-02",
@@ -31662,7 +31662,7 @@
           "name": "an impaired Devil's Advocate protects nobody but the choice is recorded (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-DEVILSADVOCATE-03",
@@ -31675,7 +31675,7 @@
           "name": "a Devil's Advocate-protected Zombuul keeps its first death (BMR-DEVILSADVOCATE-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-EXORCIST-01",
@@ -31716,7 +31716,7 @@
           "name": "a healthy Exorcist who chooses the Demon records the choice and keeps the Demon asleep (BMR-EXORCIST-01, BMR-EXORCIST-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-EXORCIST-02",
@@ -31741,7 +31741,7 @@
           "name": "an impaired Exorcist stops nobody but the choice is recorded (BMR-EXORCIST-01, BMR-EXORCIST-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-FOOL-01",
@@ -31758,7 +31758,7 @@
           "name": "the Fool is not spent when Tea Lady or Innkeeper protection prevents the death (BMR-FOOL-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GAMBLER-01",
@@ -31791,7 +31791,7 @@
           "name": "the Gambler may target themself and a wrong self-guess still kills (BMR-GAMBLER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GAMBLER-02",
@@ -31804,7 +31804,7 @@
           "name": "the Gambler step cannot record the guessed player's death (BMR-GAMBLER-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GODFATHER-01",
@@ -31817,7 +31817,7 @@
           "name": "the Godfather learns the Outsiders in play on the first night (BMR-GODFATHER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GODFATHER-02",
@@ -31842,7 +31842,7 @@
           "name": "a saved Outsider execution does not wake the Godfather (ROLE-GODFATHER-006)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GODFATHER-03",
@@ -31855,7 +31855,7 @@
           "name": "the Godfather +/-1 Outsider setting is applied and impossible choices are reported (BMR-GODFATHER-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GOON-01",
@@ -31880,7 +31880,7 @@
           "name": "a permanent effect holds while its source is already poisoned, in either visiting order (SYS-EFFECTS-04, BMR-GOON-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GOSSIP-01",
@@ -31893,7 +31893,7 @@
           "name": "the Gossip statement schedules a night death only when it was true (BMR-GOSSIP-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GRANDMOTHER-01",
@@ -31918,7 +31918,7 @@
           "name": "a drunk or poisoned Grandmother survives the grandchild's death (BMR20)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-GRANDMOTHER-02",
@@ -31935,7 +31935,7 @@
           "name": "the grandchild learns nothing about the Grandmother (ROLE-GRANDMOTHER-002)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-INNKEEPER-01",
@@ -31972,7 +31972,7 @@
           "name": "a healthy Innkeeper makes both players safe tonight and one drunk until dusk (BMR-INNKEEPER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-LUNATIC-01",
@@ -31993,7 +31993,7 @@
           "name": "unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-MASTERMIND-01",
@@ -32006,7 +32006,7 @@
           "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-MINSTREL-01",
@@ -32019,7 +32019,7 @@
           "name": "a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-MOONCHILD-01",
@@ -32060,7 +32060,7 @@
           "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-MOONCHILD-02",
@@ -32073,7 +32073,7 @@
           "name": "the Moonchild does not kill an evil target (BMR-MOONCHILD-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-MOONCHILD-03",
@@ -32086,7 +32086,7 @@
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PACIFIST-01",
@@ -32103,7 +32103,7 @@
           "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PO-01",
@@ -32136,7 +32136,7 @@
           "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PROFESSOR-01",
@@ -32169,7 +32169,7 @@
           "name": "a regurgitated start-knowing player wakes to use the ability again (BMR10)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PROFESSOR-02",
@@ -32182,7 +32182,7 @@
           "name": "the Professor resurrects only a dead Townsfolk (BMR-PROFESSOR-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PROFESSOR-03",
@@ -32195,7 +32195,7 @@
           "name": "the Professor ability is once per game (BMR-PROFESSOR-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PUKKA-01",
@@ -32212,7 +32212,7 @@
           "name": "the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PUKKA-02",
@@ -32229,7 +32229,7 @@
           "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PUKKA-03",
@@ -32246,7 +32246,7 @@
           "name": "an impaired Pukka suspends a due pending death and reports the rule note (BMR-PUKKA-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PUKKA-04",
@@ -32263,7 +32263,7 @@
           "name": "the Pukka poisons the new target before resolving the previous death (BMR-PUKKA-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PUKKA-05",
@@ -32280,7 +32280,7 @@
           "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PUKKA-06",
@@ -32301,7 +32301,7 @@
           "name": "a Pukka self-target suspends the previous death and releases other poisons (BMR-PUKKA-06)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-PUKKA-07",
@@ -32318,7 +32318,7 @@
           "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-SAILOR-01",
@@ -32359,7 +32359,7 @@
           "name": "a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, BMR-SAILOR-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-SAILOR-02",
@@ -32380,7 +32380,7 @@
           "name": "the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-SHABALOTH-01",
@@ -32425,7 +32425,7 @@
           "name": "a healthy Shabaloth records its two players, in the host's order (BMR-SHABALOTH-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-TEALADY-01",
@@ -32462,7 +32462,7 @@
           "name": "a registered-dead Zombuul is not a Tea Lady neighbour but still counts as alive (BMR-TEALADY-01, BMR-ZOMBUUL-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-TINKER-01",
@@ -32503,7 +32503,7 @@
           "name": "the Tinker's step resolves to nothing, healthy or impaired: the host marks the death (BMR-TINKER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-ZOMBUUL-01",
@@ -32536,7 +32536,7 @@
           "name": "executing a corpse leaves the Zombuul free to attack (ROLE-ZOMBUUL-006)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "BMR-ZOMBUUL-02",
@@ -32549,7 +32549,7 @@
           "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-ARTIST-01",
@@ -32570,7 +32570,7 @@
           "name": "the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-BARBER-01",
@@ -32599,7 +32599,7 @@
           "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-BARBER-02",
@@ -32612,7 +32612,7 @@
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-BARBER-03",
@@ -32625,7 +32625,7 @@
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-BARBER-04",
@@ -32638,7 +32638,7 @@
           "name": "a Philosopher who borrowed the Barber gets the swap after dying (SNV-BARBER-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-CERENOVUS-01",
@@ -32723,7 +32723,7 @@
           "name": "a healthy Cerenovus makes the chosen player mad about the character until the next dawn (SNV-CERENOVUS-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-CLOCKMAKER-01",
@@ -32752,7 +32752,7 @@
           "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-CLOCKMAKER-02",
@@ -32765,7 +32765,7 @@
           "name": "an impaired Clockmaker may still receive the true distance (SNV-CLOCKMAKER-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-CLOCKMAKER-03",
@@ -32778,7 +32778,7 @@
           "name": "the Clockmaker counts a Minion who is dead (SNV-CLOCKMAKER-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-DREAMER-01",
@@ -32847,7 +32847,7 @@
           "name": "an old-version Dreamer command keeps the free-text answer and a current command requires the pair (SNV-DREAMER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-EVILTWIN-01",
@@ -32904,7 +32904,7 @@
           "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-EVILTWIN-02",
@@ -32921,7 +32921,7 @@
           "name": "an Evil Twin that leaves play stops the twin win and the block (SNV-EVILTWIN-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-EVILTWIN-03",
@@ -32938,7 +32938,7 @@
           "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-EVILTWIN-04",
@@ -32951,7 +32951,7 @@
           "name": "an imported same-alignment twin pair is repaired (SNV-EVILTWIN-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-EVILTWIN-05",
@@ -32976,7 +32976,7 @@
           "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-FANGGU-01",
@@ -33009,7 +33009,7 @@
           "name": "the Fang Gu's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-FANGGU-01, SNV-FANGGU-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-FANGGU-02",
@@ -33022,7 +33022,7 @@
           "name": "the Fang Gu jump can happen only once per game (SNV-FANGGU-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-FANGGU-03",
@@ -33035,7 +33035,7 @@
           "name": "a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-FANGGU-04",
@@ -33056,7 +33056,7 @@
           "name": "the Fang Gu's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-FANGGU-01, SNV-FANGGU-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-FLOWERGIRL-01",
@@ -33081,7 +33081,7 @@
           "name": "the Flowergirl module declares its step on every night except the first and owns its yes-or-no answer (SNV-FLOWERGIRL-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-FLOWERGIRL-02",
@@ -33098,7 +33098,7 @@
           "name": "the Flowergirl ignores a later Demon who voted as a Townsfolk (SNV-FLOWERGIRL-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-JUGGLER-01",
@@ -33119,7 +33119,7 @@
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-JUGGLER-02",
@@ -33132,7 +33132,7 @@
           "name": "the Juggler's answer counts the guesses from the guessing day (SNV-JUGGLER-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-KLUTZ-01",
@@ -33153,7 +33153,7 @@
           "name": "a recorded Klutz choice finishes the queued step and a dead target does not strand it (SNV-KLUTZ-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-KLUTZ-02",
@@ -33166,7 +33166,7 @@
           "name": "a Klutz poisoned at death cannot lose even after recovering (SNV-KLUTZ-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-MATHEMATICIAN-01",
@@ -33199,7 +33199,7 @@
           "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-MATHEMATICIAN-02",
@@ -33212,7 +33212,7 @@
           "name": "the Mathematician requires a host number when impaired or under a Vortox (SNV-MATHEMATICIAN-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-MATHEMATICIAN-03",
@@ -33225,7 +33225,7 @@
           "name": "the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-MATHEMATICIAN-04",
@@ -33238,7 +33238,7 @@
           "name": "the abnormal command refuses the Mathematician's own ability (SNV-MATHEMATICIAN-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-MUTANT-01",
@@ -33275,7 +33275,7 @@
           "name": "a night Mutant execution is allowed after a day execution and leaves the next day free (SNV-MUTANT-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-NODASHII-01",
@@ -33308,7 +33308,7 @@
           "name": "a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-NODASHII-02",
@@ -33321,7 +33321,7 @@
           "name": "the No Dashii poison ends when the No Dashii dies (SNV-NODASHII-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-ORACLE-01",
@@ -33346,7 +33346,7 @@
           "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-PHILOSOPHER-01",
@@ -33379,7 +33379,7 @@
           "name": "a Philosopher who gains an information ability wakes for it in its slot, at once for a first-night ability on a later night, and from the next night when gained on the first (SNV-PHILOSOPHER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-PHILOSOPHER-02",
@@ -33400,7 +33400,7 @@
           "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-PITHAG-01",
@@ -33449,7 +33449,7 @@
           "name": "a healthy Pit-Hag replaces the player's character when it is not in play, and nothing happens otherwise (SNV-PITHAG-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SAGE-01",
@@ -33486,7 +33486,7 @@
           "name": "a saved 0.4.1 journal replays its sober Dreamer and Sage answers without a pair (SNV-DREAMER-01, SNV-SAGE-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SAVANT-01",
@@ -33503,7 +33503,7 @@
           "name": "a Philosopher who borrowed the Savant can visit once that day (SNV-SAVANT-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SAVANT-02",
@@ -33516,7 +33516,7 @@
           "name": "the Savant information stays one true and one false unless impaired (SNV-SAVANT-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SAVANT-03",
@@ -33529,7 +33529,7 @@
           "name": "a living Vortox makes both Savant statements false (SNV-SAVANT-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SAVANT-04",
@@ -33542,7 +33542,7 @@
           "name": "a real Savant and a borrowed Savant each visit once a day (SNV-SAVANT-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SEAMSTRESS-01",
@@ -33555,7 +33555,7 @@
           "name": "the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SNAKECHARMER-01",
@@ -33596,7 +33596,7 @@
           "name": "a Snake Charmer who chooses a player who is not the Demon, or who is drunk or poisoned, changes nothing (SNV-SNAKECHARMER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SWEETHEART-01",
@@ -33617,7 +33617,7 @@
           "name": "the Sweetheart drunk starts at the death, not at the Sweetheart night slot (SNV-SWEETHEART-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-SWEETHEART-02",
@@ -33630,7 +33630,7 @@
           "name": "a Sweetheart poisoned at death makes nobody drunk even after recovering (SNV-SWEETHEART-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-TOWNCRIER-01",
@@ -33655,7 +33655,7 @@
           "name": "the Town Crier module declares its step on every night except the first and owns its yes-or-no answer (SNV-TOWNCRIER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-VIGORMORTIS-01",
@@ -33680,7 +33680,7 @@
           "name": "the Vigormortis's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-VIGORMORTIS-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-VIGORMORTIS-02",
@@ -33713,7 +33713,7 @@
           "name": "a transformed dead Minion loses its retained night step (SNV-VIGORMORTIS-06)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-VIGORMORTIS-03",
@@ -33730,7 +33730,7 @@
           "name": "the Vigormortis poison ends when the killed Minion stops being a Minion"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-VIGORMORTIS-04",
@@ -33743,7 +33743,7 @@
           "name": "the Vigormortis retains every killed Minion and poisons for each (SNV-VIGORMORTIS-04)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-VORTOX-01",
@@ -33768,7 +33768,7 @@
           "name": "the Vortox's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-VORTOX-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-VORTOX-02",
@@ -33797,7 +33797,7 @@
           "name": "an impaired information role demands the host's answer"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SNV-WITCH-01",
@@ -33818,7 +33818,7 @@
           "name": "the Witch loses a placed curse only when exactly three players live (SNV-WITCH-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "SYS-EFFECTS-01",
@@ -34601,7 +34601,7 @@
           "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-BUTLER-01",
@@ -34650,7 +34650,7 @@
           "name": "an impaired Butler still records the choice, as a suppressed ability (TB-BUTLER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-CHEF-01",
@@ -34699,7 +34699,7 @@
           "name": "the Chef counts the team a player registers as, not the character (TB-CHEF-01, TB-SPY-01, TB-RECLUSE-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-CHEF-02",
@@ -34756,7 +34756,7 @@
           "name": "the host's answer is labelled by why the host gives it (TB-CHEF-02, SYS-EFFECTS-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-DRUNK-01",
@@ -34769,7 +34769,7 @@
           "name": "the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-EMPATH-01",
@@ -34806,7 +34806,7 @@
           "name": "the Empath counts the evil players among the two living neighbours (TB-EMPATH-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-EMPATH-02",
@@ -34827,7 +34827,7 @@
           "name": "the Empath counts the team a neighbour registers as, not the character (TB-EMPATH-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-EMPATH-03",
@@ -34860,7 +34860,7 @@
           "name": "the Empath names every number of fingers as a possible answer (TB-EMPATH-03)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-FORTUNETELLER-01",
@@ -34929,7 +34929,7 @@
           "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-IMP-01",
@@ -35026,7 +35026,7 @@
           "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-INVESTIGATOR-01",
@@ -35067,7 +35067,7 @@
           "name": "the Investigator declares no zero, so an Investigator always learns a character (TB-INVESTIGATOR-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-LIBRARIAN-01",
@@ -35124,7 +35124,7 @@
           "name": "a stored zero is shown as the zero for the Librarian alone (TB-LIBRARIAN-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-MAYOR-01",
@@ -35161,7 +35161,7 @@
           "name": "an Imp attack on a working Mayor is a host choice on the command path and the answer completes it (TB-IMP-01, TB-MAYOR-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-MONK-01",
@@ -35202,7 +35202,7 @@
           "name": "an impaired Monk reports a suppressed ability (TB-MONK-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-POISONER-01",
@@ -35239,7 +35239,7 @@
           "name": "an impaired Poisoner reports a suppressed ability (TB-POISONER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-RAVENKEEPER-01",
@@ -35300,7 +35300,7 @@
           "name": "the Ravenkeeper has no answer before a player is chosen (TB-RAVENKEEPER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-RECLUSE-01",
@@ -35317,7 +35317,7 @@
           "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-RECLUSE-02",
@@ -35330,7 +35330,7 @@
           "name": "a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-SAINT-01",
@@ -35347,7 +35347,7 @@
           "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-SAINT-02",
@@ -35360,7 +35360,7 @@
           "name": "a poisoned Saint executed by the town does not lose the game for good (TB-SAINT-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-SCARLETWOMAN-01",
@@ -35377,7 +35377,7 @@
           "name": "a registered-dead player does not count toward the Scarlet Woman's five (TB-SCARLETWOMAN-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-SCARLETWOMAN-02",
@@ -35402,7 +35402,7 @@
           "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-SLAYER-01",
@@ -35419,7 +35419,7 @@
           "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-SOLDIER-01",
@@ -35432,7 +35432,7 @@
           "name": "Monk protection and Soldier safety stop the Imp (TB-MONK-01, TB-SOLDIER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-SPY-01",
@@ -35485,7 +35485,7 @@
           "name": "the Spy reads no fact, so its decision is the same whether or not its owner is drunk or poisoned (TB-SPY-01, SYS-EFFECTS-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-UNDERTAKER-01",
@@ -35554,7 +35554,7 @@
           "name": "without an execution death the Undertaker has a note and no answer (TB-UNDERTAKER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-VIRGIN-01",
@@ -35575,7 +35575,7 @@
           "name": "Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     },
     {
       "id": "TB-WASHERWOMAN-01",
@@ -35648,7 +35648,7 @@
           "name": "the Washerwoman declares no zero, so a Washerwoman always learns a character (TB-WASHERWOMAN-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "registry"
     }
   ],
   "uiContracts": [

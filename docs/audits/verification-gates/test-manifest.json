@@ -17,6 +17,11 @@
       "name": "a later archive keeps every historical record"
     },
     {
+      "key": "scripts/archive-index.test.ts::a legacy test path needs one reviewed mapping and must be used",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a legacy test path needs one reviewed mapping and must be used"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a malformed baseline cannot silently drop pinned records",
       "file": "scripts/archive-index.test.ts",
       "name": "a malformed baseline cannot silently drop pinned records"
@@ -42,6 +47,11 @@
       "name": "a recorded origin must be the first add, not a later one"
     },
     {
+      "key": "scripts/archive-index.test.ts::a same-commit origin is self-attested and fails",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a same-commit origin is self-attested and fails"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a target-branch archive tree cannot lose or rewrite an accepted change",
       "file": "scripts/archive-index.test.ts",
       "name": "a target-branch archive tree cannot lose or rewrite an accepted change"
@@ -52,9 +62,9 @@
       "name": "an archive accepted on the target branch cannot be removed"
     },
     {
-      "key": "scripts/archive-index.test.ts::an archive outside the accepted anchor must be finished and carry evidence",
+      "key": "scripts/archive-index.test.ts::an archive outside the accepted anchor must be finished and applied",
       "file": "scripts/archive-index.test.ts",
-      "name": "an archive outside the accepted anchor must be finished and carry evidence"
+      "name": "an archive outside the accepted anchor must be finished and applied"
     },
     {
       "key": "scripts/archive-index.test.ts::an explicit correction replaces a baseline hash and needs a reason",
@@ -65,6 +75,11 @@
       "key": "scripts/archive-index.test.ts::an indented checklist and evidence line still count",
       "file": "scripts/archive-index.test.ts",
       "name": "an indented checklist and evidence line still count"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::an origin record must match the index and carry a reason",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an origin record must match the index and carry a reason"
     },
     {
       "key": "scripts/archive-index.test.ts::archive corrections are unique and target the current tree",
@@ -95,6 +110,11 @@
       "key": "scripts/archive-index.test.ts::binary bytes without a NUL stay unchanged and index metadata is validated",
       "file": "scripts/archive-index.test.ts",
       "name": "binary bytes without a NUL stay unchanged and index metadata is validated"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::every archived change names a test and the anchor matches the target tree",
+      "file": "scripts/archive-index.test.ts",
+      "name": "every archived change names a test and the anchor matches the target tree"
     },
     {
       "key": "scripts/archive-index.test.ts::malformed archive corrections and index files fail closed",
@@ -145,6 +165,11 @@
       "key": "scripts/archive-index.test.ts::the original baseline catches a coordinated archive deletion",
       "file": "scripts/archive-index.test.ts",
       "name": "the original baseline catches a coordinated archive deletion"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the target tree, not a working anchor, exempts an introduced archive",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the target tree, not a working anchor, exempts an introduced archive"
     },
     {
       "key": "scripts/build-official-roles.test.ts::a missing How to Run fails the build",
@@ -335,6 +360,11 @@
       "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",
       "file": "scripts/check-risk-tier.test.ts",
       "name": "a declared tier below the diff, a missing issue, risk or evidence fails"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a mixed gameplay and R3 diff keeps the gameplay evidence",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a mixed gameplay and R3 diff keeps the gameplay evidence"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::a Verification section is the evidence when no Evidence line exists",
@@ -1015,6 +1045,11 @@
       "key": "scripts/rule-registry.test.ts::the citation legacy check fails closed on an invalid ref",
       "file": "scripts/rule-registry.test.ts",
       "name": "the citation legacy check fails closed on an invalid ref"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the generated trace names the registry source, not the retired dossiers",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the generated trace names the registry source, not the retired dossiers"
     },
     {
       "key": "scripts/rule-registry.test.ts::the matrix generator writes registry labels and is idempotent",

@@ -98,8 +98,8 @@ for (const dir of changeDirs) {
   }
   const tasks = read(join(dir, "tasks.md")) || "";
   if (!/^- \[[ xX]\] /m.test(tasks)) fail(dir, `change "${name}" tasks have no checklist items`);
-  if (!/^- RED:/m.test(tasks) || !/^- GREEN:/m.test(tasks)) {
-    fail(dir, `change "${name}" tasks need "- RED:" and "- GREEN:" evidence lines`);
+  if (!/^- RED:[ \t]*\S/m.test(tasks) || !/^- GREEN:[ \t]*\S/m.test(tasks)) {
+    fail(dir, `change "${name}" needs non-empty "- RED:" and "- GREEN:" evidence lines`);
   }
   const deltas = walk(join(dir, "specs")).filter((path) => path.endsWith(".md"));
   if (!deltas.length) {

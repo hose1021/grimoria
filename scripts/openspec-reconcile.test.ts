@@ -20,6 +20,12 @@ test("a change is archive-ready only with a finished checklist and every require
     hasEvidence(`${tasks}- RED: the test fails on the base.\n- GREEN: the test passes.\n`),
     true,
   );
+  assert.equal(
+    hasEvidence(`${tasks}- RED:\n- GREEN: the test passes.\n`),
+    false,
+    "an empty RED line is no evidence",
+  );
+  assert.equal(hasEvidence(`${tasks}- RED: failed.\n- GREEN:\n`), false);
   assert.equal(parseIssue("# Change\n\nIssue: #519\n"), "#519");
   assert.equal(parseIssue("# Change\n\nNo issue line.\n"), null);
   const requirements = parseRequirements(
@@ -32,6 +38,7 @@ test("a change is archive-ready only with a finished checklist and every require
       capability: "game/role-modules",
       operation: "MODIFIED",
       name: "A role module declares its night step",
+      present: true,
       synced: true,
     },
   ]);

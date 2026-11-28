@@ -290,6 +290,15 @@ test("every baseline citation is preserved exactly, with recorded corrections", 
   );
 });
 
+test("the generated trace names the registry source, not the retired dossiers", () => {
+  const trace = JSON.parse(
+    readFileSync(resolve(ROOT, "docs/audits/verification-gates/traceability.json"), "utf8"),
+  ) as { engineRules: Array<{ source: string }> };
+  const sources = new Set(trace.engineRules.map((rule) => rule.source));
+  assert.equal(sources.has("role-doc"), false);
+  assert.equal(sources.has("registry"), true);
+});
+
 test("the matrix generator writes registry labels and is idempotent", () => {
   const matrix = readFileSync(resolve(ROOT, "docs/rules-matrix.md"), "utf8");
   const requirements = registryRequirements(ROOT);

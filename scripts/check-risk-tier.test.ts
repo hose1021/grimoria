@@ -101,6 +101,18 @@ test("R2 rejects a body without pinned sources, revision or RED/GREEN", () => {
   );
 });
 
+test("a mixed gameplay and R3 diff keeps the gameplay evidence", () => {
+  const body = "Issue: #519\nRisk: R3\nEvidence:\n- `npm run verify` passes.\n";
+  const paths = ["src/core/roles/sailor/role.ts", "src/core/engine/commands.ts"];
+  const result = checkRisk(body, paths);
+  assert.equal(result.ok, false);
+  assert.ok(
+    result.errors.some((error) => error.includes("R2 needs a stable rule identifier")),
+    "an R3 label does not waive the gameplay evidence",
+  );
+  assert.ok(result.errors.some((error) => error.includes("R2 needs RED evidence")));
+});
+
 test("public seat and secret screens require privacy review", () => {
   for (const path of ["seat.tsx", "seat-projection.ts", "secrets.tsx", "secrets-options.ts"]) {
     assert.equal(classify([`src/ui/screens/${path}`]), "R3");
