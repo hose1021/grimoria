@@ -29,6 +29,11 @@ test("the diff decides the tier from its highest-risk path", () => {
   assert.equal(classify(["src/core/roles/sailor/role.ts", "new/unknown.bin"]), "R3");
   assert.equal(classify(["src/ui/shell.tsx"]), "R1");
   assert.equal(classify(["src/core/roles/sailor/role.ts"]), "R2");
+  assert.equal(
+    classify(["src/core/roles/sailor/rule.md"]),
+    "R3",
+    "a role dossier is rule metadata, not gameplay code",
+  );
   assert.equal(classify(["src/core/engine/commands.ts"]), "R3");
   assert.equal(classify(["scripts/verification/gates.ts"]), "R3");
   assert.equal(classify(["openspec/specs/workflow/verification-gates/spec.md"]), "R3");

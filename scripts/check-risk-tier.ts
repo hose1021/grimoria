@@ -69,6 +69,9 @@ function matches(path: string, prefixes: readonly string[]): boolean {
 }
 
 function tierOf(path: string): Tier {
+  // A role dossier is rule metadata, not gameplay code: the runtime module
+  // stays R2, while the document ranks with docs/rules-* as R3.
+  if (path.startsWith("src/core/roles/") && path.endsWith("/rule.md")) return "R3";
   if (matches(path, R3)) return "R3";
   if (matches(path, R2)) return "R2";
   if (matches(path, R1)) return "R1";
