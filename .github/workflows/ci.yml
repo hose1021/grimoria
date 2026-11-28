@@ -22,6 +22,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          # History-dependent checks read the branch that will merge. A
+          # synthetic merge of dev and main has two first adds per archive.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v7
         with:
           node-version: 26
