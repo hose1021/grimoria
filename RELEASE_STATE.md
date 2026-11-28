@@ -5,17 +5,20 @@ Canonical handoff for epic #200, release candidate 0.14.0. Updated 2026-11-28.
 ## Current state — 0.14.0 release candidate
 
 - Released `main`: `a8f31dc` (0.13.0, PR #514). Owner-only; do not merge, tag or publish automatically.
-- Integration `dev`: `0a999ce`, after the OpenSpec reconciliation (#519, PR #526) and the documentation inventory (#520).
-- Release candidate is prepared on `release-0.14.0`, stacked on `dev` through the archive-gate fix in PR #527; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.14.0. The candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
-- Release PR: `dev` to `main` after #527 merges; its CI runs on the exact release head.
+- Integration `dev`: `1915343`, after the OpenSpec reconciliation (#519, PR #526), the documentation inventory (#520), the archive-gate fix (PR #527) and the release-metadata policy (PR #528).
+- The release-metadata policy is operational: a proven metadata-only range is R0 and needs no OpenSpec package.
+- Release candidate is prepared on `release-0.14.0`, based on `dev` `1915343`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.14.0. The candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
+- Release PR: `dev` to `main` after the preparation PR merges; its CI runs on the exact release head.
 - This is a minor release: the JSON rule registry becomes the only rule metadata, the risk-tier workflow and archive gates replace duplicated process documents, and the storyteller workspace is redesigned. The 72 TB/BMR/S&V roles, storage, journal, privacy and offline contracts are unchanged.
 - #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.14.0 release is not 1.0.0 and does not imply unrestricted automatic play.
 
 ## Release checklist (owner-controlled)
 
 - [x] OpenSpec reconciliation (#526) and the documentation inventory (#520) merged on `dev`.
+- [x] Archive-gate fix PR #527 merged into `dev`.
+- [x] Release-metadata policy PR #528 merged; the semantic R0 exemption is operational.
 - [x] Version files and changelog prepared for 0.14.0; checks pass on the candidate.
-- [ ] Archive-gate fix PR #527 merged into `dev`.
+- [ ] Preparation PR #529 merged into `dev`.
 - [ ] Exact-head release PR CI, specifications, provenance, verification gates, full-game and Playwright browser checks pass.
 - [ ] Owner reviews and merges the 0.14.0 PR into main.
 - [ ] Post-merge Pages deployment and production smoke, locale, offline update, privacy, replay and pg.game.v4 verified on final main SHA.
