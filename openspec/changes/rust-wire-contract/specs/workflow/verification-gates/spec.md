@@ -6,8 +6,8 @@ The wire boundary SHALL expose version `1` request and response DTOs with an
 explicit operation enum. A request SHALL carry `wireVersion`, `operation` and
 `payload`; a response SHALL carry `wireVersion` and `result`, plus `state` only
 when the operation returns a state. Every approved operation SHALL carry an
-explicit status: implemented, reserved or unavailable. An unknown version or
-operation SHALL be a contract violation, not a fallback.
+implemented, reserved or unavailable status. An unknown version or operation
+SHALL be a contract violation, not a fallback.
 
 **Source**: Issue #535
 **Tests**: `crates/grimoria-wire/src/dto.rs`, `scripts/wire-contract.test.ts`
@@ -23,15 +23,21 @@ operation SHALL be a contract violation, not a fallback.
   or operation status
 - **THEN** the Node contract test fails
 
-### Requirement: Canonical serialization matches ECMAScript
+#### Scenario: Implemented status
 
-The wire crate SHALL parse strict JSON and emit wire and canonical forms.
-Numbers SHALL use ECMAScript `Number#toString`, with negative zero as `0`.
-Canonical object keys SHALL sort by UTF-16 code units; arrays SHALL preserve
-order; absent fields SHALL stay omitted and explicit nulls SHALL persist.
-Duplicate keys and non-finite numbers SHALL be rejected. The comparison-only
-canonical encoding SHALL be explicitly versioned and SHALL remain separate from
-the legacy compatibility encoding.
+- **WHEN** the operation inventory is inspected
+- **THEN** only `canonical_bytes` is implemented; `prepare_command`, `query`,
+  the two projections and `canonical_state` are reserved and named by the
+  approved boundary sections
+
+### Requirement: Wire serialization matches ECMAScript
+
+The wire crate SHALL parse strict JSON and emit the wire form. Numbers SHALL
+use ECMAScript `Number#toString`, with negative zero as `0`. Wire object keys
+SHALL enumerate canonical array-index keys first in ascending numeric order,
+then remaining keys in stored order. Arrays SHALL preserve order. Duplicate
+keys and non-finite numbers SHALL be rejected. The comparison-only canonical
+encoding SHALL be versioned and separate from the legacy encoding.
 
 **Source**: Issue #535
 **Tests**: `crates/grimoria-wire/src/json.rs`, `fixtures/conformance/wire-serialization.json`
@@ -39,8 +45,8 @@ the legacy compatibility encoding.
 #### Scenario: Integer-like keys
 
 - **WHEN** the input object has keys `"1"`, `"10"` and `"2"`
-- **THEN** the wire form keeps the host order and the canonical form sorts
-  `"1" < "10" < "2"` by UTF-16 code units
+- **THEN** the wire form enumerates `"1"`, `"2"`, `"10"` numerically and the
+  canonical form sorts `"1" < "10" < "2"` by UTF-16 code units
 
 #### Scenario: Number forms
 
@@ -186,10 +192,11 @@ replacements SHALL fail.
 
 Every parse or contract failure SHALL return a machine-readable response with
 the stable code `engine-contract-violation`, a category and the relevant
-offset or limit. It SHALL NOT require parsing free-form exception text. Input
-bytes, nesting, collection entries and total nodes SHALL be bounded. The
-default limits SHALL accept large legacy saves and journals, and duplicate-key
-detection SHALL be constant-time per key.
+offset or limit. A limit failure SHALL carry `limitKind`, `max` and `actual`;
+callers SHALL NOT parse free-form exception text. Input bytes, nesting,
+collection entries and total nodes SHALL be bounded. The default limits SHALL
+accept large legacy saves and journals, and duplicate-key detection SHALL be
+constant-time per key.
 
 **Source**: Issue #535
 **Tests**: `crates/grimoria-wire/src/json.rs`, `contracts/wire/error.schema.json`, `crates/grimoria-wasm/src/lib.rs`

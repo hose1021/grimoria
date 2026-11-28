@@ -1502,6 +1502,11 @@
       "name": "every fixture vector has a unique id and strict JSON input"
     },
     {
+      "key": "scripts/wire-contract.test.ts::every operation names an approved boundary section",
+      "file": "scripts/wire-contract.test.ts",
+      "name": "every operation names an approved boundary section"
+    },
+    {
       "key": "scripts/wire-contract.test.ts::the envelope requires its fields and forbids extras",
       "file": "scripts/wire-contract.test.ts",
       "name": "the envelope requires its fields and forbids extras"

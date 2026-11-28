@@ -33,10 +33,12 @@ Three forms exist:
 - **canonical**: UTF-16 sorted object keys, arrays preserved, absent keys
   omitted, explicit nulls kept, ECMAScript number and string encoding.
 
-The wire form preserves the order the host produced. The comparison-only
-canonical form, version `grimoria-canonical-v1`, sorts keys by UTF-16 code
-units, which deliberately differs from ECMAScript's integer-first enumeration;
-the fixture records both orders.
+The wire form enumerates canonical array-index keys first in ascending numeric
+order, then the remaining keys in stored order, matching ECMAScript
+`JSON.stringify`. The comparison-only canonical form, version
+`grimoria-canonical-v1`, sorts all keys by UTF-16 code units, which deliberately
+differs from ECMAScript's integer-first enumeration; the fixture records both
+orders.
 
 Legacy compatibility is a separate encoding,
 `grimoria-legacy-canonical-v0.14.0`. It reproduces the TypeScript
@@ -73,11 +75,13 @@ Duplicate keys use a hash set rather than a linear scan.
 
 ## Operation inventory
 
-The approved operations keep their wire status. `canonical_state` and
-`canonical_bytes` are implemented serialization; `apply_command`,
-`preview_command`, `validate_command`, `replay`, `import_save` and `export_save`
-are reserved for a later phase; every name outside the enum is unavailable and
-fails with a contract violation.
+Only `canonical_bytes` is implemented. `apply_command`, `prepare_command`,
+`preview_command`, `validate_command`, `replay`, `import_save`, `export_save`,
+`query`, `public_projection`, `player_projection` and `canonical_state` are
+reserved; `canonical_state` waits for exact TypeScript `canonicalState`
+semantics. Every name outside the enum is unavailable and fails with a contract
+violation. Each operation names an approved `contracts/engine-boundary.json`
+section.
 
 ## Fixtures and parity
 

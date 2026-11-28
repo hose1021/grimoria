@@ -112,10 +112,18 @@ the separate `grimoria-legacy-canonical-v0.14.0`, which reproduces the v0.14.0
 TypeScript canonicalize plus `JSON.stringify`, including numeric-first array
 indexes. `ryu-js` supplies ECMAScript number formatting.
 
-Failures are JSON with code `engine-contract-violation`, a stable category and
-an optional offset or limit. Input bytes, depth, collection entries and nodes
-are bounded; duplicate keys use a hash set. Operations carry an explicit
-implemented, reserved or unavailable status.
+Failures are JSON with code `engine-contract-violation`, a stable category, an
+optional offset and a `limitKind` for bounded failures. Input bytes, depth,
+collection entries and nodes are bounded; duplicate keys use a hash set.
+Wire objects enumerate canonical array-index keys first in ascending numeric
+order, then the remaining keys in stored order, matching `JSON.stringify`.
+
+Operations carry an explicit implemented, reserved or unavailable status.
+`canonical_bytes` is implemented. `apply_command`, `prepare_command`,
+`preview_command`, `validate_command`, `replay`, `import_save`, `export_save`,
+`query`, `public_projection`, `player_projection` and `canonical_state` are
+reserved; `canonical_state` waits for exact TypeScript `canonicalState`
+semantics.
 
 `scripts/check-cargo-graph.ts` checks the full resolved graph: approved
 name/version/crates.io source for every direct and transitive package, lock

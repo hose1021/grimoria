@@ -63,6 +63,18 @@ const structured = JSON.parse(String(failure)) as { code: string; kind: string }
 assert.equal(structured.code, "engine-contract-violation");
 assert.equal(structured.kind, "contract");
 
+let limited: unknown;
+try {
+  wasm.wire_canonical_bytes(`${"[".repeat(300)}0${"]".repeat(300)}`);
+} catch (error) {
+  limited = error;
+}
+assert.ok(limited, "a depth limit throws");
+const limit = JSON.parse(String(limited)) as { kind: string; limitKind: string; max: number };
+assert.equal(limit.kind, "limit");
+assert.equal(limit.limitKind, "depth");
+assert.equal(limit.max, 256);
+
 console.log(
   `WASM parity passed: ${WIRE.vectors.length} wire vectors, ${LEGACY.vectors.length} legacy vectors.`,
 );

@@ -21,7 +21,11 @@ const ERROR_SCHEMA = JSON.parse(
   readFileSync(join(ROOT, "contracts/wire/error.schema.json"), "utf8"),
 ) as {
   required: string[];
-  properties: { code: { const: string }; kind: { enum: string[] } };
+  properties: {
+    code: { const: string };
+    kind: { enum: string[] };
+    limitKind: { enum: string[] };
+  };
 };
 const FIXTURE = JSON.parse(
   readFileSync(join(ROOT, "fixtures/conformance/wire-serialization.json"), "utf8"),
@@ -67,13 +71,26 @@ test("the operation inventory distinguishes implemented and reserved work", () =
       .filter(([, status]) => status === "implemented")
       .map(([operation]) => operation)
       .sort(),
-    ["canonical_bytes", "canonical_state"],
+    ["canonical_bytes"],
   );
   assert.ok(!Object.values(statuses).includes("unavailable"));
   assert.match(
     String((SCHEMA as unknown as { "x-unavailableOperation": string })["x-unavailableOperation"]),
     /engine-contract-violation/,
   );
+});
+
+test("every operation names an approved boundary section", () => {
+  const schema = SCHEMA as unknown as {
+    "x-operationBoundary": Record<string, string>;
+  };
+  const boundary = JSON.parse(
+    readFileSync(join(ROOT, "contracts/engine-boundary.json"), "utf8"),
+  ) as { boundary: Record<string, string> };
+  assert.deepEqual(Object.keys(schema["x-operationBoundary"]).sort(), rustOperations().sort());
+  for (const [operation, path] of Object.entries(schema["x-operationBoundary"])) {
+    assert.equal(typeof boundary.boundary[path], "string", `${operation} -> ${path}`);
+  }
 });
 
 test("the error schema is the machine-readable contract", () => {
@@ -85,6 +102,12 @@ test("the error schema is the machine-readable contract", () => {
     "limit",
     "non-finite-number",
     "syntax",
+  ]);
+  assert.deepEqual(ERROR_SCHEMA.properties.limitKind.enum.sort(), [
+    "collection-entries",
+    "depth",
+    "input-bytes",
+    "nodes",
   ]);
 });
 

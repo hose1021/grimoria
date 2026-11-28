@@ -105,6 +105,30 @@ fn wasm_matches_the_legacy_canonical_fixture() {
 }
 
 #[wasm_bindgen_test]
+fn wasm_returns_a_structured_limit_error() {
+    let input = format!("{}0{}", "[".repeat(300), "]".repeat(300));
+    let error = grimoria_wasm::wire_canonical_bytes(&input).unwrap_err();
+    let Value::Object(fields) = Value::parse(&error).expect("error is JSON") else {
+        panic!("error must be an object");
+    };
+    let field = |name: &str| {
+        fields
+            .iter()
+            .find(|(key, _)| key.to_utf8().as_deref() == Ok(name))
+            .map(|(_, value)| value)
+            .expect("error field exists")
+    };
+    assert_eq!(
+        field("kind"),
+        &Value::String(grimoria_wire::Wtf16::from_utf8("limit"))
+    );
+    assert_eq!(
+        field("limitKind"),
+        &Value::String(grimoria_wire::Wtf16::from_utf8("depth"))
+    );
+}
+
+#[wasm_bindgen_test]
 fn wasm_returns_a_structured_contract_error() {
     let error = grimoria_wasm::wire_bytes(
         r#"{"wireVersion":2,"operation":"apply_command","payload":null}"#,

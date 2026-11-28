@@ -12,23 +12,31 @@ pub const WIRE_VERSION: u32 = 1;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Operation {
     ApplyCommand,
+    PrepareCommand,
     PreviewCommand,
     ValidateCommand,
     Replay,
     ImportSave,
     ExportSave,
+    Query,
+    PublicProjection,
+    PlayerProjection,
     CanonicalState,
     CanonicalBytes,
 }
 
 impl Operation {
-    pub const ALL: [Operation; 8] = [
+    pub const ALL: [Operation; 12] = [
         Operation::ApplyCommand,
+        Operation::PrepareCommand,
         Operation::PreviewCommand,
         Operation::ValidateCommand,
         Operation::Replay,
         Operation::ImportSave,
         Operation::ExportSave,
+        Operation::Query,
+        Operation::PublicProjection,
+        Operation::PlayerProjection,
         Operation::CanonicalState,
         Operation::CanonicalBytes,
     ];
@@ -37,11 +45,15 @@ impl Operation {
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::ApplyCommand => "apply_command",
+            Self::PrepareCommand => "prepare_command",
             Self::PreviewCommand => "preview_command",
             Self::ValidateCommand => "validate_command",
             Self::Replay => "replay",
             Self::ImportSave => "import_save",
             Self::ExportSave => "export_save",
+            Self::Query => "query",
+            Self::PublicProjection => "public_projection",
+            Self::PlayerProjection => "player_projection",
             Self::CanonicalState => "canonical_state",
             Self::CanonicalBytes => "canonical_bytes",
         }
@@ -73,13 +85,18 @@ impl Operation {
     /// Status of one approved operation.
     pub const fn status(self) -> OperationStatus {
         match self {
-            Self::CanonicalState | Self::CanonicalBytes => OperationStatus::Implemented,
+            Self::CanonicalBytes => OperationStatus::Implemented,
             Self::ApplyCommand
+            | Self::PrepareCommand
             | Self::PreviewCommand
             | Self::ValidateCommand
             | Self::Replay
             | Self::ImportSave
-            | Self::ExportSave => OperationStatus::Reserved,
+            | Self::ExportSave
+            | Self::Query
+            | Self::PublicProjection
+            | Self::PlayerProjection
+            | Self::CanonicalState => OperationStatus::Reserved,
         }
     }
 
@@ -248,11 +265,15 @@ mod tests {
             Operation::ALL.map(Operation::as_str),
             [
                 "apply_command",
+                "prepare_command",
                 "preview_command",
                 "validate_command",
                 "replay",
                 "import_save",
                 "export_save",
+                "query",
+                "public_projection",
+                "player_projection",
                 "canonical_state",
                 "canonical_bytes"
             ]
@@ -291,11 +312,26 @@ mod tests {
             .filter(|operation| operation.status() == OperationStatus::Implemented)
             .map(Operation::as_str)
             .collect::<Vec<_>>();
-        assert_eq!(implemented, ["canonical_state", "canonical_bytes"]);
-        assert_eq!(
-            Operation::status_of("apply_command"),
-            OperationStatus::Reserved
-        );
+        assert_eq!(implemented, ["canonical_bytes"]);
+        for reserved in [
+            "apply_command",
+            "prepare_command",
+            "preview_command",
+            "validate_command",
+            "replay",
+            "import_save",
+            "export_save",
+            "query",
+            "public_projection",
+            "player_projection",
+            "canonical_state",
+        ] {
+            assert_eq!(
+                Operation::status_of(reserved),
+                OperationStatus::Reserved,
+                "{reserved}"
+            );
+        }
         assert_eq!(
             Operation::status_of("query_players"),
             OperationStatus::Unavailable

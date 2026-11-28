@@ -68,7 +68,11 @@ impl WireError {
             | Self::NonFiniteNumber { offset } => {
                 fields.push((Wtf16::from_utf8("offset"), Value::Number(*offset as f64)))
             }
-            Self::Limit { max, actual, .. } => {
+            Self::Limit { kind, max, actual } => {
+                fields.push((
+                    Wtf16::from_utf8("limitKind"),
+                    Value::String(Wtf16::from_utf8(kind)),
+                ));
                 fields.push((Wtf16::from_utf8("max"), Value::Number(*max as f64)));
                 fields.push((Wtf16::from_utf8("actual"), Value::Number(*actual as f64)));
             }
@@ -481,7 +485,19 @@ fn write_value(output: &mut String, value: &Value, canonical: bool) {
                 ordered.sort_by(|left, right| left.0.cmp(&right.0));
                 write_entries(output, ordered.into_iter(), canonical);
             } else {
-                write_entries(output, entries.iter(), canonical);
+                let mut ordered: Vec<&(Wtf16, Value)> = Vec::with_capacity(entries.len());
+                let mut indices: Vec<(u32, &(Wtf16, Value))> = entries
+                    .iter()
+                    .filter_map(|entry| array_index(&entry.0).map(|index| (index, entry)))
+                    .collect();
+                indices.sort_by_key(|(index, _)| *index);
+                ordered.extend(indices.into_iter().map(|(_, entry)| entry));
+                ordered.extend(
+                    entries
+                        .iter()
+                        .filter(|entry| array_index(&entry.0).is_none()),
+                );
+                write_entries(output, ordered.into_iter(), canonical);
             }
             output.push('}');
         }
@@ -637,7 +653,7 @@ mod tests {
     #[test]
     fn canonical_keys_sort_by_utf16_code_units() {
         let value = Value::parse(r#"{"b":1,"2":2,"1":3,"10":4,"a":0}"#).unwrap();
-        assert_eq!(value.to_wire(), r#"{"b":1,"2":2,"1":3,"10":4,"a":0}"#);
+        assert_eq!(value.to_wire(), r#"{"1":3,"2":2,"10":4,"b":1,"a":0}"#);
         assert_eq!(value.to_canonical(), r#"{"1":3,"10":4,"2":2,"a":0,"b":1}"#);
     }
 
@@ -713,6 +729,18 @@ mod tests {
     }
 
     #[test]
+    fn rust_generated_objects_use_wire_enumeration() {
+        let value = Value::Object(vec![
+            (Wtf16::from_utf8("10"), Value::Number(1.0)),
+            (Wtf16::from_utf8("b"), Value::Number(2.0)),
+            (Wtf16::from_utf8("2"), Value::Number(3.0)),
+            (Wtf16::from_utf8("1"), Value::Number(4.0)),
+            (Wtf16::from_utf8("a"), Value::Number(5.0)),
+        ]);
+        assert_eq!(value.to_wire(), r#"{"1":4,"2":3,"10":1,"b":2,"a":5}"#);
+    }
+
+    #[test]
     fn legacy_canonical_orders_array_index_keys_numerically_first() {
         let value = Value::parse(r#"{"10":1,"2":2,"1":3,"b":4,"a":5}"#).unwrap();
         assert_eq!(
@@ -769,6 +797,33 @@ mod tests {
             ));
         }
         assert!(Value::parse_with_limits(input, &Limits::default()).is_ok());
+    }
+
+    #[test]
+    fn a_limit_failure_carries_its_machine_kind() {
+        let error = Value::parse_with_limits(
+            r#"{"a":[1]}"#,
+            &Limits {
+                max_depth: 1,
+                ..Limits::default()
+            },
+        )
+        .unwrap_err();
+        let Value::Object(fields) = Value::parse(&error.to_failure_json()).unwrap() else {
+            panic!("failure must be an object");
+        };
+        let field = |name: &str| {
+            fields
+                .iter()
+                .find(|(key, _)| key.to_utf8().as_deref() == Ok(name))
+                .map(|(_, value)| value)
+                .expect("field exists")
+        };
+        assert_eq!(
+            field("limitKind"),
+            &Value::String(Wtf16::from_utf8("depth"))
+        );
+        assert_eq!(field("max"), &Value::Number(1.0));
     }
 
     #[test]

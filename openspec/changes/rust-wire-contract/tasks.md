@@ -33,6 +33,9 @@
 - [x] 5.4 Validate the full resolved Cargo graph, approved transitive name/version/source identities, lock checksums and patch/path/git/source substitutions.
 - [x] 5.5 Return structured `engine-contract-violation` failures and enforce input, depth, collection and node limits with hash-based duplicate detection.
 - [x] 5.6 Mark every operation implemented, reserved or unavailable in the DTO and schema.
+- [x] 5.7 Reserve `prepare_command`, `query`, `public_projection`, `player_projection` and `canonical_state`; map every operation to an approved boundary section.
+- [x] 5.8 Serialize Rust-generated wire objects with ECMAScript integer-index-first enumeration, with unordered, nested and boundary vectors.
+- [x] 5.9 Add machine-readable `limitKind` to limit failures and synchronize the schema and native/WASM tests.
 
 ## 6. Verification
 
@@ -45,17 +48,18 @@
 
 - RED: `to_legacy_canonical`, limits and structured failures did not exist, so
   the new Rust tests failed to compile; the graph checker had no resolved
-  package policy; the numeric-key fixture differed from the lexicographic
-  comparison encoding.
-- GREEN: `cargo test --workspace` 29/29; `cargo test -p grimoria-wasm
-  --target wasm32-unknown-unknown` 3/3 under the Node runner; the generated
-  bindings pass 12 wire and 6 legacy vectors through JavaScript.
+  package policy; the unordered numeric fixture made the wire serializer fail;
+  the expanded operation inventory was absent.
+- GREEN: `cargo test --workspace` 31/31; `cargo test -p grimoria-wasm
+  --target wasm32-unknown-unknown` 4/4 under the Node runner; the generated
+  bindings pass 15 wire and 6 legacy vectors through JavaScript, including
+  `limitKind`.
 - `node --test scripts/wire-contract.test.ts scripts/wire-differential.test.ts
-  scripts/check-cargo-graph.test.ts` 33/33; persisted fingerprints and
+  scripts/check-cargo-graph.test.ts` 34/34; persisted fingerprints and
   `identityOf` identities match the committed fixtures.
 - `cargo fmt --all --check` pass; `cargo clippy --workspace --all-targets -- -D
   warnings` clean; full `cargo metadata --locked --offline` pass.
-- `npm run verify` pass (1903 tests in the manifest, build, offline and
+- `npm run verify` pass (1904 tests in the manifest, build, offline and
   acceptance); `openspec validate --changes --strict` pass.
 - `npm run verification:mutation` 10/10 critical mutations detected.
 - No file under `src/` imports the wire crate and no production file requests a

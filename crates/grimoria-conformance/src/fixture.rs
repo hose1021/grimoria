@@ -109,7 +109,7 @@ mod tests {
     #[test]
     fn the_committed_fixture_runs() {
         let fixture = include_str!("../../../fixtures/conformance/wire-serialization.json");
-        assert_eq!(run_wire_fixture(fixture).unwrap(), 12);
+        assert_eq!(run_wire_fixture(fixture).unwrap(), 15);
     }
 
     #[test]
