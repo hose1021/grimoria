@@ -33,6 +33,24 @@ in the integrated tree, pinned by `treeHash`, the index and the baseline fixture
 - Delete the archive directories only after a fresh clone retrieves every entry
   from the bundle and the digest matches.
 
+## Pre-release provenance preflight
+
+Before a release pull request, run:
+
+```sh
+npm run release:preflight -- origin/main
+```
+
+The command compares every indexed origin with the first add on the target
+branch. When the target first add differs — as it does for every archive that a
+squash release does not carry from `dev` — the archive needs an origin record in
+`fixtures/conformance/archive-origins.json`. The command names every archive
+without a matching record and fails. It reads the gate's inputs and changes no
+validation rule.
+
+Run it after the archive sync and before the release pull request. The release
+checklist records the result.
+
 ## Rules
 
 - The archive is a squash-safe file in the integrated tree, never a reference to

@@ -282,3 +282,30 @@ repository's own `dev` or `main` branch.
 
 - **WHEN** a fork pull request names its head branch `dev` or `main`
 - **THEN** the specifications job still runs
+
+### Requirement: Release provenance preflight
+
+A pre-release command SHALL compare every indexed archive origin with the first
+add on the target branch. When the target first add differs, a reviewed record
+SHALL match the index exactly; otherwise the command SHALL name the archive and
+fail before the release pull request. The command SHALL NOT change the gate and
+SHALL NOT accept a record that differs from the index.
+
+**Source**: Issue #519
+**Tests**: `scripts/release-provenance.test.ts`, `scripts/archive-index.test.ts`
+
+#### Scenario: Missing record
+
+- **WHEN** the target branch first added an archive at a different commit and no
+  reviewed record names the indexed origin
+- **THEN** the preflight names that archive and exits non-zero
+
+#### Scenario: Covered record
+
+- **WHEN** a reviewed record matches the indexed origin and date
+- **THEN** the preflight passes and the archive gate still validates the tree
+
+#### Scenario: Same origin
+
+- **WHEN** the target first add equals the indexed origin
+- **THEN** the preflight needs no record
