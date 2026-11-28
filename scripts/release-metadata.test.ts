@@ -167,6 +167,54 @@ test("an empty commit range is not release metadata", () => {
   }
 });
 
+test("root paths named after Object members are not release metadata", () => {
+  for (const name of ["constructor", "toString", "__proto__"]) {
+    const { root, base } = repository();
+    try {
+      bump(root);
+      write(root, name, "not metadata\n");
+      commit(root);
+      const result = releaseMetadataOnly(root, base);
+      assert.equal(result.ok, false, `${name} must not receive the exemption`);
+      assert.ok(
+        result.failures.some((failure) => failure.includes(`${name}: not release metadata`)),
+        `${name}: ${result.failures.join("; ")}`,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test("divergent branches compare contents at the merge base", () => {
+  const { root, base } = repository();
+  const git = (args: string[]): string =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
+  try {
+    git(["checkout", "-q", "-b", "upstream"]);
+    write(
+      root,
+      "package.json",
+      json({
+        ...JSON.parse(manifest(BASE_VERSION)),
+        dependencies: { alpha: "1.0.0", beta: "2.0.0" },
+      }),
+    );
+    commit(root);
+
+    git(["checkout", "-q", "-b", "feature", base]);
+    bump(root);
+    commit(root);
+
+    // The path diff starts at the merge base; the contents must do the same.
+    const result = releaseMetadataOnly(root, "upstream");
+    assert.deepEqual(result.failures, []);
+    assert.equal(result.ok, true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("an incomplete or inconsistent bump fails", () => {
   const cases: Array<{ change: (root: string) => void; failure: string }> = [
     {

@@ -907,6 +907,16 @@
       "name": "an incomplete or inconsistent bump fails"
     },
     {
+      "key": "scripts/release-metadata.test.ts::divergent branches compare contents at the merge base",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "divergent branches compare contents at the merge base"
+    },
+    {
+      "key": "scripts/release-metadata.test.ts::root paths named after Object members are not release metadata",
+      "file": "scripts/release-metadata.test.ts",
+      "name": "root paths named after Object members are not release metadata"
+    },
+    {
       "key": "scripts/role-ownership.test.ts::a migrated attack keeps the references of the shared succession, not of the step completion",
       "file": "scripts/role-ownership.test.ts",
       "name": "a migrated attack keeps the references of the shared succession, not of the step completion"

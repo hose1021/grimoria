@@ -69,9 +69,20 @@ function withoutLockVersions(value: Record<string, unknown>): Record<string, unk
 
 export function releaseMetadataOnly(root: string, baseRef: string): ReleaseMetadataResult {
   const failures: string[] = [];
+  let mergeBase: string;
+  try {
+    mergeBase = git(root, ["merge-base", baseRef, "HEAD"]);
+  } catch {
+    return {
+      ok: false,
+      version: null,
+      pathsOnly: false,
+      failures: [`cannot read the merge base against ${baseRef}`],
+    };
+  }
   let diff: string;
   try {
-    diff = git(root, ["diff", "--name-status", "--no-renames", `${baseRef}...HEAD`]);
+    diff = git(root, ["diff", "--name-status", "--no-renames", mergeBase, "HEAD"]);
   } catch {
     return {
       ok: false,
@@ -97,7 +108,7 @@ export function releaseMetadataOnly(root: string, baseRef: string): ReleaseMetad
       );
       continue;
     }
-    if (!RELEASE_FILES[path]) {
+    if (!Object.hasOwn(RELEASE_FILES, path)) {
       failures.push(`${path}: not release metadata`);
       continue;
     }
@@ -106,14 +117,14 @@ export function releaseMetadataOnly(root: string, baseRef: string): ReleaseMetad
   if (failures.length) return { ok: false, version: null, pathsOnly: false, failures };
 
   const version = at(root, "HEAD", "VERSION")?.trim() ?? "";
-  const previous = at(root, baseRef, "VERSION")?.trim() ?? "";
+  const previous = at(root, mergeBase, "VERSION")?.trim() ?? "";
   if (!SEMVER.test(version)) failures.push("VERSION is not a semantic version");
   if (!SEMVER.test(previous)) failures.push("the base VERSION is not a semantic version");
   if (version === previous) failures.push("VERSION did not change");
   if (!changed.has("VERSION")) failures.push("VERSION is not changed");
 
   const manifestText = at(root, "HEAD", "package.json");
-  const previousManifestText = at(root, baseRef, "package.json");
+  const previousManifestText = at(root, mergeBase, "package.json");
   const manifest = parseJson(manifestText);
   const previousManifest = parseJson(previousManifestText);
   if (!changed.has("package.json")) failures.push("package.json is not changed");
@@ -126,7 +137,7 @@ export function releaseMetadataOnly(root: string, baseRef: string): ReleaseMetad
 
   if (changed.has("package-lock.json")) {
     const lock = parseJson(at(root, "HEAD", "package-lock.json"));
-    const previousLock = parseJson(at(root, baseRef, "package-lock.json"));
+    const previousLock = parseJson(at(root, mergeBase, "package-lock.json"));
     if (!lock || !previousLock) failures.push("package-lock.json is not a JSON object");
     else {
       if ("version" in lock && lock.version !== version)
