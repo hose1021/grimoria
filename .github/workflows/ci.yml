@@ -28,11 +28,14 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 26
+      - name: Install pinned Rust for Cargo metadata
+        run: rustup toolchain install 1.98.1 --profile minimal
       - run: npm ci
       - run: git fetch origin ${{ github.base_ref }}
         if: github.event_name == 'pull_request'
       - run: npm run typecheck
-      - run: node --test scripts/check-types-policy.test.ts scripts/serve-dist.test.ts scripts/role-ownership.test.ts scripts/documentation-inventory.test.ts scripts/openspec-reconcile.test.ts scripts/documentation-consumers.test.ts scripts/rule-registry.test.ts scripts/engine-boundary.test.ts scripts/guidance-map.test.ts scripts/check-risk-tier.test.ts scripts/conformance-fixture.test.ts scripts/archive-index.test.ts scripts/check-risk-artifacts.test.ts scripts/check-acceptance.test.ts scripts/rules-for.test.ts scripts/release-metadata.test.ts scripts/release-provenance.test.ts
+      - run: node --test scripts/check-types-policy.test.ts scripts/serve-dist.test.ts scripts/role-ownership.test.ts scripts/documentation-inventory.test.ts scripts/openspec-reconcile.test.ts scripts/documentation-consumers.test.ts scripts/rule-registry.test.ts scripts/engine-boundary.test.ts scripts/engine-benchmark.test.ts scripts/guidance-map.test.ts scripts/check-risk-tier.test.ts scripts/conformance-fixture.test.ts scripts/archive-index.test.ts scripts/check-risk-artifacts.test.ts scripts/check-acceptance.test.ts scripts/rules-for.test.ts scripts/release-metadata.test.ts scripts/release-provenance.test.ts scripts/check-cargo-graph.test.ts
+      - run: npm run graph:cargo
       - run: npm run docs:inventory -- HEAD
       - run: npm run openspec:reconcile > /dev/null
       - run: npm run rules:check
@@ -43,6 +46,35 @@ jobs:
       - run: npm run archive:index -- --check --against origin/${{ github.base_ref }}
         if: github.event_name == 'pull_request'
       - run: node scripts/check-types-policy.ts
+
+  rust-native:
+    name: Rust native
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy
+          rustup default 1.98.1
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+      - run: node scripts/check-cargo-graph.ts
+
+  rust-wasm32:
+    name: Rust wasm32
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install pinned Rust and target
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal --target wasm32-unknown-unknown
+          rustup default 1.98.1
+      - run: cargo build --workspace --exclude grimoria-cli --target wasm32-unknown-unknown
+      - name: Compile wasm32 test harness
+        run: cargo test --workspace --exclude grimoria-cli --target wasm32-unknown-unknown --no-run
 
   lint:
     name: Lint and format

@@ -4,6 +4,7 @@ node_modules/
 .taste-skill/
 dist/
 dist-root/
+target/
 docs/official/wiki/
 docs/reference/
 reports/
