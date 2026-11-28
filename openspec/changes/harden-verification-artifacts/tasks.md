@@ -42,6 +42,11 @@
 - [x] 2.11 Recover the 32 archives whose specs name only historical `.mjs` files
       through `fixtures/conformance/legacy-test-paths.json`, with a task/design
       fallback; no archive has an empty test list.
+- [x] 2.12 Require the normative requirement text, without its citations, to
+      match the baseline at the transition, not just its name; a body the
+      baseline refined after the sync carries a reviewed record in
+      `fixtures/conformance/archive-content-corrections.json`, and a stale or
+      unknown record fails.
 
 ## 3. Risk and artifacts
 
@@ -109,3 +114,10 @@
   applied-delta and non-empty evidence checks; an unrecorded squash origin fails
   until its reviewed record exists; the mixed diff requires the R2 evidence; all
   173 archives name a current test.
+- RED: a MODIFIED requirement whose name existed in the baseline passed with an
+  unsynced body, because presence alone was checked; a record whose body already
+  matched or named no requirement also passed.
+- GREEN: the transition check compares the normative body without its citations
+  and refuses a mismatch unless a reviewed record names the archive and the
+  requirement; the 10 historical drifts carry records, and a stale, duplicate,
+  empty or unknown record fails.

@@ -127,8 +127,10 @@ archived delta specs.
 
 An archive outside the accepted anchor SHALL have no open checklist item and
 non-empty RED/GREEN evidence. Every ADDED or MODIFIED requirement SHALL be
-present in the baseline, and a REMOVED requirement SHALL be gone. A completed
-checklist alone SHALL NOT permit archiving an unsynchronized change.
+present in the baseline, and its normative text, without the `Source` and
+`Tests` citations, SHALL equal the baseline's text at the transition. A REMOVED
+requirement SHALL be gone. A completed checklist alone SHALL NOT permit
+archiving an unsynchronized change.
 
 **Source**: Issue #519
 **Tests**: `scripts/archive-index.test.ts`
@@ -144,6 +146,25 @@ checklist alone SHALL NOT permit archiving an unsynchronized change.
 - **WHEN** a newly archived change adds a requirement the baseline does not hold,
   or keeps a requirement it removed
 - **THEN** the gate fails and names the requirement
+
+#### Scenario: Drifted body
+
+- **WHEN** an archived requirement's normative text differs from the baseline
+  and no reviewed record names it
+- **THEN** the gate fails and names the requirement
+
+#### Scenario: Reviewed drift
+
+- **WHEN** the baseline changed after the sync and a reviewed record in
+  `fixtures/conformance/archive-content-corrections.json` names the archive, the
+  requirement and its reason
+- **THEN** the gate accepts the archive
+
+#### Scenario: Invalid record
+
+- **WHEN** a content record's body already matches the baseline, the record
+  repeats, or it names no archived requirement
+- **THEN** the gate fails instead of accepting an unused record
 
 ### Requirement: Historical test paths resolve through one reviewed mapping
 

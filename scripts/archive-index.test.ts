@@ -27,6 +27,7 @@ import {
   originFailures,
   originRecordFailures,
   parseBaseline,
+  parseContentRecords,
   parseIndex,
   parseLegacyPaths,
   parseOrigins,
@@ -40,6 +41,7 @@ import {
   repinFailures,
   testReferenceFailures,
   mergeEntries,
+  type ArchiveContentRecord,
   type ArchiveEntry,
 } from "./archive-index.ts";
 
@@ -857,6 +859,65 @@ test("an archive outside the accepted anchor must be finished and applied", () =
   );
 });
 
+test("a delta requirement body must match the baseline at the transition", () => {
+  const entry = { ...row("2026-12-01-b"), tests: [] };
+  const specPath = `${entry.path}/specs/game/sample/spec.md`;
+  const tasks = "# Tasks\n\n- [x] 1.1 Done.\n\n## Evidence\n\n- RED: one\n- GREEN: two\n";
+  const run = (spec: string, baseline: string, records: ArchiveContentRecord[] = []) =>
+    archiveReadinessFailures(
+      [entry],
+      [],
+      (path) => (path.endsWith("tasks.md") ? tasks : path === specPath ? spec : null),
+      () => [specPath],
+      (capability) => (capability === "game/sample" ? baseline : null),
+      records,
+    );
+  const added =
+    "## ADDED Requirements\n\n### Requirement: One\n\n**Source**: [A](a)\n\nThe app SHALL do it.\n";
+  const base =
+    "## Requirements\n\n### Requirement: One\n\n**Source**: [B](b)\n\nThe app SHALL do it.\n";
+  assert.deepEqual(run(added, base), [], "the body matches and the citations do not matter");
+  assert.deepEqual(
+    run(added, "## Requirements\n\n### Requirement: One\n\nThe app SHALL do more.\n").filter(
+      (failure) => failure.includes("content differs"),
+    ),
+    [`2026-12-01-b: requirement "One" content differs from the baseline`],
+    "a name is not the content: an unsynced body is refused",
+  );
+  assert.deepEqual(
+    run(added, "## Requirements\n\n### Requirement: One\n\nThe app SHALL do more.\n", [
+      { archive: entry.name, requirement: "One", reason: "the baseline evolved after the sync" },
+    ]),
+    [],
+    "a reviewed record covers legitimate drift",
+  );
+  assert.ok(
+    run(added, base, [{ archive: entry.name, requirement: "One", reason: "reviewed" }]).some(
+      (failure) => failure.includes("stale"),
+    ),
+    "a record for a matching body is stale",
+  );
+  assert.ok(
+    run(added, base, [{ archive: entry.name, requirement: "Other", reason: "reviewed" }]).some(
+      (failure) => failure.includes("names no archived requirement"),
+    ),
+    "a record must name an archived requirement",
+  );
+  assert.ok(
+    run(added, base, [{ archive: entry.name, requirement: "One", reason: "  " }]).some((failure) =>
+      failure.includes("has no reason"),
+    ),
+    "a record needs a reason",
+  );
+  assert.ok(
+    run(added, base, [
+      { archive: entry.name, requirement: "One", reason: "reviewed" },
+      { archive: entry.name, requirement: "One", reason: "reviewed" },
+    ]).some((failure) => failure.includes("duplicate content record")),
+    "one record per requirement",
+  );
+});
+
 test("an indented checklist and evidence line still count", () => {
   const entry = { ...row("2026-12-01-b"), tests: [] };
   const specPath = `${entry.path}/specs/game/sample/spec.md`;
@@ -950,6 +1011,12 @@ test("malformed archive corrections and index files fail closed", () => {
     assert.equal(readCorrections(join(dir, "bad.json")), null);
     writeFileSync(join(dir, "shape.json"), JSON.stringify({ corrections: [{ name: "x" }] }));
     assert.equal(readCorrections(join(dir, "shape.json")), null);
+    assert.equal(parseContentRecords("not json"), null);
+    assert.equal(
+      parseContentRecords(JSON.stringify({ records: [{ archive: "a", requirement: 1 }] })),
+      null,
+    );
+    assert.deepEqual(parseContentRecords(JSON.stringify({ records: [] })), []);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

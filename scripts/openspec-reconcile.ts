@@ -82,7 +82,7 @@ function normalize(text: string): string {
     .trim();
 }
 
-function requirementBlocks(text: string): Map<string, string> {
+function requirementBlocks(text: string, includeMetadata = true): Map<string, string> {
   const blocks = new Map<string, string>();
   let current: string | null = null;
   let buffer: string[] = [];
@@ -102,10 +102,21 @@ function requirementBlocks(text: string): Map<string, string> {
       current = header[1]!.trim();
       continue;
     }
-    if (current !== null) buffer.push(line);
+    if (current === null) continue;
+    if (!includeMetadata && /^\*\*(?:Source|Tests)\*\*:/.test(line)) continue;
+    buffer.push(line);
   }
   flush();
   return blocks;
+}
+
+/**
+ * The requirement text without its `Source` and `Tests` citations. A citation
+ * may be updated after the change is synced; the normative text is what the
+ * archive transition must correspond to.
+ */
+export function normativeRequirementBodies(text: string): Map<string, string> {
+  return requirementBlocks(text, false);
 }
 
 export function parseRequirements(

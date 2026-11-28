@@ -15,7 +15,11 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseRequirements, type RequirementRef } from "./openspec-reconcile.ts";
+import {
+  normativeRequirementBodies,
+  parseRequirements,
+  type RequirementRef,
+} from "./openspec-reconcile.ts";
 
 export interface ArchiveEntry {
   name: string;
@@ -174,6 +178,7 @@ function treeHash(root: string, path: string, ref?: string): string {
 
 const LEGACY_PATHS_FILE = "fixtures/conformance/legacy-test-paths.json";
 const ORIGINS_FILE = "fixtures/conformance/archive-origins.json";
+const CONTENT_RECORDS_FILE = "fixtures/conformance/archive-content-corrections.json";
 
 function isTestReference(token: string): boolean {
   if (/\s/.test(token) || token.includes("*")) return false;
@@ -339,6 +344,41 @@ export function readOrigins(root: string): ArchiveOrigin[] | null {
   const path = join(root, ORIGINS_FILE);
   if (!existsSync(path)) return [];
   return parseOrigins(readFileSync(path, "utf8"));
+}
+
+export interface ArchiveContentRecord {
+  archive: string;
+  requirement: string;
+  reason: string;
+}
+
+export function parseContentRecords(text: string): ArchiveContentRecord[] | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const records = (parsed as { records?: unknown }).records;
+  if (!Array.isArray(records)) return null;
+  for (const entry of records) {
+    if (typeof entry !== "object" || entry === null) return null;
+    const value = entry as ArchiveContentRecord;
+    if (
+      typeof value.archive !== "string" ||
+      typeof value.requirement !== "string" ||
+      typeof value.reason !== "string"
+    )
+      return null;
+  }
+  return records as ArchiveContentRecord[];
+}
+
+export function readContentRecords(root: string): ArchiveContentRecord[] | null {
+  const path = join(root, CONTENT_RECORDS_FILE);
+  if (!existsSync(path)) return [];
+  return parseContentRecords(readFileSync(path, "utf8"));
 }
 
 /**
@@ -652,9 +692,10 @@ export function parseTestCorrections(text: string): ArchiveTestCorrection[] | nu
 /**
  * An archived change outside the accepted anchor must be finished, carry real
  * RED/GREEN evidence, and have every delta requirement applied to the baseline
- * specs: ADDED and MODIFIED requirements are present, REMOVED ones are gone.
- * Entries the anchor accepted predate this gate and stay as they are: history
- * is evidence, not something to rewrite.
+ * specs. The normative requirement text, without its citations, must match the
+ * baseline at the transition; a body the baseline legitimately refined after
+ * the sync carries a reviewed record. Entries the anchor accepted predate this
+ * gate and stay as they are: history is evidence, not something to rewrite.
  */
 export function archiveReadinessFailures(
   entries: readonly ArchiveEntry[],
@@ -662,9 +703,23 @@ export function archiveReadinessFailures(
   read: (path: string) => string | null,
   list: (dir: string) => string[],
   baseline: (capability: string) => string | null,
+  contentRecords: readonly ArchiveContentRecord[] = [],
 ): string[] {
   const accepted = new Set(anchor.map((entry) => entry.name));
   const failures: string[] = [];
+  const recordKey = (archive: string, requirement: string): string => archive + "\0" + requirement;
+  const records = new Map<string, ArchiveContentRecord>();
+  for (const record of contentRecords) {
+    const key = recordKey(record.archive, record.requirement);
+    if (records.has(key))
+      failures.push(`${record.archive}: duplicate content record for "${record.requirement}"`);
+    records.set(key, record);
+    if (!record.reason.trim())
+      failures.push(`${record.archive}: content record for "${record.requirement}" has no reason`);
+  }
+  const seen = new Set<string>();
+  const used = new Set<string>();
+  const stale = new Set<string>();
   for (const entry of entries) {
     if (accepted.has(entry.name)) continue;
     const tasks = read(`${entry.path}/tasks.md`);
@@ -694,17 +749,49 @@ export function archiveReadinessFailures(
         continue;
       }
       if (rows.length === 0) failures.push(`${entry.name}: delta spec ${spec} has no requirements`);
+      const deltaBodies = normativeRequirementBodies(text);
       for (const row of rows) {
         if (row.operation === "RENAMED")
           failures.push(`${entry.name}: RENAMED requirement "${row.name}" is not supported`);
-        else if ((row.operation === "ADDED" || row.operation === "MODIFIED") && !row.present)
+        else if (row.operation === "REMOVED") {
+          if (row.present)
+            failures.push(
+              `${entry.name}: removed requirement "${row.name}" is still in the baseline`,
+            );
+        } else if (!row.present) {
           failures.push(`${entry.name}: requirement "${row.name}" is not applied to the baseline`);
-        else if (row.operation === "REMOVED" && row.present)
-          failures.push(
-            `${entry.name}: removed requirement "${row.name}" is still in the baseline`,
-          );
+        } else {
+          const key = recordKey(entry.name, row.name);
+          seen.add(key);
+          const baseText = baseline(row.capability);
+          const baseBody =
+            baseText === null ? "" : (normativeRequirementBodies(baseText).get(row.name) ?? "");
+          const body = deltaBodies.get(row.name) ?? "";
+          if (body === baseBody) {
+            if (records.has(key)) stale.add(key);
+          } else if (records.has(key)) {
+            used.add(key);
+          } else {
+            failures.push(
+              `${entry.name}: requirement "${row.name}" content differs from the baseline`,
+            );
+          }
+        }
       }
     }
+  }
+  for (const [key, record] of records) {
+    if (used.has(key)) continue;
+    if (stale.has(key)) {
+      failures.push(
+        `${record.archive}: content record for "${record.requirement}" is stale; the body matches`,
+      );
+      continue;
+    }
+    if (!seen.has(key))
+      failures.push(
+        `${record.archive}: content record "${record.requirement}" names no archived requirement`,
+      );
   }
   return failures;
 }
@@ -1090,6 +1177,12 @@ function main(): void {
       process.exitCode = 1;
       return;
     }
+    const contentRecords = readContentRecords(root);
+    if (contentRecords === null) {
+      console.error("archive-content-corrections.json is malformed");
+      process.exitCode = 1;
+      return;
+    }
     const manifestPath = join(root, "docs/audits/verification-gates/test-manifest.json");
     if (!existsSync(manifestPath)) {
       console.error("test-manifest.json is missing; test references cannot be verified");
@@ -1156,7 +1249,14 @@ function main(): void {
     } else if (targetAnchor !== null) {
       exemptions = targetAnchor;
     }
-    const readiness = archiveReadinessFailures(existing, exemptions, readAny, list, baselineSpec);
+    const readiness = archiveReadinessFailures(
+      existing,
+      exemptions,
+      readAny,
+      list,
+      baselineSpec,
+      contentRecords,
+    );
     if (references.length || readiness.length) {
       console.error([...references, ...readiness].join("; "));
       process.exitCode = 1;

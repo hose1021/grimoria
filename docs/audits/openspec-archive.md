@@ -59,7 +59,14 @@ in the integrated tree, pinned by `treeHash`, the index and the baseline fixture
   rewrite an accepted record, so a changed tree needs a correction entry.
 - An archive outside the anchor must be complete and applied: no open checklist
   item, non-empty RED/GREEN evidence, and every ADDED or MODIFIED requirement
-  present in the baseline while a REMOVED one is gone.
+  present in the baseline while a REMOVED one is gone. The requirement's
+  normative text, without its `Source` and `Tests` citations, must equal the
+  baseline's text at the transition; a body the baseline legitimately refined
+  after the sync carries a reviewed record in
+  `fixtures/conformance/archive-content-corrections.json` with the archive, the
+  requirement and a reason. A record whose body already matches is stale, and a
+  record that names no archived requirement fails. Accepted archives are checked
+  only for integrity, not against the current spec forever.
 - An archived delta spec may name a historical `.mjs` or type-test file. A
   reviewed record in `fixtures/conformance/legacy-test-paths.json` maps it to the
   current file; when a delta spec names none, the change's task and design
