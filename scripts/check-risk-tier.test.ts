@@ -30,7 +30,16 @@ test("the diff decides the tier from its highest-risk path", () => {
   assert.equal(classify(["src/core/roles/sailor/role.ts"]), "R2");
   assert.equal(classify(["src/core/engine/commands.ts"]), "R3");
   assert.equal(classify(["scripts/verification/gates.ts"]), "R3");
-  assert.equal(classify(["openspec/specs/game/setup/spec.md"]), "R3");
+  assert.equal(classify(["openspec/specs/workflow/verification-gates/spec.md"]), "R3");
+  assert.equal(classify(["openspec/config.yaml"]), "R3");
+  assert.equal(classify(["openspec/changes/sample/proposal.md"]), "R3");
+  assert.equal(classify(["openspec/specs/game/setup/spec.md"]), "R0");
+  assert.equal(classify(["openspec/specs/app/ui-shell/spec.md"]), "R0");
+  assert.equal(
+    classify(["src/core/roles/sailor/role.ts", "openspec/specs/game/setup/spec.md"]),
+    "R2",
+    "a product spec delta does not raise a localized fix to R3",
+  );
 });
 
 const body = (risk: string, extra = "- `npm run verify` pass.") =>

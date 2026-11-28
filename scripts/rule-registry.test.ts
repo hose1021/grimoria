@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   citationBaselineFailures,
   citationParityFailures,
+  correctionUniquenessFailures,
   legacyCitations,
   crossReferences,
   loadContext,
@@ -418,4 +419,24 @@ test("a duplicate citation inside one rule is rejected", () => {
   );
   assert.equal(result.ok, false);
   if (!result.ok) assert.ok(result.errors.some((error) => error.includes("duplicate citation")));
+});
+
+test("citation corrections must be unique per source citation", () => {
+  const base = {
+    id: "SNV-ARTIST-01",
+    from: { file: "src/core/engine/snv.test.ts", name: "old" },
+    to: { file: "src/core/engine/snv.test.ts", name: "new" },
+    reason: "renamed",
+  };
+  assert.deepEqual(correctionUniquenessFailures([base]), []);
+  assert.ok(
+    correctionUniquenessFailures([base, { ...base, to: { ...base.to, name: "newer" } }]).some(
+      (failure) => failure.includes("duplicate correction"),
+    ),
+  );
+  assert.deepEqual(
+    correctionUniquenessFailures([base, { ...base, from: { ...base.from, name: "other" } }]),
+    [],
+    "different source citations may be corrected separately",
+  );
 });

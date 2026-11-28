@@ -32,7 +32,9 @@ const R3 = [
   "tsconfig",
   "rules/",
   ".github/",
-  "openspec/",
+  "openspec/changes/",
+  "openspec/config.yaml",
+  "openspec/specs/workflow/",
   "AGENTS.md",
   "docs/official/",
   "docs/audits/",
@@ -51,7 +53,15 @@ const R3 = [
 ];
 const R2 = ["src/core/roles/", "src/application/"];
 const R1 = ["src/ui/", "css/"];
-const R0 = ["README.md", "CHANGELOG.md", "DECISIONS.md", "PRODUCT.md", "DESIGN.md", "docs/"];
+const R0 = [
+  "README.md",
+  "CHANGELOG.md",
+  "DECISIONS.md",
+  "PRODUCT.md",
+  "DESIGN.md",
+  "docs/",
+  "openspec/specs/",
+];
 
 function matches(path: string, prefixes: readonly string[]): boolean {
   return prefixes.some((prefix) => path === prefix || path.startsWith(prefix));

@@ -22,6 +22,7 @@ export interface ArchiveEntry {
   path: string;
   treeHash: string;
   issue?: string | null;
+  tests?: string[];
 }
 
 export function entriesFrom(rows: readonly ArchiveEntry[]): ArchiveEntry[] {
@@ -75,6 +76,7 @@ function build(root: string): ArchiveEntry[] {
           path,
           treeHash: treeHash(root, path),
           issue: proposalIssue(root, path),
+          tests: testReferences(root, path),
         };
       }),
   );
@@ -90,6 +92,8 @@ function isEntry(value: unknown): value is ArchiveEntry {
     typeof entry.path === "string" &&
     typeof entry.treeHash === "string" &&
     (entry.issue === undefined || entry.issue === null || typeof entry.issue === "string") &&
+    (entry.tests === undefined ||
+      (Array.isArray(entry.tests) && entry.tests.every((file) => typeof file === "string"))) &&
     /^[0-9a-f]{64}$/.test(entry.treeHash)
   );
 }
@@ -163,6 +167,32 @@ function treeHash(root: string, path: string, ref?: string): string {
   return hash.digest("hex");
 }
 
+function testReferences(root: string, path: string): string[] {
+  const files: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
+      const next = dir + "/" + entry.name;
+      if (entry.isDirectory()) walk(next);
+      else if (entry.name === "spec.md") files.push(next);
+    }
+  };
+  try {
+    walk(`${path}/specs`);
+  } catch {
+    return [];
+  }
+  const refs = new Set<string>();
+  for (const file of files) {
+    const source = readFileSync(join(root, file), "utf8");
+    for (const line of source.split("\n")) {
+      if (!/\*\*Tests\*\*:/.test(line)) continue;
+      for (const match of line.matchAll(/`([^`]+\.test\.ts)`/g)) refs.add(match[1]!);
+      if (line.includes("browser-check.ts")) refs.add("scripts/browser-check.ts");
+    }
+  }
+  return [...refs].sort();
+}
+
 export interface ArchiveNameHash {
   name: string;
   treeHash: string;
@@ -195,6 +225,27 @@ function firstAdd(root: string, entry: ArchiveEntry): Origin | null {
     .split("\n");
   const [commit, date] = (lines.at(-1) ?? "").split(" ");
   return commit && date ? { commit, date } : null;
+}
+
+export function archiveOriginFailures(
+  root: string,
+  entries: readonly ArchiveEntry[],
+  ref?: string,
+): string[] {
+  const accepted = ref ? indexAt(root, ref) : undefined;
+  const hasTargetIndex = accepted !== undefined && accepted.size > 0;
+  const indexes = new Map<string, ReadonlyMap<string, ArchiveEntry>>();
+  const acceptedOrigin = (entry: ArchiveEntry, first: Origin | null): Origin | undefined => {
+    if (hasTargetIndex) return accepted!.get(entry.name);
+    if (!first) return undefined;
+    // A target branch without an index (a legacy main) receives archives that a
+    // source branch already integrated; the index at the first add is the
+    // trusted record there. A target that has an index stays strict: a new
+    // archive must match its own first add.
+    if (!indexes.has(first.commit)) indexes.set(first.commit, indexAt(root, first.commit));
+    return indexes.get(first.commit)?.get(entry.name);
+  };
+  return originFailures(entries, (entry) => firstAdd(root, entry), acceptedOrigin);
 }
 
 function indexAt(root: string, ref: string): ReadonlyMap<string, ArchiveEntry> {
@@ -456,19 +507,9 @@ function main(): void {
     const refIndex = process.argv.indexOf("--against");
     const ref = refIndex >= 0 ? process.argv[refIndex + 1] : process.env.ARCHIVE_BASELINE_REF;
     if (refIndex >= 0 && !ref) throw new Error("--against needs a git ref");
-    const accepted = ref ? indexAt(root, ref) : undefined;
-    const indexes = new Map<string, ReadonlyMap<string, ArchiveEntry>>();
-    const acceptedOrigin = (entry: ArchiveEntry, first: Origin | null): Origin | undefined => {
-      if (accepted) return accepted.get(entry.name);
-      if (!first) return undefined;
-      // A squash can introduce both the archive and its reviewed index in one
-      // commit. Its recorded origin survives whether or not the old branch exists.
-      if (!indexes.has(first.commit)) indexes.set(first.commit, indexAt(root, first.commit));
-      return indexes.get(first.commit)?.get(entry.name);
-    };
     const changed = [
       ...existing.flatMap((entry) => provenanceFailures(entry)),
-      ...originFailures(existing, (entry) => firstAdd(root, entry), acceptedOrigin),
+      ...archiveOriginFailures(root, existing, ref),
       ...baselineFailures(correctedBaseline, existing),
       ...baselineCoverageFailures(correctedBaseline, existing),
       ...correctionFailures(corrections, existing),

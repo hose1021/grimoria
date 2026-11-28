@@ -57,6 +57,11 @@
       "name": "archive hashes canonicalize text and keep binary bytes"
     },
     {
+      "key": "scripts/archive-index.test.ts::archive origins survive squash integration into a legacy target",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive origins survive squash integration into a legacy target"
+    },
+    {
       "key": "scripts/archive-index.test.ts::archive provenance validates path, date and commit shape",
       "file": "scripts/archive-index.test.ts",
       "name": "archive provenance validates path, date and commit shape"
@@ -885,6 +890,11 @@
       "key": "scripts/rule-registry.test.ts::an unappliable registry fails closed on ids, roles, levels, fields and tests",
       "file": "scripts/rule-registry.test.ts",
       "name": "an unappliable registry fails closed on ids, roles, levels, fields and tests"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::citation corrections must be unique per source citation",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "citation corrections must be unique per source citation"
     },
     {
       "key": "scripts/rule-registry.test.ts::cross references reject a duplicate id across files and a dangling atomic target",

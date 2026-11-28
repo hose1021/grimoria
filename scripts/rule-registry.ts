@@ -159,6 +159,20 @@ export interface CitationCorrection {
   reason: string;
 }
 
+export function correctionUniquenessFailures(corrections: readonly CitationCorrection[]): string[] {
+  const keys = new Set<string>();
+  const failures: string[] = [];
+  for (const correction of corrections) {
+    const key = correction.id + "\0" + correction.from.file + "\0" + correction.from.name;
+    if (keys.has(key))
+      failures.push(
+        `${correction.id}: duplicate correction for ${correction.from.file} "${correction.from.name}"`,
+      );
+    keys.add(key);
+  }
+  return failures;
+}
+
 export function citationParityFailures(
   baseline: Record<string, Array<{ file: string; name: string }>>,
   registry: ReadonlyMap<string, Array<{ file: string; name: string }>>,
@@ -414,7 +428,11 @@ function main(): void {
         readFileSync(join(root, "fixtures/conformance/citation-corrections.json"), "utf8"),
       ) as { corrections: CitationCorrection[] }
     ).corrections;
-    const failures = citationParityFailures(legacy, registry, corrections);
+    const duplicateCorrections = correctionUniquenessFailures(corrections);
+    const failures = [
+      ...duplicateCorrections,
+      ...citationParityFailures(legacy, registry, corrections),
+    ];
     if (failures.length) {
       for (const failure of failures) console.error(failure);
       console.error(`citation legacy parity failed for ${failures.length} citation(s)`);

@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import {
   applyCorrections,
+  archiveOriginFailures,
   baselineCoverageFailures,
   canonicalBytes,
   correctionFailures,
@@ -296,7 +300,9 @@ test("archive corrections are unique and target the current tree", () => {
 test("the committed archive index carries an origin and issue reference", () => {
   const index = JSON.parse(
     readFileSync(new URL("../docs/audits/openspec-archive-index.json", import.meta.url), "utf8"),
-  ) as { entries: Array<{ name: string; commit: string; issue?: string | null }> };
+  ) as {
+    entries: Array<{ name: string; commit: string; issue?: string | null; tests?: string[] }>;
+  };
   const names = readdirSync(new URL("../openspec/changes/archive/", import.meta.url), {
     withFileTypes: true,
   })
@@ -312,4 +318,111 @@ test("the committed archive index carries an origin and issue reference", () => 
     );
   }
   assert.ok(index.entries.some((entry) => typeof entry.issue === "string"));
+  const withTests = index.entries.filter((entry) => entry.tests && entry.tests.length > 0);
+  assert.ok(withTests.length >= 100, `only ${withTests.length} entries list asserting tests`);
+  assert.ok(
+    withTests.some((entry) => entry.tests!.some((file) => file.endsWith(".test.ts"))),
+    "asserting test files are the implementation evidence",
+  );
+});
+
+test("archive origins survive squash integration into a legacy target", () => {
+  const root = mkdtempSync(join(tmpdir(), "archive-lifecycle-"));
+  const git = (args: string[], cwd = root): string =>
+    execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+  const write = (file: string, content: string): void => {
+    mkdirSync(join(root, file, ".."), { recursive: true });
+    writeFileSync(join(root, file), content);
+  };
+  try {
+    git(["init", "-q"]);
+    git(["config", "user.email", "test@example.com"]);
+    git(["config", "user.name", "Test"]);
+    const name = "2026-01-01-sample";
+    const archivePath = `openspec/changes/archive/${name}`;
+    write(`${archivePath}/proposal.md`, "Issue: #1\n");
+    write(
+      `${archivePath}/specs/game/sample/spec.md`,
+      "### Requirement: One\n\n**Tests**: `src/sample.test.ts`\n",
+    );
+    git(["add", "."]);
+    git(["commit", "-qm", "feature archive"]);
+    const feature = git(["rev-parse", "HEAD"]);
+    const entry = (commit: string) => ({
+      name,
+      commit,
+      date: "2026-01-01",
+      path: archivePath,
+      treeHash: "a".repeat(64),
+      issue: "#1",
+      tests: ["src/sample.test.ts"],
+    });
+    const index = (entries: unknown[]) =>
+      JSON.stringify({
+        schemaVersion: 2,
+        canonicalization: "text-lf-binary-raw-v1",
+        entries,
+      });
+    write("docs/audits/openspec-archive-index.json", index([entry(feature)]));
+    write(
+      "docs/audits/openspec-archive-baseline.json",
+      JSON.stringify({ schemaVersion: 1, entries: [] }),
+    );
+    write(
+      "fixtures/conformance/openspec-archive-baseline.json",
+      JSON.stringify({ schemaVersion: 1, entries: [] }),
+    );
+    write("fixtures/conformance/archive-corrections.json", JSON.stringify({ corrections: [] }));
+    git(["add", "."]);
+    git(["commit", "-qm", "record origin"]);
+    const record = git(["rev-parse", "HEAD"]);
+
+    // Squash integration: a new root commit with the same tree.
+    git(["checkout", "-q", "--orphan", "dev"]);
+    git(["add", "."]);
+    git(["commit", "-qm", "squash dev"]);
+    const squash = git(["rev-parse", "HEAD"]);
+    git(["branch", "-D", "master"]);
+
+    // Legacy main has no archive index.
+    git(["checkout", "-q", "--orphan", "main"]);
+    for (const tracked of git(["ls-files"]).split("\n").filter(Boolean))
+      git(["rm", "-q", "--cached", tracked]);
+    write("README.md", "# main\n");
+    git(["add", "."]);
+    git(["commit", "-qm", "legacy main"]);
+
+    // A fresh clone keeps only the integrated history.
+    const clone = mkdtempSync(join(tmpdir(), "archive-clone-"));
+    execFileSync("git", ["clone", "-q", "--no-local", root, clone], { encoding: "utf8" });
+    execFileSync("git", ["checkout", "-q", "dev"], { cwd: clone });
+    const cloneGit = (args: string[]): string =>
+      execFileSync("git", args, { cwd: clone, encoding: "utf8" }).trim();
+    assert.throws(() => cloneGit(["cat-file", "-e", feature]));
+    const entries = parseIndex(
+      readFileSync(join(clone, "docs/audits/openspec-archive-index.json"), "utf8"),
+    );
+    assert.ok(entries);
+    assert.deepEqual(archiveOriginFailures(clone, entries!, "dev"), []);
+    assert.deepEqual(archiveOriginFailures(clone, entries!, "main"), []);
+
+    // A fabricated origin for a genuinely new archive fails against dev.
+    const fabricated = [
+      ...entries!,
+      {
+        ...entry("f".repeat(40)),
+        name: "2026-02-01-fabricated",
+        path: "openspec/changes/archive/2026-02-01-fabricated",
+      },
+    ];
+    assert.ok(
+      archiveOriginFailures(clone, fabricated, "dev").some((failure) =>
+        failure.includes("2026-02-01-fabricated"),
+      ),
+    );
+    assert.ok(squash.length > 0 && record.length > 0);
+    rmSync(clone, { recursive: true, force: true });
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
