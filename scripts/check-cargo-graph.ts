@@ -16,8 +16,8 @@ const MEMBERS = [
 ] as const;
 
 const ALLOWED: Record<string, readonly string[]> = {
-  "grimoria-domain": [],
-  "grimoria-wire": ["grimoria-domain"],
+  "grimoria-domain": ["grimoria-wire"],
+  "grimoria-wire": [],
   "grimoria-conformance": ["grimoria-domain", "grimoria-wire"],
   "grimoria-wasm": ["grimoria-domain", "grimoria-wire"],
   "grimoria-cli": ["grimoria-conformance"],

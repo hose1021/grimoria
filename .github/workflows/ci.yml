@@ -35,7 +35,7 @@ jobs:
         if: github.event_name == 'pull_request'
       - run: cargo fetch --locked
       - run: npm run typecheck
-      - run: node --test scripts/check-types-policy.test.ts scripts/serve-dist.test.ts scripts/role-ownership.test.ts scripts/documentation-inventory.test.ts scripts/openspec-reconcile.test.ts scripts/documentation-consumers.test.ts scripts/rule-registry.test.ts scripts/engine-boundary.test.ts scripts/engine-benchmark.test.ts scripts/wire-contract.test.ts scripts/wire-differential.test.ts scripts/guidance-map.test.ts scripts/check-risk-tier.test.ts scripts/conformance-fixture.test.ts scripts/archive-index.test.ts scripts/check-risk-artifacts.test.ts scripts/check-acceptance.test.ts scripts/rules-for.test.ts scripts/release-metadata.test.ts scripts/release-provenance.test.ts scripts/check-cargo-graph.test.ts
+      - run: node --test scripts/check-types-policy.test.ts scripts/serve-dist.test.ts scripts/role-ownership.test.ts scripts/documentation-inventory.test.ts scripts/openspec-reconcile.test.ts scripts/documentation-consumers.test.ts scripts/rule-registry.test.ts scripts/engine-boundary.test.ts scripts/engine-benchmark.test.ts scripts/wire-contract.test.ts scripts/wire-differential.test.ts scripts/set-notes-diagnostics.test.ts scripts/guidance-map.test.ts scripts/check-risk-tier.test.ts scripts/conformance-fixture.test.ts scripts/archive-index.test.ts scripts/check-risk-artifacts.test.ts scripts/check-acceptance.test.ts scripts/rules-for.test.ts scripts/release-metadata.test.ts scripts/release-provenance.test.ts scripts/check-cargo-graph.test.ts
       - run: npm run graph:cargo
       - run: npm run docs:inventory -- HEAD
       - run: npm run openspec:reconcile > /dev/null
@@ -90,6 +90,8 @@ jobs:
         run: wasm-bindgen --target nodejs --out-dir target/wire-node target/wasm32-unknown-unknown/debug/grimoria_wasm.wasm
       - name: Compare WASM, ECMAScript and TypeScript canonical bytes
         run: node scripts/wire-wasm-parity.ts --module target/wire-node/grimoria_wasm.js
+      - name: Compare TypeScript and WASM setNotes execution
+        run: node scripts/set-notes-differential.ts --module target/wire-node/grimoria_wasm.js --inject-divergence
 
   lint:
     name: Lint and format

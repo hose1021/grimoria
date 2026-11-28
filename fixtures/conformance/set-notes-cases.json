@@ -1,0 +1,176 @@
+{
+  "fixtureVersion": 1,
+  "cases": [
+    {
+      "id": "unicode-notes",
+      "command": {
+        "id": "slice-unicode",
+        "type": "setNotes",
+        "payload": { "notes": "café 😀" },
+        "at": "2026-11-28T00:00:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:00:00.000Z", "seed": "seed-unicode", "id": "slice-unicode" }
+    },
+    {
+      "id": "lone-surrogate-notes",
+      "command": {
+        "id": "slice-surrogate",
+        "type": "setNotes",
+        "payload": { "notes": "a\ud800b" },
+        "at": "2026-11-28T00:01:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:01:00.000Z", "seed": "seed-surrogate", "id": "slice-surrogate" }
+    },
+    {
+      "id": "absent-notes",
+      "command": {
+        "id": "slice-absent",
+        "type": "setNotes",
+        "payload": {},
+        "at": "2026-11-28T00:02:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:02:00.000Z", "seed": "seed-absent", "id": "slice-absent" }
+    },
+    {
+      "id": "numeric-command-id",
+      "command": {
+        "id": "10",
+        "type": "setNotes",
+        "payload": { "notes": "numeric" },
+        "at": "2026-11-28T00:03:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:03:00.000Z", "seed": "seed-numeric", "id": "10" }
+    },
+    {
+      "id": "invalid-ruleset",
+      "command": {
+        "id": "slice-invalid-version",
+        "type": "setNotes",
+        "payload": { "notes": "x" },
+        "at": "2026-11-28T00:04:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-1999-01-01"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:04:00.000Z", "seed": "seed-invalid", "id": "slice-invalid-version" }
+    },
+    {
+      "id": "unsupported-command",
+      "command": {
+        "id": "slice-unsupported",
+        "type": "startNight",
+        "payload": {},
+        "at": "2026-11-28T00:05:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:05:00.000Z", "seed": "seed-unsupported", "id": "slice-unsupported" }
+    },
+    {
+      "id": "malformed-command",
+      "command": { "type": "setNotes", "payload": { "unknown": 1 } },
+      "inputs": { "timestamp": "2026-11-28T00:06:00.000Z", "seed": "seed-malformed", "id": "slice-malformed" }
+    },
+    {
+      "id": "null-notes",
+      "command": {
+        "id": "slice-null",
+        "type": "setNotes",
+        "payload": { "notes": null },
+        "at": "2026-11-28T00:07:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:07:00.000Z", "seed": "seed-null", "id": "slice-null" }
+    },
+    {
+      "id": "host-supplied-inputs",
+      "command": { "type": "setNotes", "payload": { "notes": "host" } },
+      "inputs": { "timestamp": "2026-11-28T00:08:00.000Z", "seed": "seed-host", "id": "slice-host" }
+    },
+    {
+      "id": "timestamp-offset",
+      "command": {
+        "id": "slice-offset",
+        "type": "setNotes",
+        "payload": { "notes": "offset" },
+        "at": "2026-11-28T04:30:00.123+04:00"
+      },
+      "inputs": { "timestamp": "2026-11-28T04:30:00.123+04:00", "seed": "seed-offset", "id": "slice-offset" }
+    },
+    {
+      "id": "timestamp-millis",
+      "command": {
+        "id": "slice-millis",
+        "type": "setNotes",
+        "payload": { "notes": "millis" },
+        "at": "2026-11-28T00:30:00.5Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:30:00.5Z", "seed": "seed-millis", "id": "slice-millis" }
+    },
+    {
+      "id": "timestamp-malformed",
+      "command": {
+        "id": "slice-bad-date",
+        "type": "setNotes",
+        "payload": { "notes": "bad" },
+        "at": "2026-11-28T25:00:00Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T25:00:00Z", "seed": "seed-bad-date", "id": "slice-bad-date" }
+    },
+    {
+      "id": "host-invalid-timestamp",
+      "command": { "type": "setNotes", "payload": { "notes": "bad host" } },
+      "inputs": { "timestamp": "not-a-date", "seed": "seed-bad-host", "id": "slice-bad-host" }
+    },
+    {
+      "id": "host-offset-inputs",
+      "command": { "type": "setNotes", "payload": { "notes": "host offset" } },
+      "inputs": { "timestamp": "2026-11-28T04:30:00.123+04:00", "seed": "seed-host-offset", "id": "slice-host-offset" }
+    },
+    {
+      "id": "whitespace-id",
+      "command": {
+        "id": "   ",
+        "type": "setNotes",
+        "payload": { "notes": "x" },
+        "at": "2026-11-28T00:10:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:10:00.000Z", "seed": "seed-blank", "id": "fallback" }
+    },
+    {
+      "id": "null-payload",
+      "command": {
+        "id": "slice-null-payload",
+        "type": "setNotes",
+        "payload": null,
+        "at": "2026-11-28T00:11:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:11:00.000Z", "seed": "seed-null-payload", "id": "slice-null-payload" }
+    },
+    {
+      "id": "payload-before-id",
+      "command": {
+        "id": " ",
+        "type": "setNotes",
+        "payload": { "unknown": true },
+        "at": "2026-11-28T00:12:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:12:00.000Z", "seed": "seed-precedence", "id": "fallback" }
+    },
+    {
+      "id": "unknown-type-null-payload",
+      "command": {
+        "id": "slice-unknown-type",
+        "type": "notACommand",
+        "payload": null,
+        "at": "2026-11-28T00:13:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:13:00.000Z", "seed": "seed-unknown-type", "id": "slice-unknown-type" }
+    },
+    {
+      "id": "lone-surrogate-command-id",
+      "command": {
+        "id": "slice\ud800",
+        "type": "setNotes",
+        "payload": { "notes": "surrogate id" },
+        "at": "2026-11-28T00:09:00.000Z"
+      },
+      "inputs": { "timestamp": "2026-11-28T00:09:00.000Z", "seed": "seed-surrogate-id", "id": "slice\ud800" }
+    }
+  ]
+}

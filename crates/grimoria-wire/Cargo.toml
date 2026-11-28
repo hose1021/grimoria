@@ -10,5 +10,4 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
-grimoria-domain = { path = "../grimoria-domain" }
 ryu-js = "1.0.4"

@@ -84,6 +84,9 @@ dependencies = [
 [[package]]
 name = "grimoria-domain"
 version = "0.0.0"
+dependencies = [
+ "grimoria-wire",
+]
 
 [[package]]
 name = "grimoria-wasm"
@@ -99,7 +102,6 @@ dependencies = [
 name = "grimoria-wire"
 version = "0.0.0"
 dependencies = [
- "grimoria-domain",
  "ryu-js",
 ]
 

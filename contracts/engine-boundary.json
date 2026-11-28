@@ -28,7 +28,7 @@
     "commands": 47,
     "rules": 172,
     "roles": 72,
-    "rulesetVersions": 14,
+    "rulesetVersions": 15,
     "errorCodes": 108,
     "engineCallables": 123,
     "engineTypes": 4,
@@ -409,6 +409,7 @@
       "tb-bmr-snv-2026-11-17.1",
       "tb-bmr-snv-2026-11-17.2",
       "tb-bmr-snv-2026-11-17.3",
+      "tb-bmr-snv-2026-11-17.4",
       "tb-bmr-snv-2026-11-18",
       "tb-bmr-snv-2026-11-19",
       "tb-bmr-snv-2026-11-20",
@@ -645,6 +646,6 @@
     "roles": 72,
     "commands": 47,
     "errorCodes": 108,
-    "rulesetVersions": 14
+    "rulesetVersions": 15
   }
 }

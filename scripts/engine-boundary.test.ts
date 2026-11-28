@@ -4,6 +4,8 @@ import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { SUPPORTED_RULESET_VERSIONS } from "../src/core/engine/command-versions.ts";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const boundary = JSON.parse(readFileSync(resolve(ROOT, "contracts/engine-boundary.json"), "utf8"));
 
@@ -84,11 +86,7 @@ test("the inventory counts match the live sources", () => {
     ) +
     (JSON.parse(readFileSync(resolve(ROOT, "rules/shared.json"), "utf8")).rules as unknown[])
       .length;
-  const versions = (
-    readFileSync(resolve(ROOT, "src/core/engine/command-versions.ts"), "utf8").match(
-      /RULESET_VERSION\s*=\s*\x22/g,
-    ) ?? []
-  ).length;
+  const versions = SUPPORTED_RULESET_VERSIONS.size;
   assert.equal(boundary.inventory.commands, commands.length);
   assert.equal(boundary.inventory.engineCallables, exports.callable.length);
   assert.equal(boundary.inventory.engineTypes, exports.types.length);
@@ -115,17 +113,15 @@ test("the read-model query surface matches the console projection", () => {
 });
 
 function rulesetValues(): string[] {
-  const text = readFileSync(resolve(ROOT, "src/core/engine/command-versions.ts"), "utf8");
-  return [...text.matchAll(/export const \w*RULESET_VERSION\s*=\s*\x22([^\x22]+)\x22/g)].map(
-    (match) => match[1]!,
-  );
+  return [...SUPPORTED_RULESET_VERSIONS];
 }
 
 test("the boundary records exact error-code and ruleset identities", () => {
   const codes = errorCodes().sort();
   const versions = rulesetValues();
   assert.deepEqual(boundary.surface.errorCodes, codes);
-  assert.deepEqual(boundary.surface.rulesetVersions, versions);
+  assert.deepEqual(new Set(boundary.surface.rulesetVersions), new Set(versions));
+  assert.equal(boundary.inventory.rulesetVersions, versions.length);
   const layered = boundary.errorLayers
     .filter((layer: { count: number | null }) => typeof layer.count === "number")
     .flatMap((layer: { codes: string[] }) => layer.codes);
@@ -138,7 +134,7 @@ test("the boundary records exact error-code and ruleset identities", () => {
     roles: 72,
     commands: 47,
     errorCodes: 108,
-    rulesetVersions: 14,
+    rulesetVersions: 15,
   });
 });
 
